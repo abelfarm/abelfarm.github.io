@@ -5,73 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Chart Pro</title>
     <script src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
-    <style>
-        body { margin: 0; background: #131722; color: #d1d4dc; font-family: sans-serif; }
-        .header { padding: 15px; background: #1c202e; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; border-bottom: 1px solid #2a2e39; }
-        #stock-input { padding: 8px; border-radius: 4px; background: #2a2e39; color: white; border: 1px solid #485c7b; text-transform: uppercase; width: 100px; }
-        select, button { padding: 8px; border-radius: 4px; cursor: pointer; background: #2a2e39; color: white; border: 1px solid #485c7b; }
-        #search-btn { background: #2962ff; border: none; font-weight: bold; }
-        .range-btn.active { background: #2962ff; }
-        /**#chart-container { width: 100%; height: calc(100vh - 80px); position: relative; }*/
-        /*#legend { position: absolute; top: 10px; left: 10px; z-index: 10; background: rgba(19, 23, 34, 0.8); padding: 10px; border-radius: 4px; pointer-events: none; }*/
-        #legend {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 10;
-            background: rgba(19, 23, 34, 0.85); /* Nền tối trong suốt */
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid #2a2e39;
-            font-family: 'Roboto', sans-serif;
-            font-size: 14px;
-            line-height: 1.5;
-            pointer-events: none; /* Để không vướng khi kéo biểu đồ */
-        }
-        .up { color: #26a69a; } .down { color: #ef5350; }
-
-        #chart-container { position: relative; width: 100%; height: calc(100vh - 80px) }
-    
-        .ohlc-legend {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 10;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 14px;
-            background: rgba(19, 23, 34, 0.7);
-            padding: 5px 10px;
-            border-radius: 4px;
-            pointer-events: none; /* Không cản trở chuột tương tác với biểu đồ */
-            display: block; /* Ẩn khi không có dữ liệu */
-        }
-        .ohlc-item { margin-right: 15px; }
-        .up { color: #26a69a; }
-        .down { color: #ef5350; }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <div id="main-layout">
+        <div id="chart-wrapper">
 
-<div class="header">
-    <input type="text" id="stock-input" placeholder="Mã CP">
-    <select id="timeframe-select">
-        <option value="5m">5 Phút</option>
-        <option value="1h">1 Giờ</option>
-        <option value="1d" selected>1 Ngày</option>
-        <option value="1w">1 Tuần</option>
-    </select>
-    <button id="search-btn">XEM</button>
-    <div class="range-selector">
-        <button onclick="window.applyRange(90)">3T</button>
-        <button onclick="window.applyRange(180)">6T</button>
-        <button onclick="window.applyRange(365)">1N</button>
-        <button onclick="window.applyFullRange()">FULL</button>
+            <div class="header">
+                <input type="text" id="stock-input" placeholder="Mã CP">
+                <select id="timeframe-select">
+                    <option value="5m">5 Phút</option>
+                    <option value="1h">1 Giờ</option>
+                    <option value="1d" selected>1 Ngày</option>
+                    <option value="1w">1 Tuần</option>
+                </select>
+                <button id="search-btn">XEM</button>
+                <div class="range-selector">
+                    <button onclick="window.applyRange(90)">3T</button>
+                    <button onclick="window.applyRange(180)">6T</button>
+                    <button onclick="window.applyRange(365)">1N</button>
+                    <button onclick="window.applyFullRange()">FULL</button>
+                </div>
+            </div>
+
+            <div id="chart-container">
+                <div id="legend" class="ohlc-legend"></div>
+            </div>
+        </div>
+        <div id="fundamental-panel">
+            <div class="company-name" id="comp-name">Tên Công Ty</div>
+            <p id="comp-desc" style="font-size: 13px; color: #848e9c; line-height: 1.4;"></p>
+            
+            <div class="info-card">
+                <h4 style="margin-top:0">Chỉ số tài chính</h4>
+                <div class="info-row"><span class="info-label">Vốn hóa:</span> <span class="info-value" id="val-cap">-</span></div>
+                <div class="info-row"><span class="info-label">P/E:</span> <span class="info-value" id="val-pe">-</span></div>
+                <div class="info-row"><span class="info-label">EPS:</span> <span class="info-value" id="val-eps">-</span></div>
+                <div class="info-row"><span class="info-label">ROE:</span> <span class="info-value" id="val-roe">-</span></div>
+                <div class="info-row"><span class="info-label">Cổ tức:</span> <span class="info-value" id="val-div">-</span></div>
+            </div>
+        </div>
     </div>
-</div>
-
-<div id="chart-container">
-    <div id="legend" class="ohlc-legend"></div>
-</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
