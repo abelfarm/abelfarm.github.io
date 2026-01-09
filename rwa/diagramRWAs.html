@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tokenization Process Diagrams</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        
+        .tab:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .tab.active {
+            background: white;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .diagram-container {
+            display: none;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .diagram-container.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .diagram-title {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        /* Architecture Diagram */
+        .arch-diagram {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .arch-layer {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .layer-label {
+            min-width: 120px;
+            font-weight: bold;
+            color: #667eea;
+            font-size: 14px;
+        }
+        
+        .layer-boxes {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+        
+        .arch-box {
+            flex: 1;
+            min-width: 150px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .arch-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+        
+        .arch-box h4 {
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .arch-box p {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .layer-physical { background: #ffeaa7; }
+        .layer-legal { background: #74b9ff; }
+        .layer-tech { background: #a29bfe; }
+        .layer-compliance { background: #fd79a8; }
+        .layer-market { background: #55efc4; }
+        
+        .arrow-down {
+            text-align: center;
+            color: #667eea;
+            font-size: 24px;
+            margin: 10px 0;
+        }
+        
+        /* Process Flow */
+        .process-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .process-step {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            transition: all 0.3s;
+        }
+        
+        .process-step:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .step-number {
+            min-width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-content h3 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .step-content p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .step-details {
+            font-size: 13px;
+            color: #888;
+            margin-top: 5px;
+        }
+        
+        /* Gantt Chart */
+        .gantt-chart {
+            overflow-x: auto;
+        }
+        
+        .gantt-header {
+            display: grid;
+            grid-template-columns: 200px repeat(12, 1fr);
+            gap: 2px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .gantt-row {
+            display: grid;
+            grid-template-columns: 200px repeat(12, 1fr);
+            gap: 2px;
+            margin-bottom: 8px;
+        }
+        
+        .gantt-label {
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .gantt-cell {
+            height: 40px;
+            background: #fafafa;
+            border-radius: 3px;
+        }
+        
+        .gantt-bar {
+            height: 100%;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .phase-1 { background: #667eea; }
+        .phase-2 { background: #764ba2; }
+        .phase-3 { background: #f093fb; }
+        .phase-4 { background: #4facfe; }
+        .phase-5 { background: #43e97b; }
+        .phase-6 { background: #fa709a; }
+        .phase-7 { background: #feca57; }
+        
+        .legend {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .legend h4 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .legend-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color {
+            width: 30px;
+            height: 20px;
+            border-radius: 3px;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.8em; }
+            .arch-layer { flex-direction: column; align-items: flex-start; }
+            .layer-label { margin-bottom: 10px; }
+            .gantt-header, .gantt-row { 
+                grid-template-columns: 150px repeat(12, 60px);
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Quá trình Tokenization Tài sản</h1>
+            <p>Từ Tài sản Vật lý đến Giao dịch Digital</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showDiagram('architecture')">Architecture Diagram</button>
+            <button class="tab" onclick="showDiagram('process')">Process Flow</button>
+            <button class="tab" onclick="showDiagram('gantt')">Timeline Gantt</button>
+        </div>
+        
+        <!-- Architecture Diagram -->
+        <div id="architecture" class="diagram-container active">
+            <h2 class="diagram-title">Architecture Diagram - Kiến trúc Tokenization</h2>
+            <div class="arch-diagram">
+                <div class="arch-layer">
+                    <div class="layer-label">PHYSICAL LAYER</div>
+                    <div class="layer-boxes">
+                        <div class="arch-box layer-physical">
+                            <h4>🏢 Tài sản Vật lý</h4>
+                            <p>Bất động sản, Nghệ thuật, Hàng hóa</p>
+                        </div>
+                        <div class="arch-box layer-physical">
+                            <h4>📋 Thẩm định</h4>
+                            <p>Định giá chuyên nghiệp</p>
+                        </div>
+                        <div class="arch-box layer-physical">
+                            <h4>✅ Kiểm tra</h4>
+                            <p>Due diligence pháp lý</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="arrow-down">↓</div>
+                
+                <div class="arch-layer">
+                    <div class="layer-label">LEGAL LAYER</div>
+                    <div class="layer-boxes">
+                        <div class="arch-box layer-legal">
+                            <h4>🏛️ SPV/Trust</h4>
+                            <p>Thực thể pháp lý</p>
+                        </div>
+                        <div class="arch-box layer-legal">
+                            <h4>📜 Hợp đồng</h4>
+                            <p>Điều khoản & quyền lợi</p>
+                        </div>
+                        <div class="arch-box layer-legal">
+                            <h4>⚖️ Custody</h4>
+                            <p>Quản lý tài sản</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="arrow-down">↓</div>
+                
+                <div class="arch-layer">
+                    <div class="layer-label">TECH LAYER</div>
+                    <div class="layer-boxes">
+                        <div class="arch-box layer-tech">
+                            <h4>⛓️ Blockchain</h4>
+                            <p>Ethereum, Polygon, Solana</p>
+                        </div>
+                        <div class="arch-box layer-tech">
+                            <h4>📝 Smart Contract</h4>
+                            <p>Tự động hóa logic</p>
+                        </div>
+                        <div class="arch-box layer-tech">
+                            <h4>🪙 Token</h4>
+                            <p>ERC-20, ERC-1400</p>
+                        </div>
+                        <div class="arch-box layer-tech">
+                            <h4>💰 Wallet</h4>
+                            <p>Lưu trữ token</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="arrow-down">↓</div>
+                
+                <div class="arch-layer">
+                    <div class="layer-label">COMPLIANCE</div>
+                    <div class="layer-boxes">
+                        <div class="arch-box layer-compliance">
+                            <h4>🔍 KYC/AML</h4>
+                            <p>Xác minh nhà đầu tư</p>
+                        </div>
+                        <div class="arch-box layer-compliance">
+                            <h4>📋 Đăng ký</h4>
+                            <p>Cơ quan quản lý</p>
+                        </div>
+                        <div class="arch-box layer-compliance">
+                            <h4>✓ Whitelist</h4>
+                            <p>Approved investors</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="arrow-down">↓</div>
+                
+                <div class="arch-layer">
+                    <div class="layer-label">MARKET LAYER</div>
+                    <div class="layer-boxes">
+                        <div class="arch-box layer-market">
+                            <h4>🚀 STO</h4>
+                            <p>Token offering</p>
+                        </div>
+                        <div class="arch-box layer-market">
+                            <h4>📊 Trading</h4>
+                            <p>Sàn giao dịch</p>
+                        </div>
+                        <div class="arch-box layer-market">
+                            <h4>💵 Settlement</h4>
+                            <p>Thanh toán tự động</p>
+                        </div>
+                        <div class="arch-box layer-market">
+                            <h4>📈 Quản lý</h4>
+                            <p>Lợi nhuận & báo cáo</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Process Flow -->
+        <div id="process" class="diagram-container">
+            <h2 class="diagram-title">Process Flow - Quy trình Chi tiết</h2>
+            <div class="process-flow">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Chuẩn bị Tài sản</h3>
+                        <p>Xác định, thẩm định và kiểm tra pháp lý tài sản cần tokenize</p>
+                        <div class="step-details">⏱️ 2-4 tuần | 👥 Appraisers, Lawyers, Auditors</div>
+                    </div>
+                </div>
+                
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Cấu trúc Pháp lý</h3>
+                        <p>Thành lập SPV, chuyển ownership, soạn thảo legal framework</p>
+                        <div class="step-details">⏱️ 3-6 tuần | 👥 Legal Team, Corporate Services</div>
+                    </div>
+                </div>
+                
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Thiết kế Token</h3>
+                        <p>Chọn blockchain, develop smart contract, audit bảo mật</p>
+                        <div class="step-details">⏱️ 4-8 tuần | 👥 Blockchain Developers, Security Auditors</div>
+                    </div>
+                </div>
+                
+                <div class="process-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Tuân thủ & Đăng ký</h3>
+                        <p>Đăng ký với regulators, setup KYC/AML, investor accreditation</p>
+                        <div class="step-details">⏱️ 6-12 tuần | 👥 Compliance Officers, Regulators</div>
+                    </div>
+                </div>
+                
+                <div class="process-step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h3>Token Offering (STO)</h3>
+                        <p>Marketing, investor onboarding, token sale, distribution</p>
+                        <div class="step-details">⏱️ 4-8 tuần | 👥 Marketing, Sales, Platform</div>
+                    </div>
+                </div>
+                
+                <div class="process-step">
+                    <div class="step-number">6</div>
+                    <div class="step-content">
+                        <h3>Niêm yết & Giao dịch</h3>
+                        <p>List trên exchanges, enable secondary trading, liquidity provision</p>
+                        <div class="step-details">⏱️ 2-4 tuần | 👥 Exchange Partners, Market Makers</div>
+                    </div>
+                </div>
+                
+                <div class="process-step">
+                    <div class="step-number">7</div>
+                    <div class="step-content">
+                        <h3>Quản lý Ongoing</h3>
+                        <p>Asset management, profit distribution, reporting, governance</p>
+                        <div class="step-details">⏱️ Liên tục | 👥 Asset Managers, Administrators</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Gantt Chart -->
+        <div id="gantt" class="diagram-container">
+            <h2 class="diagram-title">Gantt Chart - Timeline Thực hiện</h2>
+            <div class="gantt-chart">
+                <div class="gantt-header">
+                    <div class="gantt-label">Giai đoạn</div>
+                    <div>T1</div><div>T2</div><div>T3</div><div>T4</div><div>T5</div><div>T6</div>
+                    <div>T7</div><div>T8</div><div>T9</div><div>T10</div><div>T11</div><div>T12</div>
+                </div>
+                
+                <div class="gantt-row">
+                    <div class="gantt-label">1. Chuẩn bị Tài sản</div>
+                    <div class="gantt-cell"><div class="gantt-bar phase-1">2-4 tuần</div></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                </div>
+                
+                <div class="gantt-row">
+                    <div class="gantt-label">2. Cấu trúc Pháp lý</div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"><div class="gantt-bar phase-2">3-6 tuần</div></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                </div>
+                
+                <div class="gantt-row">
+                    <div class="gantt-label">3. Thiết kế Token</div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"><div class="gantt-bar phase-3" style="grid-column: span 2;">4-8 tuần</div></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                </div>
+                
+                <div class="gantt-row">
+                    <div class="gantt-label">4. Tuân thủ & Đăng ký</div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"><div class="gantt-bar phase-4" style="grid-column: span 3;">6-12 tuần</div></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                </div>
+                
+                <div class="gantt-row">
+                    <div class="gantt-label">5. Token Offering</div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"><div class="gantt-bar phase-5" style="grid-column: span 2;">4-8 tuần</div></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                </div>
+                
+                <div class="gantt-row">
+                    <div class="gantt-label">6. Niêm yết Giao dịch</div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"><div class="gantt-bar phase-6">2-4 tuần</div></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                </div>
+                
+                <div class="gantt-row">
+                    <div class="gantt-label">7. Quản lý Ongoing</div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"><div class="gantt-bar phase-7" style="grid-column: span 3;">Liên tục</div></div>
+                    <div class="gantt-cell"></div>
+                    <div class="gantt-cell"></div>
+                </div>
+            </div>
+            
+            <div class="legend">
+                <h4>Chi tiết Timeline:</h4>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <div class="legend-color phase-1"></div>
+                        <span>Tháng 1: Asset prep & valuation</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color phase-2"></div>
+                        <span>Tháng 2: Legal structuring</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color phase-3"></div>
+                        <span>Tháng 3-4: Tech development</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color phase-4"></div>
+                        <span>Tháng 4-7: Regulatory compliance</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color phase-5"></div>
+                        <span>Tháng 7-9: Token sale</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color phase-6"></div>
+                        <span>Tháng 9-10: Exchange listing</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color phase-7"></div>
+                        <span>Tháng 10+: Operations</span>
+                    </div>
+                </div>
+                <p style="margin-top: 15px; color: #666; font-size: 14px;">
+                    <strong>Tổng thời gian:</strong> 9-12 tháng từ khởi đầu đến khi token được giao dịch công khai
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showDiagram(diagramId) {
+            const diagrams = document.querySelectorAll('.diagram-container');
+            const tabs = document.querySelectorAll('.tab');
+            
+            diagrams.forEach(d => d.classList.remove('active'));
+            tabs.forEach(t => t.classList.remove('active'));
+            
+            document.getElementById(diagramId).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
