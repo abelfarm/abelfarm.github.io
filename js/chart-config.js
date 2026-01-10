@@ -1,5 +1,6 @@
 // Khai báo biến toàn cục để các file khác có thể truy cập
 let chart, candlestickSeries, volumeSeries;
+
 document.addEventListener('DOMContentLoaded', () => {
     // Kiểm tra xem thư viện đã sẵn sàng chưa
     if (typeof LightweightCharts === 'undefined') {
@@ -10,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('chart-container');
     
     // Khởi tạo biểu đồ
-    const chart = LightweightCharts.createChart(container, {
+    chart = LightweightCharts.createChart(container, {
         layout: { 
             background: { color: '#131722' }, 
             textColor: '#d1d4dc' 
