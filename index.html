@@ -1,34 +1,60 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-    <title>S-Invest Pro</title>
-    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S-Invest Pro | Hệ thống quản lý đầu tư</title>
+    
+    <script src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
+    
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
+
     <div class="app">
         <aside class="sidebar">
-            <input type="text" id="stock-input" placeholder="Nhập mã CP...">
-            <button onclick="addCurrentToWatchlist()">+ Watchlist</button>
-            <div id="watchlist"></div>
+            <div class="logo" style="color: var(--accent-blue); font-weight: bold; margin-bottom: 20px;">S-INVEST</div>
+            
+            <div class="search-section">
+                <input type="text" id="stock-input" placeholder="Nhập mã (VD: FPT)..." autocomplete="off">
+                <button id="add-watchlist-btn" style="width: 100%; margin-top: 5px;">+ Thêm vào danh mục</button>
+            </div>
+
+            <div id="watchlist">
+                </div>
         </aside>
 
         <main>
             <header>
-                <select id="timeframe-select">
-                    <option value="1d">Ngày</option>
-                    <option value="1h">Giờ</option>
-                </select>
+                <div class="symbol-info">
+                    <h2 id="current-symbol-display" style="margin:0; display:inline-block;">CHỌN MÃ</h2>
+                    <select id="timeframe-select">
+                        <option value="1d">Ngày</option>
+                        <option value="1h">Giờ</option>
+                        <option value="5m">5 Phút</option>
+                    </select>
+                </div>
+                <div class="chart-controls">
+                    <button onclick="window.chartApp.zoomOneYear()">1 Năm</button>
+                    <button onclick="window.chartApp.zoomFull()">Tất cả</button>
+                </div>
             </header>
-            <div id="chart-container" style="height: 500px;"></div>
-            <div id="analysis-section">
-                <h2 id="comp-name">Chọn mã</h2>
-                <div id="val-pe"></div>
-                <div id="news-list"></div>
-            </div>
+
+            <section id="chart-container">
+                </section>
+
+            <section id="analysis-section">
+                <div id="fundamental-stats" class="stats-grid">
+                    </div>
+                
+                <div id="news-list">
+                    <h3>Tin tức liên quan</h3>
+                    </div>
+            </section>
         </main>
     </div>
 
     <script type="module" src="js/app.js"></script>
+
 </body>
 </html>
