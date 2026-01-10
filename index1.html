@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Chart Pro</title>
+    <script src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="main-layout">
+        <div id="chart-wrapper">
+
+            <div class="header">
+                <input type="text" id="stock-input" placeholder="Mã CP">
+                <select id="timeframe-select">
+                    <option value="5m">5 Phút</option>
+                    <option value="1h">1 Giờ</option>
+                    <option value="1d" selected>1 Ngày</option>
+                    <option value="1w">1 Tuần</option>
+                </select>
+                <button id="search-btn">XEM</button>
+                <div class="range-selector">
+                    <button onclick="window.applyRange(90)">3T</button>
+                    <button onclick="window.applyRange(180)">6T</button>
+                    <button onclick="window.applyRange(365)">1N</button>
+                    <button onclick="window.applyFullRange()">FULL</button>
+                </div>
+            </div>
+
+            <div id="chart-container">
+                <div id="legend" class="ohlc-legend"></div>
+            </div>
+        </div>
+        <div id="fundamental-panel">
+            <div class="company-name" id="comp-name">Tên Công Ty</div>
+            <p id="comp-desc" style="font-size: 13px; color: #848e9c; line-height: 1.4;"></p>
+            
+            <div class="info-card">
+                <h4 style="margin-top:0">Chỉ số tài chính</h4>
+                <div class="info-row"><span class="info-label">Vốn hóa:</span> <span class="info-value" id="val-cap">-</span></div>
+                <div class="info-row"><span class="info-label">P/E:</span> <span class="info-value" id="val-pe">-</span></div>
+                <div class="info-row"><span class="info-label">EPS:</span> <span class="info-value" id="val-eps">-</span></div>
+                <div class="info-row"><span class="info-label">ROE:</span> <span class="info-value" id="val-roe">-</span></div>
+                <div class="info-row"><span class="info-label">Cổ tức:</span> <span class="info-value" id="val-div">-</span></div>
+            </div>
+        </div>
+    </div>
+    <script src="js/app.js"></script>
+    <script src="js/chart-module1.js"></script>
+    <script src="js/analysis-module.js"></script>
+    <script src="js/scanner-module.js"></script>
+</body>
+</html>
