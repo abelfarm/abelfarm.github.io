@@ -1,15 +1,40 @@
 export class ChartModule {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
+        
+        // Kiểm tra xem thư viện đã sẵn sàng chưa
+        if (typeof LightweightCharts === 'undefined') {
+            console.error("Thư viện LightweightCharts chưa được tải!");
+            return;
+        }
+
         this.chart = LightweightCharts.createChart(this.container, {
-            layout: { background: { color: '#131722' }, textColor: '#d1d4dc' },
-            grid: { vertLines: { color: '#2a2e39' }, horzLines: { color: '#2a2e39' } },
+            layout: { 
+                            background: { color: '#131722' }, 
+                            textColor: '#d1d4dc' 
+                        },
+            grid: { 
+                vertLines: { color: '#2a2e39' }, 
+                horzLines: { color: '#2a2e39' } 
+            },            
             crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
-            timeScale: { timeVisible: true }
+            timeScale: { 
+                timeVisible: true, 
+                secondsVisible: false 
+            }
         });
         
-        this.candleSeries = this.chart.addCandlestickSeries();
-        this.volumeSeries = this.chart.addHistogramSeries({ priceScaleId: 'volume' });
+        this.candleSeries = this.chart.addCandlestickSeries({
+            upColor: '#26a69a', 
+            downColor: '#ef5350', 
+            borderVisible: false,
+            wickUpColor: '#26a69a', 
+            wickDownColor: '#ef5350'
+        });
+        this.volumeSeries = this.chart.addHistogramSeries({
+            priceFormat: { type: 'volume' },
+            priceScaleId: 'volume'
+        });
         
         this.chart.priceScale('volume').applyOptions({
             scaleMargins: { top: 0.8, bottom: 0 }
@@ -23,10 +48,18 @@ export class ChartModule {
     }
 
     // Hàm Zoom 1 năm
-    zoomOneYear(data) {
+    applyZoom(days, data) {
+        const data = this.candlestickSeries.data();
         if (!data.length) return;
-        const last = data[data.length - 1].time;
-        const fromDate = new Date(new Date(last).setFullYear(new Date(last).getFullYear() - 1)).toISOString().split('T')[0];
-        this.chart.timeScale().setVisibleRange({ from: fromDate, to: last });
+        const to = data[data.length - 1].time;
+        const toDate = (typeof to === 'string') ? new Date(to) : new Date(to * 1000);
+        const fromDate = new Date(toDate);
+        fromDate.setDate(fromDate.getDate() - days);
+        
+        const from = (typeof to === 'string') 
+            ? fromDate.toISOString().split('T')[0] 
+            : Math.floor(fromDate.getTime() / 1000);
+
+        chart.timeScale().setVisibleRange({ from, to });
     }
 }

@@ -1,0 +1,43 @@
+.header { padding: 15px; background: #1c202e; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; border-bottom: 1px solid #2a2e39; }
+#stock-input { padding: 8px; border-radius: 4px; background: #2a2e39; color: white; border: 1px solid #485c7b; text-transform: uppercase; width: 100px; }
+select, button { padding: 8px; border-radius: 4px; cursor: pointer; background: #2a2e39; color: white; border: 1px solid #485c7b; }
+#search-btn { background: #2962ff; border: none; font-weight: bold; }
+.range-btn.active { background: #2962ff; }
+/**#chart-container { width: 100%; height: calc(100vh - 80px); position: relative; }*/
+/*#legend { position: absolute; top: 10px; left: 10px; z-index: 10; background: rgba(19, 23, 34, 0.8); padding: 10px; border-radius: 4px; pointer-events: none; }*/
+#legend {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+    background: rgba(19, 23, 34, 0.85); /* Nền tối trong suốt */
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #2a2e39;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    pointer-events: none; /* Để không vướng khi kéo biểu đồ */
+}
+.up { color: #26a69a; } .down { color: #ef5350; }
+
+#chart-container { position: relative; width: 100%; height: calc(100vh - 80px) }
+
+.ohlc-legend {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    background: rgba(19, 23, 34, 0.7);
+    padding: 5px 10px;
+    border-radius: 4px;
+    pointer-events: none; /* Không cản trở chuột tương tác với biểu đồ */
+    display: block; /* Ẩn khi không có dữ liệu */
+}
+.ohlc-item { margin-right: 15px; }
+.up { color: #26a69a; }
+.down { color: #ef5350; }
+
+#chart-wrapper { flex: 3; position: relative; } /* Chiếm 75% màn hình */
