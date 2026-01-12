@@ -48,7 +48,7 @@ export class ChartModule {
     }
 
     // Hàm Zoom 1 năm
-    applyZoom(days, data) {
+    applyZoom(days) {
         const data = this.candlestickSeries.data();
         if (!data.length) return;
         const to = data[data.length - 1].time;
