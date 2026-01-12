@@ -11,32 +11,30 @@
     <nav class="app-nav">
         <div class="nav-logo">S-INVEST</div>
         <div class="nav-tabs">
-            <div class="tab-btn active" data-target="tab-dashboard">Dashboard</div>
-            <div class="tab-btn" data-target="tab-chart">Biểu đồ & Danh mục</div>
-            <div class="tab-btn" data-target="tab-analysis">Phân tích chuyên sâu</div>
+            <button class="tab-btn active" data-target="tab-dashboard">Dashboard</button>
+            <button class="tab-btn" data-target="tab-chart">Biểu đồ & Danh mục</button>
+            <button class="tab-btn" data-target="tab-analysis">Phân tích chuyên sâu</button>
         </div>
         <div class="quick-search">
-            <input type="text" id="global-search" placeholder="Tìm mã nhanh...">
+            <input type="text" id="global-search" placeholder="Tìm mã nhanh (Enter)...">
         </div>
     </nav>
 
     <div class="app-body">
         <section id="tab-dashboard" class="tab-panel active">
-            <div class="dashboard-grid">
-                <div class="card"><h3>Chỉ số thị trường</h3><div id="market-indices"></div></div>
-                <div class="card"><h3>Top tăng giá</h3><div id="top-gainers"></div></div>
-                <div class="card"><h3>Cơ hội đầu tư (Scanner)</h3><div id="scan-results"></div></div>
+            <div class="dashboard-container">
+                <div class="card"><h3>Thị trường chung</h3><div id="market-indices">VN-INDEX: 1,250.3</div></div>
+                <div class="card"><h3>Top biến động</h3><div id="top-movers">Đang tải dữ liệu...</div></div>
             </div>
         </section>
 
         <section id="tab-chart" class="tab-panel">
             <div class="chart-layout">
-                <aside class="chart-sidebar">
-                    <div id="watchlist-container">
-                        </div>
+                <aside class="sidebar-watchlist">
+                    <div class="sidebar-header">DANH MỤC</div>
+                    <div id="watchlist"></div>
                 </aside>
                 <div class="chart-main">
-                    <div id="chart-legend"></div>
                     <div id="chart-container"></div>
                 </div>
             </div>
@@ -44,13 +42,10 @@
 
         <section id="tab-analysis" class="tab-panel">
             <div class="analysis-page">
-                <header class="analysis-header">
-                    <h1 id="ana-comp-name">Tên Công Ty</h1>
-                    <div class="ana-price-box" id="ana-price">-</div>
-                </header>
+                <h1 id="ana-comp-name">Chọn mã cổ phiếu để phân tích</h1>
                 <div class="analysis-grid">
-                    <div class="card"><h4>Chỉ số tài chính</h4><div id="ana-stats"></div></div>
-                    <div class="card"><h4>Tin tức doanh nghiệp</h4><div id="ana-news"></div></div>
+                    <div class="card"><h4>Chỉ số tài chính</h4><div id="ana-stats">--</div></div>
+                    <div class="card"><h4>Tin tức</h4><div id="ana-news">--</div></div>
                 </div>
             </div>
         </section>

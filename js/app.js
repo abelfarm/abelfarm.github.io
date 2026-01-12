@@ -1,45 +1,37 @@
 import { ChartModule } from './chart.js';
-import { AnalysisModule } from './analysis.js';
-import { PortfolioModule } from './portfolio.js';
+// Giả định bạn đã có các module khác...
 
-// Khởi tạo các module (Chart cần ID container)
+// 1. Khởi tạo UI
 const chartApp = new ChartModule('chart-container');
 
-// 1. XỬ LÝ CHUYỂN TAB
-document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.onclick = () => {
-        // Xóa class active cũ
-        document.querySelectorAll('.tab-btn, .tab-panel').forEach(el => el.classList.remove('active'));
-        
-        // Kích hoạt tab mới
-        btn.classList.add('active');
-        document.getElementById(btn.dataset.target).classList.add('active');
-        
-        // Nếu chuyển vào tab chart, cần yêu cầu chart resize lại cho chuẩn diện tích
-        if (btn.dataset.target === 'tab-chart') {
-            chartApp.resize(); 
+// 2. Logic chuyển Tab
+const tabs = document.querySelectorAll('.tab-btn');
+const panels = document.querySelectorAll('.tab-panel');
+
+tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        const target = tab.dataset.target;
+
+        // Xóa active khỏi tất cả các nút và panel
+        tabs.forEach(t => t.classList.remove('active'));
+        panels.forEach(p => p.classList.remove('active'));
+
+        // Thêm active vào nút vừa nhấn và panel tương ứng
+        tab.classList.add('active');
+        document.getElementById(target).classList.add('active');
+
+        // Quan trọng: Resize lại biểu đồ khi tab Chart được hiển thị
+        if (target === 'tab-chart') {
+            window.dispatchEvent(new Event('resize')); 
         }
-    };
+    });
 });
 
-// 2. HÀM CHỌN MÃ CHUNG
-async function onStockSelect(ticker) {
-    ticker = ticker.toUpperCase();
-    
-    // Cập nhật biểu đồ (Tab 2)
-    chartApp.load(ticker);
-    
-    // Cập nhật phân tích (Tab 3)
-    AnalysisModule.load(ticker);
-    
-    // Cập nhật text hiển thị nhanh trên Header
-    document.getElementById('global-search').value = ticker;
-}
-
-// 3. KHỞI TẠO PORTFOLIO (Tab 2 Sidebar)
-PortfolioModule.init(onStockSelect);
-
-// 4. TÌM KIẾM NHANH (Global Search)
-document.getElementById('global-search').onkeypress = (e) => {
-    if (e.key === 'Enter') onStockSelect(e.target.value);
-};
+// 3. Xử lý tìm kiếm toàn cục
+document.getElementById('global-search').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        const ticker = e.target.value.toUpperCase();
+        console.log("Đang nạp dữ liệu cho:", ticker);
+        // Gọi các hàm nạp dữ liệu từ các module tại đây
+    }
+});
