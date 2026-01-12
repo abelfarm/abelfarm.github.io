@@ -172,3 +172,20 @@ header {
     background: #363c4e;
     border-radius: 10px;
 }
+
+/* main.css */
+.app-container { display: flex; height: 100vh; width: 100vw; }
+
+/* Thanh Rail nhỏ ngoài cùng */
+.nav-rail { width: 60px; background: #1e222d; display: flex; flex-direction: column; align-items: center; padding-top: 20px; border-right: 1px solid #2a2e39; }
+.nav-item { padding: 15px; cursor: pointer; font-size: 20px; opacity: 0.5; }
+.nav-item.active { opacity: 1; border-left: 3px solid #2962ff; }
+
+/* Sidebar danh mục đi kèm biểu đồ */
+.sidebar { width: 240px; background: #131722; border-right: 1px solid #2a2e39; }
+
+/* Quản lý các Tab nội dung */
+.tab-content { display: none; width: 100%; height: 100%; }
+.tab-content.active { display: block; }
+
+#view-analysis { background: #1c202e; padding: 40px; overflow-y: auto; }
