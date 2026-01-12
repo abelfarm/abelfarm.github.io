@@ -7,10 +7,12 @@ const chartApp = new ChartModule('chart-container');
 // Hàm xử lý chính khi người dùng chọn mã
 async function handleSelectStock(ticker) {
     ticker = ticker.toUpperCase();
-    const tf = document.getElementById('timeframe-select').value;
+    const tf = document.getElementById('timeframe-select').value
+    time = "_" + tf;
+    if (tf== '1d') time ="";
 
     try {
-        const res = await fetch(`./data/${ticker}_${tf}.json`);
+        const res = await fetch(`./data/${ticker}${time}.json`);
         const data = await res.json();
 
         // 1. Vẽ biểu đồ
