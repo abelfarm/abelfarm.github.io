@@ -2,59 +2,60 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S-Invest Pro | Hệ thống quản lý đầu tư</title>
-    
-    <script src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
-    
+    <title>S-Invest Pro | Multi-Tab System</title>
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
 
-    <div class="app">
-        <aside class="sidebar">
-            <div class="logo" style="color: var(--accent-blue); font-weight: bold; margin-bottom: 20px;">S-INVEST</div>
-            
-            <div class="search-section">
-                <input type="text" id="stock-input" placeholder="Nhập mã (VD: FPT)..." autocomplete="off">
-                <button id="add-watchlist-btn" style="width: 100%; margin-top: 5px;">+ Thêm vào danh mục</button>
+    <nav class="app-nav">
+        <div class="nav-logo">S-INVEST</div>
+        <div class="nav-tabs">
+            <div class="tab-btn active" data-target="tab-dashboard">Dashboard</div>
+            <div class="tab-btn" data-target="tab-chart">Biểu đồ & Danh mục</div>
+            <div class="tab-btn" data-target="tab-analysis">Phân tích chuyên sâu</div>
+        </div>
+        <div class="quick-search">
+            <input type="text" id="global-search" placeholder="Tìm mã nhanh...">
+        </div>
+    </nav>
+
+    <div class="app-body">
+        <section id="tab-dashboard" class="tab-panel active">
+            <div class="dashboard-grid">
+                <div class="card"><h3>Chỉ số thị trường</h3><div id="market-indices"></div></div>
+                <div class="card"><h3>Top tăng giá</h3><div id="top-gainers"></div></div>
+                <div class="card"><h3>Cơ hội đầu tư (Scanner)</h3><div id="scan-results"></div></div>
             </div>
+        </section>
 
-            <div id="watchlist">
+        <section id="tab-chart" class="tab-panel">
+            <div class="chart-layout">
+                <aside class="chart-sidebar">
+                    <div id="watchlist-container">
+                        </div>
+                </aside>
+                <div class="chart-main">
+                    <div id="chart-legend"></div>
+                    <div id="chart-container"></div>
                 </div>
-        </aside>
+            </div>
+        </section>
 
-        <main>
-            <header>
-                <div class="symbol-info">
-                    <h2 id="current-symbol-display" style="margin:0; display:inline-block;">CHỌN MÃ</h2>
-                    <select id="timeframe-select">
-                        <option value="1d">Ngày</option>
-                        <option value="1h">Giờ</option>
-                        <option value="5m">5 Phút</option>
-                    </select>
+        <section id="tab-analysis" class="tab-panel">
+            <div class="analysis-page">
+                <header class="analysis-header">
+                    <h1 id="ana-comp-name">Tên Công Ty</h1>
+                    <div class="ana-price-box" id="ana-price">-</div>
+                </header>
+                <div class="analysis-grid">
+                    <div class="card"><h4>Chỉ số tài chính</h4><div id="ana-stats"></div></div>
+                    <div class="card"><h4>Tin tức doanh nghiệp</h4><div id="ana-news"></div></div>
                 </div>
-                <div class="chart-controls">
-                    <button onclick="window.chartApp.zoomOneYear()">1 Năm</button>
-                    <button onclick="window.chartApp.zoomFull()">Tất cả</button>
-                </div>
-            </header>
-
-            <section id="chart-container">
-                </section>
-
-            <section id="analysis-section">
-                <div id="fundamental-stats" class="stats-grid">
-                    </div>
-                
-                <div id="news-list">
-                    <h3>Tin tức liên quan</h3>
-                    </div>
-            </section>
-        </main>
+            </div>
+        </section>
     </div>
 
     <script type="module" src="js/app.js"></script>
-
 </body>
 </html>
