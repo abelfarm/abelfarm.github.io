@@ -34,8 +34,28 @@
                     <div class="sidebar-header">DANH MỤC</div>
                     <div id="watchlist"></div>
                 </aside>
-                <div class="chart-main">
-                    <div id="chart-container"></div>
+                <div id="chart-wrapper">
+
+                    <div class="header">
+                        <input type="text" id="stock-input" placeholder="Mã CP">
+                        <select id="timeframe-select">
+                            <option value="5m">5 Phút</option>
+                            <option value="1h">1 Giờ</option>
+                            <option value="1d" selected>1 Ngày</option>
+                            <option value="1w">1 Tuần</option>
+                        </select>
+                        <button id="search-btn">XEM</button>
+                        <div class="range-selector">
+                            <button onclick="window.applyRange(90)">3T</button>
+                            <button onclick="window.applyRange(180)">6T</button>
+                            <button onclick="window.applyRange(365)">1N</button>
+                            <button onclick="window.applyFullRange()">FULL</button>
+                        </div>
+                    </div>
+
+                    <div id="chart-container">
+                        <div id="legend" class="ohlc-legend"></div>
+                    </div>
                 </div>
             </div>
         </section>
