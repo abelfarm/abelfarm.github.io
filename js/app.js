@@ -8,7 +8,7 @@ const chartApp = new ChartModule('chart-container');
 async function handleSelectStock(ticker) {
     ticker = ticker.toUpperCase();
     const tf = document.getElementById('timeframe-select').value
-    time = "_" + tf;
+    const time = "_" + tf;
     if (tf== '1d') time ="";
 
     try {
