@@ -8,11 +8,10 @@ const chartApp = new ChartModule('chart-container');
 async function handleSelectStock(ticker) {
     ticker = ticker.toUpperCase();
     const tf = document.getElementById('timeframe-select').value
-    const time = "_" + tf;
-    if (tf== '1d') time ="";
+    
 
     try {
-        const res = await fetch(`./data/${ticker}${time}.json`);
+        const res = await fetch(`./data/${ticker}.json`);
         const data = await res.json();
 
         // 1. Vẽ biểu đồ
