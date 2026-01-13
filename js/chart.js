@@ -39,9 +39,20 @@ export class ChartModule {
         this.chart.priceScale('volume').applyOptions({
             scaleMargins: { top: 0.8, bottom: 0 }
         });
+        this.currentData = []; // Khai báo biến lưu trữ dữ liệu
+
+        // TẠO CÁC BIẾN LƯU TRỮ DỮ LIỆU
+        this.candleData = [];
+        this.volumeData = [];
     }
 
     render(candles, volumes) {
+
+        // LƯU DỮ LIỆU VÀO CLASS ĐỂ DÙNG CHO CÁC HÀM KHÁC (NHƯ ZOOM)
+        this.candleData = candles;
+        this.volumeData = volumes; 
+
+        // Đẩy dữ liệu lên biểu đồ
         this.candleSeries.setData(candles);
         this.volumeSeries.setData(volumes);
         this.chart.timeScale().fitContent();
@@ -49,17 +60,38 @@ export class ChartModule {
 
     // Hàm Zoom 1 năm
     applyZoom(days) {
-        const data = this.candlestickSeries.data();
-        if (!data.length) return;
+        // Khi zoom, chúng ta thường dựa vào mốc thời gian của Nến
+        const data = this.candleData; 
+        
+        if (!data || !data.length) return;
+
         const to = data[data.length - 1].time;
-        const toDate = (typeof to === 'string') ? new Date(to) : new Date(to * 1000);
+        const isString = typeof to === 'string';
+        
+        const toDate = isString ? new Date(to) : new Date(to * 1000);
         const fromDate = new Date(toDate);
         fromDate.setDate(fromDate.getDate() - days);
         
-        const from = (typeof to === 'string') 
+        let from = isString 
             ? fromDate.toISOString().split('T')[0] 
             : Math.floor(fromDate.getTime() / 1000);
 
-        chart.timeScale().setVisibleRange({ from, to });
+        this.chart.timeScale().setVisibleRange({ from, to });
+    }
+
+    // Ví dụ: Hàm lấy thông tin tại một điểm bất kỳ nếu cần
+    getStatistics() {
+        return {
+            totalCandles: this.candleData.length,
+            totalVolume: this.volumeData.reduce((sum, v) => sum + v.value, 0)
+        };
+    }
+    // js/chart.js
+    resize() {
+        this.chart.applyOptions({
+            width: this.container.clientWidth,
+            height: this.container.clientHeight
+        });
+        this.chart.timeScale().fitContent(); // Tự động co giãn để thấy hết nến
     }
 }

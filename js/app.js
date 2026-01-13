@@ -3,6 +3,7 @@ import { ChartModule } from './chart.js';
 
 // 1. Khởi tạo UI
 const chartApp = new ChartModule('chart-container');
+window.chartApp = chartApp; // Giúp các hàm onclick trong HTML truy cập được
 
 // 2. Logic chuyển Tab
 const tabs = document.querySelectorAll('.tab-btn');
@@ -21,8 +22,12 @@ tabs.forEach(tab => {
         document.getElementById(target).classList.add('active');
 
         // Quan trọng: Resize lại biểu đồ khi tab Chart được hiển thị
+        // js/app.js
         if (target === 'tab-chart') {
-            window.dispatchEvent(new Event('resize')); 
+            // Đợi 100ms để CSS display: block kịp có hiệu lực
+            setTimeout(() => {
+                chartApp.resize(); 
+            }, 100);
         }
     });
 });
@@ -36,6 +41,7 @@ tabs.forEach(tab => {
 async function handleSelectStock(ticker) {
     const tf = document.getElementById('timeframe-select').value;
     const url = `./data/${ticker.toUpperCase()}.json`;//_${tf}
+    console.log(ticker)
 
     try {
         const response = await fetch(url);
@@ -75,13 +81,13 @@ async function handleSelectStock(ticker) {
         chartApp.render(candleData, volumeData);
         
         // 4. Mặc định hiển thị 1 năm gần nhất
-        chartApp.zoomOneYear(candleData);
+        chartApp.applyZoom(90);
 
         // 5. Cập nhật các Tab khác (nếu cần)
         // AnalysisModule.load(ticker);
 
     } catch (error) {
-        console.error("Lỗi xử lý:", error);
+        console.log("Lỗi xử lý:", error);
     }
 }
 
@@ -94,6 +100,7 @@ document.getElementById('global-search').addEventListener('keypress', (e) => {
         const ticker = e.target.value.toUpperCase();
         console.log("Đang nạp dữ liệu cho:", ticker);
         // Gọi các hàm nạp dữ liệu từ các module tại đây
+        handleSelectStock(ticker)
     }
 });
 
