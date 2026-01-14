@@ -103,7 +103,7 @@ async function handleSelectStock(ticker) {
 
 
 // 3. Xử lý tìm kiếm toàn cục
-document.getElementById('global-search').addEventListener('keypress', (e) => {
+document.getElementById('stock-input').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         const ticker = e.target.value.toUpperCase();
         console.log("Đang nạp dữ liệu cho:", ticker);
@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedTicker = localStorage.getItem('lastSelectedTicker') || 'FPT';
     
     // Đưa mã vào ô tìm kiếm cho đẹp giao diện
-    const searchInput = document.getElementById('global-search');
+    const searchInput = document.getElementById('stock-input');
     if (searchInput) searchInput.value = savedTicker;
 
     // Gọi hàm load dữ liệu

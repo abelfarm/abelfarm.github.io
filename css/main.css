@@ -49,3 +49,26 @@ body { margin: 0; background: var(--bg-dark); color: white; font-family: sans-se
 
 /* Card cho Dashboard & Analysis */
 .card { background: #1c202e; border: 1px solid var(--border); padding: 20px; border-radius: 8px; margin: 10px; }
+
+.sub-tab-content {
+    display: none; /* Ẩn mặc định */
+    height: 600px;
+    width: 100%;
+}
+
+.sub-tab-content.active {
+    display: flex; /* Hiện khi tab được chọn */
+    flex-direction: column;
+}
+
+.sub-tabs-header {
+    display: flex;
+    gap: 5px;
+    background: #1e222d;
+    padding: 5px;
+}
+
+.sub-tab-btn.active {
+    background: #2962ff;
+    color: white;
+}

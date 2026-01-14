@@ -42,7 +42,7 @@ export class ChartModule {
                 // top: 0.7 nghĩa là Volume bắt đầu từ khoảng 70% độ cao tính từ đỉnh xuống
                 // (để lại 30% độ cao cho Volume). 
                 // Nếu muốn to nữa, hãy giảm số này xuống (ví dụ 0.5 là chiếm nửa màn hình)
-                top: 0.6, 
+                top: 0.75, 
                 bottom: 0, // Sát đáy
             },
         });
@@ -51,7 +51,7 @@ export class ChartModule {
         this.candleSeries.priceScale().applyOptions({
             scaleMargins: {
                 top: 0.1,    // Cách đỉnh 10%
-                bottom: 0.4, // Cách đáy 40% (chừa chỗ này cho Volume hiện rõ)
+                bottom: 0.25, // Cách đáy 40% (chừa chỗ này cho Volume hiện rõ)
             },
         });
 
@@ -85,6 +85,12 @@ export class ChartModule {
         
         if (!data || !data.length) return;
 
+        // TRƯỜNG HỢP ĐẶC BIỆT: Nếu days là 0 hoặc chuỗi 'all', hiển thị toàn bộ
+        if (days === 0 || days === 'all') {
+            this.chart.timeScale().fitContent();
+            return;
+        }
+
         const to = data[data.length - 1].time;
         const isString = typeof to === 'string';
         
@@ -112,6 +118,7 @@ export class ChartModule {
             width: this.container.clientWidth,
             height: this.container.clientHeight
         });
-        this.chart.timeScale().fitContent(); // Tự động co giãn để thấy hết nến
+        //this.chart.timeScale().fitContent(); // Tự động co giãn để thấy hết nến
+        this.applyZoom(90);
     }
 }

@@ -29,11 +29,29 @@
 
         <section id="tab-chart" class="tab-panel">
             <div class="chart-layout">
-                <div class="sub-tabs-header" id="sub-tabs-bar">
-                    <button class="add-chart-btn" onclick="addNewChartTab()">+ Thêm mã</button>
-                </div>
+                
+                <div id="chart-wrapper">
 
-                <div id="sub-tabs-container">
+                    <div class="header">
+                        <input type="text" id="global-search" placeholder="Mã CP">
+                        <select id="timeframe-select">
+                            <option value="5m">5 Phút</option>
+                            <option value="1h">1 Giờ</option>
+                            <option value="1d" selected>1 Ngày</option>
+                            <option value="1w">1 Tuần</option>
+                        </select>
+                        <button id="search-btn">XEM</button>
+                        <div class="range-selector">
+                            <button class="btn-zoom" onclick="window.chartApp.applyZoom(90)">3 Tháng</button>
+                            <button class="btn-zoom" onclick="window.chartApp.applyZoom(180)">6 Tháng</button>
+                            <button class="btn-zoom" onclick="window.chartApp.applyZoom(365)">1 Năm</button>
+                            <button class="btn-zoom" onclick="window.chartApp.applyZoom(0)">Full</button>
+                        </div>
+                    </div>
+
+                    <div id="chart-container">
+                        <div id="legend" class="ohlc-legend"></div>
+                    </div>
                 </div>
                 <aside class="sidebar-watchlist">
                     <div class="sidebar-header">DANH MỤC</div>
