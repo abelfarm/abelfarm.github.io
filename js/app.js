@@ -1,35 +1,39 @@
+// --- PHẦN 1: IMPORT ---
 import { ChartModule } from './chart.js';
 // Giả định bạn đã có các module khác...
 
-// 1. Khởi tạo UI
+// --- PHẦN 2: KHỞI TẠO ---
 const chartApp = new ChartModule('chart-container');
-window.chartApp = chartApp; // Giúp các hàm onclick trong HTML truy cập được
+window.chartApp = chartApp; // Đưa ra global để các nút HTML gọi được applyZoom
 
-// 2. Logic chuyển Tab
+// --- PHẦN 3: CÁC HÀM XỬ LÝ (Tab, Search...) ---
 const tabs = document.querySelectorAll('.tab-btn');
 const panels = document.querySelectorAll('.tab-panel');
 
-tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-        const target = tab.dataset.target;
+function switchTab(targetId) {
+    tabs.forEach(t => t.classList.remove('active'));
+    panels.forEach(p => p.classList.remove('active'));
 
-        // Xóa active khỏi tất cả các nút và panel
-        tabs.forEach(t => t.classList.remove('active'));
-        panels.forEach(p => p.classList.remove('active'));
+    const activeTab = document.querySelector(`[data-target="${targetId}"]`);
+    const activePanel = document.getElementById(targetId);
 
-        // Thêm active vào nút vừa nhấn và panel tương ứng
-        tab.classList.add('active');
-        document.getElementById(target).classList.add('active');
+    if (activeTab && activePanel) {
+        activeTab.classList.add('active');
+        activePanel.classList.add('active');
+        
+        // Lưu Tab vừa chọn vào máy tính
+        localStorage.setItem('lastTab', targetId);
 
-        // Quan trọng: Resize lại biểu đồ khi tab Chart được hiển thị
-        // js/app.js
-        if (target === 'tab-chart') {
-            // Đợi 100ms để CSS display: block kịp có hiệu lực
-            setTimeout(() => {
-                chartApp.resize(); 
-            }, 100);
+        // Nếu là tab biểu đồ, phải resize lại
+        if (targetId === 'tab-chart') {
+            setTimeout(() => chartApp.resize(), 50);
         }
-    });
+    }
+}
+
+// Gán sự kiện click cho các nút Tab
+tabs.forEach(tab => {
+    tab.addEventListener('click', () => switchTab(tab.dataset.target));
 });
 
 /**
@@ -77,14 +81,18 @@ async function handleSelectStock(ticker) {
             });
         });
 
-        // 3. Đẩy dữ liệu vào Chart Module
+        // 3. Đẩy dữ liệu vào Chart Module 
         chartApp.render(candleData, volumeData);
+        
         
         // 4. Mặc định hiển thị 1 năm gần nhất
         chartApp.applyZoom(90);
 
         // 5. Cập nhật các Tab khác (nếu cần)
         // AnalysisModule.load(ticker);
+
+        // LƯU VÀO BỘ NHỚ: Ghi nhớ mã này để lần sau mở web tự load
+        localStorage.setItem('lastSelectedTicker', ticker);
 
     } catch (error) {
         console.log("Lỗi xử lý:", error);
@@ -102,6 +110,26 @@ document.getElementById('global-search').addEventListener('keypress', (e) => {
         // Gọi các hàm nạp dữ liệu từ các module tại đây
         handleSelectStock(ticker)
     }
+});
+
+// --- PHẦN 4: BƯỚC NÂNG CAO (NẰM Ở CUỐI) ---
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("Hệ thống đang khởi tạo dữ liệu cũ...");
+
+    // 1. Tự động quay lại Tab cũ (Nếu không có thì mặc định là tab-dashboard)
+    const savedTab = localStorage.getItem('lastTab') || 'tab-dashboard';
+    switchTab(savedTab);
+
+    // 2. Tự động load mã cổ phiếu cũ (Nếu không có thì mặc định là FPT)
+    const savedTicker = localStorage.getItem('lastSelectedTicker') || 'FPT';
+    
+    // Đưa mã vào ô tìm kiếm cho đẹp giao diện
+    const searchInput = document.getElementById('global-search');
+    if (searchInput) searchInput.value = savedTicker;
+
+    // Gọi hàm load dữ liệu
+    // Lưu ý: handleSelectStock phải là hàm async bạn đã viết ở các bước trước
+    handleSelectStock(savedTicker);
 });
 
 // Xuất hàm ra để các module khác (như Portfolio) có thể gọi

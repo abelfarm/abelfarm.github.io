@@ -36,10 +36,24 @@ export class ChartModule {
             priceScaleId: 'volume'
         });
         
+        // TĂNG KHÔNG GIAN CHO VOLUME
         this.chart.priceScale('volume').applyOptions({
-            scaleMargins: { top: 0.8, bottom: 0 }
+            scaleMargins: {
+                // top: 0.7 nghĩa là Volume bắt đầu từ khoảng 70% độ cao tính từ đỉnh xuống
+                // (để lại 30% độ cao cho Volume). 
+                // Nếu muốn to nữa, hãy giảm số này xuống (ví dụ 0.5 là chiếm nửa màn hình)
+                top: 0.6, 
+                bottom: 0, // Sát đáy
+            },
         });
-        this.currentData = []; // Khai báo biến lưu trữ dữ liệu
+
+        // ĐỒNG THỜI GIẢM KHÔNG GIAN NẾN (để nến không đè lên Volume quá nhiều)
+        this.candleSeries.priceScale().applyOptions({
+            scaleMargins: {
+                top: 0.1,    // Cách đỉnh 10%
+                bottom: 0.4, // Cách đáy 40% (chừa chỗ này cho Volume hiện rõ)
+            },
+        });
 
         // TẠO CÁC BIẾN LƯU TRỮ DỮ LIỆU
         this.candleData = [];
@@ -55,10 +69,16 @@ export class ChartModule {
         // Đẩy dữ liệu lên biểu đồ
         this.candleSeries.setData(candles);
         this.volumeSeries.setData(volumes);
-        this.chart.timeScale().fitContent();
+        
+        // MẸO: Tự động resize và fit nội dung ngay sau khi render
+        // để tránh lỗi biểu đồ trắng xóa do chưa có kích thước
+        requestAnimationFrame(() => {
+            this.chart.timeScale().fitContent();
+            this.resize(); 
+        });
     }
 
-    // Hàm Zoom 1 năm
+    // Hàm Zoom 90DAYS
     applyZoom(days) {
         // Khi zoom, chúng ta thường dựa vào mốc thời gian của Nến
         const data = this.candleData; 
