@@ -58784,5 +58784,31 @@
         "ptnetptvalue": null,
         "ptnvalue": null,
         "unit": 1000.0
+    },
+    {
+        "time": "2026-01-12",
+        "open": 40.5,
+        "high": 40.5,
+        "low": 38.9,
+        "close": 39.9,
+        "value": 108600.0,
+        "basic": 40.3,
+        "dvolume": 108600.0,
+        "tvalue": 4274020000.0,
+        "ptvalue": 0.0,
+        "bfquantity": 0.0,
+        "bfvalue": 0.0,
+        "sfquantity": 0.0,
+        "sfvalue": 0.0,
+        "bcount": 110.0,
+        "bquantity": 121308.0,
+        "scount": 87.0,
+        "squantity": 193711.0,
+        "aratio": 1.0,
+        "cfroom": -30992.0,
+        "ptndvalue": 0.0,
+        "ptnetptvalue": 0.0,
+        "ptnvalue": 0.0,
+        "unit": 1000.0
     }
 ]
