@@ -1,0 +1,6 @@
+git init
+git add .
+git config --global user.email "uef.thdc@gmail.com"
+git config --global user.name "abelfarm"
+git commit -m "Initial commit"
+git push -u origin main
