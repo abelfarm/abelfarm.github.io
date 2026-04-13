@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LW Trading System · VN-Index</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0f12;
+    --bg2: #141720;
+    --bg3: #1c2030;
+    --bg4: #242840;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.14);
+    --text: #e8eaf0;
+    --text2: #8b90a0;
+    --text3: #555c70;
+    --gold: #d4a843;
+    --gold-dim: #8a6c28;
+    --gold-bg: rgba(212,168,67,0.08);
+    --green: #3dba87;
+    --green-bg: rgba(61,186,135,0.08);
+    --red: #e05c5c;
+    --red-bg: rgba(224,92,92,0.08);
+    --amber: #e09840;
+    --amber-bg: rgba(224,152,64,0.08);
+    --radius: 10px;
+    --radius-sm: 6px;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Space Grotesk', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* LAYOUT */
+  .shell { max-width: 820px; margin: 0 auto; padding: 0 20px 80px; }
+
+  /* HEADER */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 24px 0 20px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .header-left { }
+  .header-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+  .header-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .header-title span { color: var(--gold); }
+  .header-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    background: var(--gold-bg);
+    border: 1px solid var(--gold-dim);
+    color: var(--gold);
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  /* TABS */
+  .tab-bar {
+    display: flex;
+    gap: 2px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px;
+    margin-bottom: 24px;
+  }
+  .tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 8px 12px;
+    font-family: var(--sans);
+    font-size: 13px;
+    color: var(--text2);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: all 0.15s;
+    font-weight: 500;
+  }
+  .tab-btn:hover { color: var(--text); background: var(--bg3); }
+  .tab-btn.active {
+    background: var(--bg4);
+    color: var(--text);
+    border: 1px solid var(--border2);
+  }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 10px;
+    margin-top: 24px;
+  }
+  .section-label:first-child { margin-top: 0; }
+
+  /* CARDS */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 10px;
+  }
+
+  /* CONDITION ROWS */
+  .cond-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: opacity 0.1s;
+  }
+  .cond-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .cond-row:first-child { padding-top: 0; }
+  .cond-row:hover { opacity: 0.85; }
+  .cond-check {
+    width: 20px; height: 20px;
+    border-radius: 5px;
+    border: 1px solid var(--border2);
+    background: var(--bg3);
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .cond-check.on { background: var(--green); border-color: var(--green); }
+  .cond-check svg { display: block; }
+  .cond-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .cond-desc {
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.5;
+  }
+
+  /* VERDICT */
+  .verdict {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-top: 20px;
+    transition: border-color 0.3s;
+  }
+  .verdict-score {
+    font-family: var(--mono);
+    font-size: 36px;
+    font-weight: 500;
+    color: var(--text);
+    min-width: 64px;
+    line-height: 1;
+  }
+  .verdict-info { flex: 1; }
+  .verdict-title { font-size: 14px; font-weight: 500; color: var(--text); }
+  .verdict-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .verdict-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+
+  /* SCORE BAR */
+  .score-track {
+    height: 3px;
+    background: var(--bg4);
+    border-radius: 2px;
+    margin-top: 10px;
+    overflow: hidden;
+  }
+  .score-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s ease, background 0.3s;
+  }
+
+  /* CALC GRID */
+  .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .calc-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .field label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 7px;
+  }
+  .field input, .field select {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 9px 12px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .field input:focus, .field select:focus { border-color: var(--gold-dim); }
+  .field select option { background: var(--bg3); }
+
+  /* METRIC CARDS */
+  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
+  .metric {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+  .metric-lbl {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 6px;
+  }
+  .metric-val {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .metric-val.ok { color: var(--green); }
+  .metric-val.warn { color: var(--amber); }
+  .metric-val.bad { color: var(--red); }
+
+  /* RULES */
+  .rule-row {
+    display: flex;
+    gap: 14px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+  .rule-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .rule-row:first-child { padding-top: 0; }
+  .rule-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+    min-width: 22px;
+    padding-top: 1px;
+  }
+  .rule-text { font-size: 13px; color: var(--text); line-height: 1.6; flex: 1; }
+  .rule-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gold);
+    background: var(--gold-bg);
+    border: 1px solid var(--gold-dim);
+    border-radius: 20px;
+    padding: 2px 8px;
+    white-space: nowrap;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* JOURNAL */
+  .j-row {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .j-ticker {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    min-width: 56px;
+  }
+  .j-meta {
+    flex: 1;
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+  }
+  .j-meta span b { color: var(--text); font-weight: 400; }
+  .j-pill {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .pill-done { color: var(--green); border-color: var(--green); background: var(--green-bg); }
+  .pill-pending { color: var(--text2); border-color: var(--border2); background: var(--bg3); }
+  .j-rr {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    min-width: 36px;
+    text-align: right;
+  }
+  .btn-remove {
+    background: none;
+    border: none;
+    color: var(--text3);
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 2px;
+    transition: color 0.15s;
+  }
+  .btn-remove:hover { color: var(--red); }
+  .add-trade-btn {
+    width: 100%;
+    margin-top: 8px;
+    padding: 11px;
+    background: none;
+    border: 1px dashed var(--border2);
+    border-radius: var(--radius);
+    color: var(--text2);
+    font-family: var(--sans);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .add-trade-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+  .add-form {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-top: 10px;
+  }
+  .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
+  .btn-primary {
+    background: var(--gold);
+    color: #0d0f12;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 9px 20px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-ghost {
+    background: none;
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 9px 18px;
+    font-family: var(--sans);
+    font-size: 13px;
+    color: var(--text2);
+    cursor: pointer;
+    margin-left: 8px;
+    transition: all 0.15s;
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--border2); }
+  .empty-state {
+    text-align: center;
+    padding: 36px;
+    color: var(--text3);
+    font-size: 13px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+  }
+
+  /* INFO BOX */
+  .info-box {
+    border-left: 2px solid var(--gold-dim);
+    padding: 10px 14px;
+    background: var(--gold-bg);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    margin-bottom: 16px;
+  }
+  .info-box p { font-size: 12px; color: var(--text2); line-height: 1.6; }
+  .info-box p b { color: var(--gold); font-weight: 500; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 20px 0 0;
+    margin-top: 40px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    text-align: center;
+    letter-spacing: 0.08em;
+  }
+
+  @media(max-width: 580px) {
+    .calc-grid, .metrics { grid-template-columns: 1fr 1fr; }
+    .form-grid { grid-template-columns: 1fr 1fr; }
+    .calc-grid-3 { grid-template-columns: 1fr 1fr; }
+    .tab-btn { font-size: 12px; padding: 7px 8px; }
+    .header-title { font-size: 20px; }
+  }
+  @media(max-width: 420px) {
+    .metrics { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header>
+    <div class="header-left">
+      <div class="header-eyebrow">Hệ thống giao dịch</div>
+      <div class="header-title">Larry Williams · <span>VN-Index</span></div>
+    </div>
+    <div class="header-badge" id="clock-badge">—</div>
+  </header>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('conditions',this)">Điều kiện</button>
+    <button class="tab-btn" onclick="switchTab('sizing',this)">Vị thế</button>
+    <button class="tab-btn" onclick="switchTab('rules',this)">Quy tắc</button>
+    <button class="tab-btn" onclick="switchTab('journal',this)">Nhật ký</button>
+  </div>
+
+  <!-- ── TAB 1: ĐIỀU KIỆN ── -->
+  <div id="tab-conditions">
+    <div class="section-label">Bộ lọc 1 — Xu hướng thị trường</div>
+    <div class="card">
+      <div class="cond-row" onclick="toggleCond('c1')">
+        <div class="cond-check" id="c1-box"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,4.5 4,7.5 10,1" stroke="#0d0f12" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div>
+          <div class="cond-name">VN-Index trên MA50</div>
+          <div class="cond-desc">Chỉ mua khi thị trường trong xu hướng tăng trung hạn. MA50 là ranh giới giữa bull và bear market.</div>
+        </div>
+      </div>
+      <div class="cond-row" onclick="toggleCond('c2')">
+        <div class="cond-check" id="c2-box"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,4.5 4,7.5 10,1" stroke="#0d0f12" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div>
+          <div class="cond-name">MA20 cổ phiếu dốc lên</div>
+          <div class="cond-desc">Xu hướng ngắn hạn của cổ phiếu đang tích cực. Không mua cổ phiếu đang trong downtrend ngắn hạn.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Bộ lọc 2 — Dòng tiền thông minh (COT equivalent)</div>
+    <div class="card">
+      <div class="cond-row" onclick="toggleCond('c3')">
+        <div class="cond-check" id="c3-box"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,4.5 4,7.5 10,1" stroke="#0d0f12" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div>
+          <div class="cond-name">Khối ngoại mua ròng ≥3 phiên liên tiếp</div>
+          <div class="cond-desc">Tương tự báo cáo COT — theo dõi "smart money". Khối ngoại mua ròng liên tục là tín hiệu dòng tiền lớn đang vào.</div>
+        </div>
+      </div>
+      <div class="cond-row" onclick="toggleCond('c4')">
+        <div class="cond-check" id="c4-box"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,4.5 4,7.5 10,1" stroke="#0d0f12" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div>
+          <div class="cond-name">Thanh khoản cổ phiếu > 150% so với TB20 phiên</div>
+          <div class="cond-desc">Volume đột biến trong xu hướng tăng = tổ chức đang tích lũy. Volume thấp trong tăng giá là cảnh báo giả.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Bộ lọc 3 — Động lượng & Mean Reversion</div>
+    <div class="card">
+      <div class="cond-row" onclick="toggleCond('c5')">
+        <div class="cond-check" id="c5-box"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,4.5 4,7.5 10,1" stroke="#0d0f12" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div>
+          <div class="cond-name">Williams %R ≤ −80 hoặc vừa cắt lên từ vùng quá bán</div>
+          <div class="cond-desc">Cổ phiếu quá bán ngắn hạn trong uptrend = cơ hội mean reversion. %R vừa thoát −80 là tín hiệu kích hoạt vào lệnh.</div>
+        </div>
+      </div>
+      <div class="cond-row" onclick="toggleCond('c6')">
+        <div class="cond-check" id="c6-box"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,4.5 4,7.5 10,1" stroke="#0d0f12" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div>
+          <div class="cond-name">Giá mở cửa lệch xa mức mở cửa trung bình lịch sử</div>
+          <div class="cond-desc">Nguyên tắc cốt lõi Williams: giá mở cửa càng lệch xa mức bình thường, xác suất reversal về mean càng cao.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Bộ lọc 4 — Yếu tố theo mùa (Seasonal)</div>
+    <div class="card">
+      <div class="cond-row" onclick="toggleCond('c7')">
+        <div class="cond-check" id="c7-box"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,4.5 4,7.5 10,1" stroke="#0d0f12" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div>
+          <div class="cond-name">Không trong giai đoạn bất lợi theo mùa</div>
+          <div class="cond-desc">Tránh: tháng 1 (xả hàng đầu năm), tháng 7–8 (mùa trả cổ tức), trước mùa kết quả kinh doanh xấu dự kiến.</div>
+        </div>
+      </div>
+      <div class="cond-row" onclick="toggleCond('c8')">
+        <div class="cond-check" id="c8-box"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,4.5 4,7.5 10,1" stroke="#0d0f12" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div>
+          <div class="cond-name">Không có sự kiện vĩ mô lớn trong 48 giờ tới</div>
+          <div class="cond-desc">Fed meeting, CPI Mỹ, bầu cử, biến cố địa chính trị. Williams luôn né các sự kiện không thể dự đoán được kết quả.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="verdict" id="verdict-box">
+      <div class="verdict-score" id="v-score">0/8</div>
+      <div class="verdict-info">
+        <div class="verdict-title" id="v-title">Chưa đủ điều kiện</div>
+        <div class="verdict-sub" id="v-sub">Tích vào các điều kiện thỏa mãn phiên hôm nay</div>
+        <div class="score-track"><div class="score-fill" id="v-bar" style="width:0%;background:var(--text3)"></div></div>
+      </div>
+      <div class="verdict-tag" id="v-tag" style="color:var(--text3);border-color:var(--border2)">WAIT</div>
+    </div>
+  </div>
+
+  <!-- ── TAB 2: VỊ THẾ ── -->
+  <div id="tab-sizing" style="display:none">
+    <div class="info-box">
+      <p><b>Quy tắc vàng:</b> Không bao giờ rủi ro quá 2–4% tài khoản cho một giao dịch. Đây là điều kiện tồn tại lâu dài trên thị trường — Larry Williams.</p>
+    </div>
+
+    <div class="section-label">Thông số tài khoản</div>
+    <div class="card">
+      <div class="calc-grid" style="gap:14px">
+        <div class="field">
+          <label>Vốn tài khoản (VND)</label>
+          <input type="number" id="capital" value="200000000" step="10000000" oninput="calcSize()">
+        </div>
+        <div class="field">
+          <label>% rủi ro / lệnh</label>
+          <select id="riskpct" onchange="calcSize()">
+            <option value="2">2% — an toàn</option>
+            <option value="3" selected>3% — cân bằng</option>
+            <option value="4">4% — tích cực</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Thông số lệnh</div>
+    <div class="card">
+      <div class="calc-grid-3" style="gap:14px">
+        <div class="field">
+          <label>Giá vào (VND)</label>
+          <input type="number" id="entryprice" value="50000" step="100" oninput="calcSize()">
+        </div>
+        <div class="field">
+          <label>Giá dừng lỗ (VND)</label>
+          <input type="number" id="stopprice" value="46000" step="100" oninput="calcSize()">
+        </div>
+        <div class="field">
+          <label>Giá mục tiêu (VND)</label>
+          <input type="number" id="targetprice" value="56000" step="100" oninput="calcSize()">
+        </div>
+        <div class="field">
+          <label>Phí GD mỗi chiều (%)</label>
+          <input type="number" id="feepct" value="0.25" step="0.05" oninput="calcSize()">
+        </div>
+        <div class="field">
+          <label>Phương pháp thoát</label>
+          <select id="exitmethod">
+            <option value="bailout">Bailout (ngắn hạn)</option>
+            <option value="trail">Trailing Stop (swing)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric"><div class="metric-lbl">Số lượng CP</div><div class="metric-val" id="r-qty">—</div></div>
+      <div class="metric"><div class="metric-lbl">Giá trị lệnh</div><div class="metric-val" id="r-val">—</div></div>
+      <div class="metric"><div class="metric-lbl">Rủi ro tối đa</div><div class="metric-val" id="r-risk">—</div></div>
+      <div class="metric"><div class="metric-lbl">% tài khoản</div><div class="metric-val" id="r-pct">—</div></div>
+      <div class="metric"><div class="metric-lbl">R:R Ratio</div><div class="metric-val" id="r-rr">—</div></div>
+      <div class="metric"><div class="metric-lbl">Khoảng SL (%)</div><div class="metric-val" id="r-sl">—</div></div>
+    </div>
+
+    <div class="verdict" id="sz-verdict" style="margin-top:18px;display:none">
+      <div class="verdict-info">
+        <div class="verdict-title" id="sz-title">—</div>
+        <div class="verdict-sub" id="sz-sub">—</div>
+      </div>
+      <div class="verdict-tag" id="sz-tag">—</div>
+    </div>
+  </div>
+
+  <!-- ── TAB 3: QUY TẮC ── -->
+  <div id="tab-rules" style="display:none">
+    <div class="section-label">Quy tắc vào lệnh</div>
+    <div class="card">
+      <div class="rule-row"><div class="rule-num">01</div><div class="rule-text">Chỉ vào lệnh khi ≥5/8 điều kiện thỏa mãn. Càng nhiều điều kiện xanh, xác suất thắng càng cao.<span class="rule-tag">Conditional</span></div></div>
+      <div class="rule-row"><div class="rule-num">02</div><div class="rule-text">Ưu tiên mua khi giá mở cửa thấp bất thường trong uptrend — cơ hội mean reversion tốt nhất của Williams.<span class="rule-tag">Mean Reversion</span></div></div>
+      <div class="rule-row"><div class="rule-num">03</div><div class="rule-text">Williams %R vừa cắt lên từ vùng −80 = tín hiệu kích hoạt. Không vào giữa chừng khi %R đang trung tính.<span class="rule-tag">Williams %R</span></div></div>
+      <div class="rule-row"><div class="rule-num">04</div><div class="rule-text">Luôn xác định điểm dừng lỗ trước khi bấm mua. Không có stop = không có lệnh, không có ngoại lệ.<span class="rule-tag">Hard Stop</span></div></div>
+    </div>
+
+    <div class="section-label">Quy tắc thoát lệnh — quan trọng nhất</div>
+    <div class="card">
+      <div class="rule-row"><div class="rule-num">05</div><div class="rule-text"><b style="font-weight:600;color:var(--gold)">Bailout Exit</b> — Phát minh vĩ đại nhất của Williams: khi phiên kế tiếp mở cửa có lãi (dù 1 đơn vị), thoát ngay toàn bộ vị thế ngắn hạn. Không tham.<span class="rule-tag">Short-term</span></div></div>
+      <div class="rule-row"><div class="rule-num">06</div><div class="rule-text">Với lệnh swing: dùng Trailing Stop, giữ lệnh chừng nào giá không đóng cửa dưới MA20 của cổ phiếu.<span class="rule-tag">Swing</span></div></div>
+      <div class="rule-row"><div class="rule-num">07</div><div class="rule-text">Khi Williams %R ≥ −20 (overbought) trong lệnh mua đang lời, xem xét chốt lời một phần hoặc toàn bộ.<span class="rule-tag">Overbought</span></div></div>
+      <div class="rule-row"><div class="rule-num">08</div><div class="rule-text">Dừng lỗ tuyệt đối không được dịch xa hơn. Chỉ dịch chuyển theo chiều có lợi (trailing). Không "cho thêm room".<span class="rule-tag">Discipline</span></div></div>
+    </div>
+
+    <div class="section-label">Quy tắc vốn & tâm lý</div>
+    <div class="card">
+      <div class="rule-row"><div class="rule-num">09</div><div class="rule-text">Tuyệt đối không mua thêm vào lệnh đang lỗ (averaging down). Đây là nguyên nhân phá tài khoản số một.<span class="rule-tag">Capital</span></div></div>
+      <div class="rule-row"><div class="rule-num">10</div><div class="rule-text">Sau 3 lệnh thua liên tiếp: dừng 1–2 ngày, xem lại điều kiện. Thị trường có thể đã chuyển pha.<span class="rule-tag">Psychology</span></div></div>
+      <div class="rule-row"><div class="rule-num">11</div><div class="rule-text">Cần tối thiểu 30 lệnh để đánh giá một chiến lược. Không kết luận sớm sau 3–5 lệnh — đó là thống kê không đủ.<span class="rule-tag">Statistics</span></div></div>
+      <div class="rule-row"><div class="rule-num">12</div><div class="rule-text">"The more you know, the better you'll be. This is a knowledge-driven business." — Larry Williams. Học liên tục, không ngừng.<span class="rule-tag">Mindset</span></div></div>
+    </div>
+  </div>
+
+  <!-- ── TAB 4: NHẬT KÝ ── -->
+  <div id="tab-journal" style="display:none">
+    <div class="info-box">
+      <p><b>Nhật ký giao dịch</b> là bắt buộc. Không có nhật ký = không có cải thiện. Ghi lại từng lệnh, đặc biệt theo dõi <b>Bailout Exit</b> cho lệnh ngắn hạn.</p>
+    </div>
+
+    <div id="journal-list"></div>
+    <div id="journal-empty" class="empty-state">Chưa có lệnh nào — thêm lệnh đầu tiên bên dưới.</div>
+
+    <button class="add-trade-btn" id="add-trigger" onclick="toggleAddForm()">+ Thêm lệnh mới</button>
+
+    <div id="add-form" class="add-form" style="display:none">
+      <div class="section-label" style="margin-top:0">Thông tin lệnh mới</div>
+      <div class="form-grid">
+        <div class="field"><label>Mã cổ phiếu</label><input type="text" id="f-ticker" placeholder="VIC" style="text-transform:uppercase"></div>
+        <div class="field"><label>Giá vào (VND)</label><input type="number" id="f-entry" placeholder="50000"></div>
+        <div class="field"><label>Giá dừng lỗ</label><input type="number" id="f-stop" placeholder="46000"></div>
+        <div class="field"><label>Giá mục tiêu</label><input type="number" id="f-target" placeholder="56000"></div>
+        <div class="field"><label>Kiểu lệnh</label>
+          <select id="f-type">
+            <option value="bailout">Ngắn hạn (Bailout)</option>
+            <option value="swing">Trung hạn (Swing)</option>
+          </select>
+        </div>
+        <div class="field"><label>Điều kiện đạt / 8</label><input type="number" id="f-conds" placeholder="6" min="1" max="8"></div>
+      </div>
+      <button class="btn-primary" onclick="addTrade()">Thêm lệnh</button>
+      <button class="btn-ghost" onclick="toggleAddForm()">Hủy</button>
+    </div>
+
+    <div id="journal-stats" style="display:none;margin-top:20px">
+      <div class="section-label">Tổng kết nhật ký</div>
+      <div class="metrics" style="grid-template-columns:repeat(3,1fr)">
+        <div class="metric"><div class="metric-lbl">Tổng lệnh</div><div class="metric-val" id="stat-total">0</div></div>
+        <div class="metric"><div class="metric-lbl">R:R trung bình</div><div class="metric-val" id="stat-rr">—</div></div>
+        <div class="metric"><div class="metric-lbl">Bailout đã thực hiện</div><div class="metric-val" id="stat-bailout">0</div></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>LW Trading System · VN-Index · Dựa trên triết lý giao dịch của Larry Williams</footer>
+</div>
+
+<script>
+  // ── CLOCK ──
+  function updateClock() {
+    const now = new Date();
+    const d = now.toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' });
+    const t = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('clock-badge').textContent = d + '  ' + t;
+  }
+  updateClock();
+  setInterval(updateClock, 30000);
+
+  // ── TABS ──
+  function switchTab(tab, btn) {
+    ['conditions','sizing','rules','journal'].forEach(t => {
+      document.getElementById('tab-' + t).style.display = t === tab ? 'block' : 'none';
+    });
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (tab === 'sizing') calcSize();
+    if (tab === 'journal') renderJournal();
+  }
+
+  // ── CONDITIONS ──
+  const condState = {};
+  ['c1','c2','c3','c4','c5','c6','c7','c8'].forEach(c => condState[c] = false);
+
+  function toggleCond(id) {
+    condState[id] = !condState[id];
+    const box = document.getElementById(id + '-box');
+    box.className = 'cond-check' + (condState[id] ? ' on' : '');
+    updateVerdict();
+  }
+
+  function updateVerdict() {
+    const cnt = Object.values(condState).filter(Boolean).length;
+    const pct = (cnt / 8 * 100).toFixed(0);
+    document.getElementById('v-score').textContent = cnt + '/8';
+    document.getElementById('v-bar').style.width = pct + '%';
+    const vbox = document.getElementById('verdict-box');
+    const vt = document.getElementById('v-title');
+    const vs = document.getElementById('v-sub');
+    const vtag = document.getElementById('v-tag');
+    const vbar = document.getElementById('v-bar');
+    if (cnt >= 6) {
+      vt.textContent = 'Đủ điều kiện giao dịch';
+      vs.textContent = cnt === 8 ? 'Tất cả điều kiện xanh — setup chất lượng cao nhất' : 'Đa số điều kiện thuận lợi, có thể vào lệnh';
+      vtag.textContent = 'GO'; vtag.style.color = 'var(--green)'; vtag.style.borderColor = 'var(--green)'; vtag.style.background = 'var(--green-bg)';
+      vbox.style.borderColor = 'var(--green)'; vbar.style.background = 'var(--green)';
+    } else if (cnt >= 4) {
+      vt.textContent = 'Điều kiện trung bình';
+      vs.textContent = 'Cân nhắc lệnh nhỏ hoặc chờ thêm điều kiện xanh';
+      vtag.textContent = 'WAIT'; vtag.style.color = 'var(--amber)'; vtag.style.borderColor = 'var(--amber)'; vtag.style.background = 'var(--amber-bg)';
+      vbox.style.borderColor = 'var(--amber)'; vbar.style.background = 'var(--amber)';
+    } else {
+      vt.textContent = 'Chưa đủ điều kiện — không giao dịch';
+      vs.textContent = 'Tích vào các điều kiện thỏa mãn phiên hôm nay';
+      vtag.textContent = 'WAIT'; vtag.style.color = 'var(--text3)'; vtag.style.borderColor = 'var(--border2)'; vtag.style.background = 'transparent';
+      vbox.style.borderColor = 'var(--border)'; vbar.style.background = 'var(--text3)';
+    }
+  }
+
+  // ── POSITION SIZING ──
+  function fmt(n) { return new Intl.NumberFormat('vi-VN').format(Math.round(n)); }
+
+  function calcSize() {
+    const cap = +document.getElementById('capital').value || 0;
+    const riskPct = +document.getElementById('riskpct').value || 3;
+    const entry = +document.getElementById('entryprice').value || 0;
+    const stop = +document.getElementById('stopprice').value || 0;
+    const target = +document.getElementById('targetprice').value || 0;
+    const fee = +document.getElementById('feepct').value || 0.25;
+
+    const ids = ['r-qty','r-val','r-risk','r-pct','r-rr','r-sl'];
+    if (!cap || !entry || !stop || entry <= stop) { ids.forEach(id => { document.getElementById(id).textContent = '—'; document.getElementById(id).className = 'metric-val'; }); return; }
+
+    const riskAmt = cap * riskPct / 100;
+    const stopDist = entry - stop;
+    const stopPct = stopDist / entry * 100;
+    const qty = Math.floor(riskAmt / stopDist / 100) * 100;
+    if (qty <= 0) { ids.forEach(id => { document.getElementById(id).textContent = '—'; document.getElementById(id).className = 'metric-val'; }); return; }
+    const value = qty * entry;
+    const actualRisk = qty * stopDist;
+    const usedPct = value / cap * 100;
+    const fees = value * fee / 100 * 2;
+    const rr = target > entry ? ((qty * (target - entry) - fees) / (actualRisk + fees)) : 0;
+
+    document.getElementById('r-qty').textContent = fmt(qty) + ' CP';
+    document.getElementById('r-val').textContent = fmt(value) + '₫';
+    document.getElementById('r-risk').textContent = fmt(actualRisk) + '₫';
+
+    const pEl = document.getElementById('r-pct');
+    pEl.textContent = usedPct.toFixed(1) + '%';
+    pEl.className = 'metric-val' + (usedPct > 80 ? ' bad' : usedPct > 50 ? ' warn' : '');
+
+    const rrEl = document.getElementById('r-rr');
+    rrEl.textContent = rr.toFixed(2) + 'R';
+    rrEl.className = 'metric-val' + (rr >= 2 ? ' ok' : rr >= 1 ? ' warn' : ' bad');
+
+    document.getElementById('r-sl').textContent = stopPct.toFixed(1) + '%';
+
+    const sv = document.getElementById('sz-verdict');
+    sv.style.display = 'flex';
+    const st = document.getElementById('sz-title');
+    const ss = document.getElementById('sz-sub');
+    const stag = document.getElementById('sz-tag');
+    if (rr < 1) {
+      st.textContent = 'R:R quá thấp — không nên vào lệnh';
+      ss.textContent = 'Williams khuyến cáo tối thiểu 2R. Điều chỉnh mục tiêu hoặc stop loss.';
+      stag.textContent = 'SKIP'; stag.style.color = 'var(--red)'; stag.style.borderColor = 'var(--red)'; stag.style.background = 'var(--red-bg)';
+      sv.style.borderColor = 'var(--red)';
+    } else if (rr < 2) {
+      st.textContent = 'R:R trung bình — setup bình thường';
+      ss.textContent = 'Có thể vào nhưng nên tìm setup tốt hơn (mục tiêu ≥2R).';
+      stag.textContent = 'OK'; stag.style.color = 'var(--amber)'; stag.style.borderColor = 'var(--amber)'; stag.style.background = 'var(--amber-bg)';
+      sv.style.borderColor = 'var(--amber)';
+    } else {
+      st.textContent = 'Setup tốt — R:R đạt chuẩn Williams';
+      ss.textContent = 'Tỷ lệ lợi nhuận / rủi ro hợp lý. Vào lệnh khi điều kiện đủ.';
+      stag.textContent = 'GOOD'; stag.style.color = 'var(--green)'; stag.style.borderColor = 'var(--green)'; stag.style.background = 'var(--green-bg)';
+      sv.style.borderColor = 'var(--green)';
+    }
+  }
+
+  // ── JOURNAL ──
+  let trades = JSON.parse(localStorage.getItem('lw-trades') || '[]');
+  let showAddForm = false;
+
+  function saveTrades() { localStorage.setItem('lw-trades', JSON.stringify(trades)); }
+
+  function toggleAddForm() {
+    showAddForm = !showAddForm;
+    document.getElementById('add-form').style.display = showAddForm ? 'block' : 'none';
+    if (!showAddForm) ['f-ticker','f-entry','f-stop','f-target','f-conds'].forEach(id => document.getElementById(id).value = '');
+  }
+
+  function addTrade() {
+    const ticker = (document.getElementById('f-ticker').value || '').toUpperCase().trim();
+    const entry = +document.getElementById('f-entry').value;
+    const stop = +document.getElementById('f-stop').value;
+    const target = +document.getElementById('f-target').value;
+    const type = document.getElementById('f-type').value;
+    const conds = +document.getElementById('f-conds').value || 0;
+    if (!ticker || !entry || !stop || !target) return;
+    trades.unshift({ id: Date.now(), ticker, entry, stop, target, type, conds, bailout: false, date: new Date().toLocaleDateString('vi-VN') });
+    saveTrades();
+    renderJournal();
+    toggleAddForm();
+  }
+
+  function toggleBailout(id) {
+    const t = trades.find(x => x.id === id);
+    if (t) { t.bailout = !t.bailout; saveTrades(); renderJournal(); }
+  }
+
+  function removeTrade(id) {
+    if (!confirm('Xóa lệnh này?')) return;
+    trades = trades.filter(x => x.id !== id);
+    saveTrades();
+    renderJournal();
+  }
+
+  function renderJournal() {
+    const list = document.getElementById('journal-list');
+    const empty = document.getElementById('journal-empty');
+    const stats = document.getElementById('journal-stats');
+    if (!trades.length) { list.innerHTML = ''; empty.style.display = 'block'; stats.style.display = 'none'; return; }
+    empty.style.display = 'none'; stats.style.display = 'block';
+    list.innerHTML = trades.map(t => {
+      const rr = t.target > t.entry ? ((t.target - t.entry) / (t.entry - t.stop)).toFixed(2) : '—';
+      const slPct = ((t.entry - t.stop) / t.entry * 100).toFixed(1);
+      const rrColor = parseFloat(rr) >= 2 ? 'var(--green)' : parseFloat(rr) >= 1 ? 'var(--amber)' : 'var(--red)';
+      let pill = '';
+      if (t.type === 'bailout') {
+        pill = t.bailout
+          ? `<span class="j-pill pill-done">Bailout ✓</span>`
+          : `<span class="j-pill pill-pending" onclick="toggleBailout(${t.id})">Đánh dấu Bailout</span>`;
+      } else {
+        pill = `<span class="j-pill pill-pending" style="cursor:default">Trailing Stop</span>`;
+      }
+      return `<div class="j-row">
+        <div class="j-ticker">${t.ticker}</div>
+        <div class="j-meta">
+          <span>Vào <b>${fmt(t.entry)}₫</b></span>
+          <span>SL <b>${fmt(t.stop)}₫</b> (${slPct}%)</span>
+          <span>TP <b>${fmt(t.target)}₫</b></span>
+          <span>Điều kiện <b>${t.conds}/8</b></span>
+          <span style="color:var(--text3)">${t.date}</span>
+        </div>
+        ${pill}
+        <div class="j-rr" style="color:${rrColor}">${rr}R</div>
+        <button class="btn-remove" onclick="removeTrade(${t.id})">×</button>
+      </div>`;
+    }).join('');
+
+    const rrVals = trades.map(t => t.target > t.entry ? (t.target - t.entry) / (t.entry - t.stop) : 0).filter(Boolean);
+    const avgRR = rrVals.length ? (rrVals.reduce((a,b)=>a+b,0)/rrVals.length).toFixed(2) : '—';
+    const bailoutDone = trades.filter(t => t.bailout).length;
+    document.getElementById('stat-total').textContent = trades.length;
+    document.getElementById('stat-rr').textContent = avgRR !== '—' ? avgRR + 'R' : '—';
+    document.getElementById('stat-bailout').textContent = bailoutDone + ' / ' + trades.filter(t=>t.type==='bailout').length;
+  }
+
+  renderJournal();
+  calcSize();
+</script>
+</body>
+</html>
