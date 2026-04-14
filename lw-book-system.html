@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LW System · Long Term Secrets to Short Term Trading</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0a0b0f;
+  --bg2:#111318;
+  --bg3:#181c25;
+  --bg4:#20253380;
+  --border:rgba(255,255,255,0.06);
+  --border2:rgba(255,255,255,0.12);
+  --border3:rgba(255,255,255,0.2);
+  --text:#dde1ec;
+  --text2:#7b8199;
+  --text3:#464c62;
+  --gold:#c9952a;
+  --gold2:#e8b84b;
+  --gold-bg:rgba(201,149,42,0.1);
+  --gold-border:rgba(201,149,42,0.3);
+  --green:#2ea87e;
+  --green2:#45c99a;
+  --green-bg:rgba(46,168,126,0.1);
+  --green-border:rgba(46,168,126,0.3);
+  --red:#d95555;
+  --red2:#f07070;
+  --red-bg:rgba(217,85,85,0.1);
+  --red-border:rgba(217,85,85,0.3);
+  --blue:#3a7bd5;
+  --blue-bg:rgba(58,123,213,0.1);
+  --blue-border:rgba(58,123,213,0.3);
+  --amber:#d98a35;
+  --amber-bg:rgba(217,138,53,0.1);
+  --amber-border:rgba(217,138,53,0.3);
+  --r:8px;
+  --r2:12px;
+  --mono:'DM Mono',monospace;
+  --sans:'Sora',sans-serif;
+}
+
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.65;min-height:100vh}
+
+/* ── LAYOUT ── */
+.wrap{max-width:880px;margin:0 auto;padding:0 20px 100px}
+
+/* ── HEADER ── */
+.site-header{padding:28px 0 24px;border-bottom:1px solid var(--border);margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.site-header-left{}
+.eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.site-title{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-.02em;line-height:1.2}
+.site-title .accent{color:var(--gold2)}
+.site-title .book{font-size:12px;font-weight:400;color:var(--text2);display:block;margin-top:4px;letter-spacing:.01em;font-style:italic;font-family:var(--mono)}
+.header-meta{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.clock-pill{font-family:var(--mono);font-size:11px;color:var(--text2);background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:5px 12px}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:2px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:4px;margin-bottom:28px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:1;min-width:80px;background:none;border:none;padding:9px 10px;font-family:var(--sans);font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;border-radius:var(--r);transition:.15s;white-space:nowrap;text-align:center}
+.tab:hover{color:var(--text);background:var(--bg3)}
+.tab.on{background:var(--bg3);color:var(--text);border:1px solid var(--border2)}
+.tab-panel{display:none}
+.tab-panel.on{display:block}
+
+/* ── SECTION LABELS ── */
+.slabel{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin:24px 0 10px}
+.slabel:first-child{margin-top:0}
+
+/* ── CARDS ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:18px 20px;margin-bottom:10px}
+.card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.card-sub{font-size:12px;color:var(--text2);line-height:1.55}
+.card.accent-gold{border-color:var(--gold-border);background:linear-gradient(135deg,var(--bg2),var(--gold-bg))}
+.card.accent-green{border-color:var(--green-border);background:linear-gradient(135deg,var(--bg2),var(--green-bg))}
+.card.accent-red{border-color:var(--red-border);background:linear-gradient(135deg,var(--bg2),var(--red-bg))}
+
+/* ── PATTERN CARDS ── */
+.pattern-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px}
+.pat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px;cursor:pointer;transition:.2s;position:relative;overflow:hidden}
+.pat-card:hover{border-color:var(--border2)}
+.pat-card.selected{border-color:var(--gold-border);background:var(--gold-bg)}
+.pat-chip{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:20px;border:1px solid;margin-bottom:10px;display:inline-block}
+.chip-bull{color:var(--green2);border-color:var(--green-border);background:var(--green-bg)}
+.chip-bear{color:var(--red2);border-color:var(--red-border);background:var(--red-bg)}
+.chip-neutral{color:var(--gold2);border-color:var(--gold-border);background:var(--gold-bg)}
+.pat-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px}
+.pat-desc{font-size:12px;color:var(--text2);line-height:1.5}
+.pat-detail{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);display:none}
+.pat-card.selected .pat-detail{display:block}
+.pat-rule{display:flex;gap:10px;margin-bottom:8px;font-size:12px;color:var(--text2);line-height:1.5}
+.pat-rule:last-child{margin-bottom:0}
+.pat-rule-num{font-family:var(--mono);color:var(--text3);min-width:18px;flex-shrink:0}
+
+/* ── SVG CANDLE DIAGRAMS ── */
+.candle-diagram{background:var(--bg3);border-radius:var(--r);padding:14px;margin:12px 0;display:flex;align-items:flex-end;justify-content:center;gap:8px;min-height:90px}
+
+/* ── CHECK ROWS ── */
+.check-row{display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:.1s;user-select:none}
+.check-row:last-child{border-bottom:none;padding-bottom:0}
+.check-row:first-child{padding-top:0}
+.check-row:hover{opacity:.85}
+.check-box{width:20px;height:20px;border-radius:5px;border:1px solid var(--border2);background:var(--bg3);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:.15s}
+.check-box.on{background:var(--green);border-color:var(--green)}
+.check-box svg{display:block}
+.check-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
+.check-desc{font-size:12px;color:var(--text2);line-height:1.5}
+
+/* ── VERDICT ── */
+.verdict{display:flex;align-items:center;gap:16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:18px 20px;margin-top:20px;transition:.3s}
+.v-score{font-family:var(--mono);font-size:38px;font-weight:500;line-height:1;min-width:70px}
+.v-text{flex:1}
+.v-title{font-size:14px;font-weight:600;color:var(--text)}
+.v-sub{font-size:12px;color:var(--text2);margin-top:3px}
+.v-bar-wrap{height:3px;background:var(--bg3);border-radius:2px;margin-top:10px;overflow:hidden}
+.v-bar{height:100%;border-radius:2px;transition:.4s}
+.v-tag{font-family:var(--mono);font-size:11px;font-weight:500;padding:6px 14px;border-radius:20px;border:1px solid;white-space:nowrap}
+
+/* ── CALC ── */
+.field-grid{display:grid;gap:12px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:1fr 1fr 1fr}
+.field label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:7px}
+.field input,.field select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;font-family:var(--mono);font-size:13px;color:var(--text);outline:none;transition:.15s;-webkit-appearance:none}
+.field input:focus,.field select:focus{border-color:var(--gold-border)}
+.field select option{background:var(--bg2)}
+.field .hint{font-size:11px;color:var(--text3);margin-top:5px;font-family:var(--mono)}
+
+/* ── METRICS ── */
+.metric-row{display:grid;gap:10px;margin-top:20px}
+.m3{grid-template-columns:repeat(3,1fr)}
+.m2{grid-template-columns:repeat(2,1fr)}
+.metric{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px}
+.m-lbl{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.m-val{font-family:var(--mono);font-size:21px;font-weight:500;color:var(--text)}
+.m-val.ok{color:var(--green2)}
+.m-val.warn{color:var(--amber)}
+.m-val.bad{color:var(--red2)}
+.m-note{font-size:11px;color:var(--text3);margin-top:4px;font-family:var(--mono)}
+
+/* ── RULES ── */
+.rule-row{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+.rule-row:last-child{border-bottom:none;padding-bottom:0}
+.rule-row:first-child{padding-top:0}
+.r-num{font-family:var(--mono);font-size:11px;color:var(--text3);min-width:24px;padding-top:1px}
+.r-txt{font-size:13px;color:var(--text);line-height:1.6;flex:1}
+.r-tag{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold2);background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:20px;padding:2px 8px;margin-left:8px;white-space:nowrap;vertical-align:middle}
+.r-tag.green{color:var(--green2);background:var(--green-bg);border-color:var(--green-border)}
+.r-tag.red{color:var(--red2);background:var(--red-bg);border-color:var(--red-border)}
+
+/* ── JOURNAL ── */
+.j-row{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:13px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.j-ticker{font-family:var(--mono);font-size:15px;font-weight:500;min-width:56px;color:var(--text)}
+.j-meta{flex:1;display:flex;flex-wrap:wrap;gap:14px;font-family:var(--mono);font-size:11px;color:var(--text2)}
+.j-meta b{color:var(--text);font-weight:400}
+.j-pill{font-family:var(--mono);font-size:10px;padding:4px 11px;border-radius:20px;border:1px solid;white-space:nowrap;cursor:pointer}
+.pill-done{color:var(--green2);border-color:var(--green-border);background:var(--green-bg)}
+.pill-pending{color:var(--text2);border-color:var(--border2);background:var(--bg3)}
+.pill-trailing{color:var(--blue);border-color:var(--blue-border);background:var(--blue-bg);cursor:default}
+.j-rr{font-family:var(--mono);font-size:12px;font-weight:500;min-width:38px;text-align:right}
+.btn-del{background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;line-height:1;padding:0 4px;transition:.15s}
+.btn-del:hover{color:var(--red2)}
+
+/* ── BUTTONS ── */
+.btn-add{width:100%;margin-top:8px;padding:12px;background:none;border:1px dashed var(--border2);border-radius:var(--r2);color:var(--text2);font-family:var(--sans);font-size:13px;cursor:pointer;transition:.15s}
+.btn-add:hover{border-color:var(--gold-border);color:var(--gold2)}
+.btn-primary{background:var(--gold);color:#0a0b0f;border:none;border-radius:var(--r);padding:10px 22px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
+.btn-primary:hover{background:var(--gold2)}
+.btn-ghost{background:none;border:1px solid var(--border2);border-radius:var(--r);padding:10px 18px;font-family:var(--sans);font-size:13px;color:var(--text2);cursor:pointer;margin-left:8px;transition:.15s}
+.btn-ghost:hover{color:var(--text);border-color:var(--border3)}
+.add-form{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:20px;margin-top:10px}
+
+/* ── INFO ── */
+.info{border-left:2px solid var(--gold-border);padding:10px 14px;background:var(--gold-bg);border-radius:0 var(--r) var(--r) 0;margin-bottom:16px}
+.info p{font-size:12px;color:var(--text2);line-height:1.6}
+.info b{color:var(--gold2);font-weight:500}
+.empty-state{text-align:center;padding:40px;color:var(--text3);font-size:13px;border:1px dashed var(--border);border-radius:var(--r2)}
+
+/* ── WR GAUGE ── */
+.wr-wrap{margin-top:16px}
+.wr-track{height:8px;background:var(--bg3);border-radius:4px;position:relative;margin:10px 0}
+.wr-zone-os{position:absolute;left:0;width:20%;height:100%;background:var(--green-bg);border-radius:4px 0 0 4px;border-right:1px solid var(--green-border)}
+.wr-zone-ob{position:absolute;right:0;width:20%;height:100%;background:var(--red-bg);border-radius:0 4px 4px 0;border-left:1px solid var(--red-border)}
+.wr-thumb{position:absolute;top:50%;width:14px;height:14px;background:var(--text);border-radius:50%;transform:translate(-50%,-50%);transition:.3s;border:2px solid var(--bg)}
+.wr-labels{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--text3)}
+.wr-reading{font-family:var(--mono);font-size:28px;font-weight:500;color:var(--text);margin-bottom:4px}
+.wr-signal{font-size:12px;margin-bottom:4px}
+
+/* ── CHAPTER REFS ── */
+.ch-ref{font-family:var(--mono);font-size:10px;color:var(--text3);margin-left:8px;vertical-align:middle}
+
+/* ── VOLATILITY CYCLE ── */
+.vol-cycle{display:flex;gap:10px;margin:12px 0}
+.vol-box{flex:1;border-radius:var(--r);padding:12px;border:1px solid var(--border);text-align:center}
+.vol-box-label{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.vol-box-val{font-size:20px;font-weight:700}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--border);margin:20px 0}
+
+/* ── FOOTER ── */
+footer{border-top:1px solid var(--border);padding:20px 0 0;margin-top:40px;font-family:var(--mono);font-size:10px;color:var(--text3);text-align:center;letter-spacing:.08em;line-height:2}
+
+@media(max-width:600px){
+  .pattern-grid,.g2,.g3,.metric-row.m3{grid-template-columns:1fr}
+  .metric-row.m2{grid-template-columns:1fr 1fr}
+  .tabs .tab{font-size:11px;padding:8px 8px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="site-header-left">
+    <div class="eyebrow">Hệ thống giao dịch theo sách</div>
+    <div class="site-title">
+      Larry <span class="accent">Williams</span> · VN-Index
+      <span class="book">Long-Term Secrets to Short-Term Trading</span>
+    </div>
+  </div>
+  <div class="header-meta">
+    <div class="clock-pill" id="clock">—</div>
+  </div>
+</header>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab on" onclick="goTab('chuky',this)">Chu kỳ</button>
+  <button class="tab" onclick="goTab('muhinh',this)">Mẫu hình</button>
+  <button class="tab" onclick="goTab('tinhhieu',this)">Tín hiệu</button>
+  <button class="tab" onclick="goTab('vitthe',this)">Vị thế</button>
+  <button class="tab" onclick="goTab('quytac',this)">Quy tắc</button>
+  <button class="tab" onclick="goTab('nhatky',this)">Nhật ký</button>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 1: CHU KỲ THỊ TRƯỜNG (Ch.1 & Ch.2)   -->
+<!-- ══════════════════════════════════════════ -->
+<div id="tab-chuky" class="tab-panel on">
+  <div class="info">
+    <p><b>Chương 1–2:</b> Williams phát hiện thị trường vận động theo <b>3 chu kỳ lặp lại</b>. Nhận diện đúng pha hiện tại là bước đầu tiên và quan trọng nhất trước khi vào bất kỳ lệnh nào.</p>
+  </div>
+
+  <div class="slabel">Chu kỳ 1 — Biến động Range (Small → Large → Small)</div>
+  <div class="card">
+    <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+      <div style="flex:1;min-width:200px">
+        <div class="card-title">Quy tắc cốt lõi của Williams</div>
+        <div class="card-sub" style="margin-top:6px">Sau chuỗi nến biên độ <b style="color:var(--text)">nhỏ</b> → chuẩn bị cho nến biên độ <b style="color:var(--text)">lớn</b>. Sau nến biên độ lớn → thị trường sẽ về lại trạng thái hẹp. Chu kỳ này lặp đi lặp lại vô tận ở mọi khung thời gian.</div>
+        <div style="margin-top:14px">
+          <div class="slabel" style="margin-top:0;margin-bottom:8px">Range hôm nay so với TB 5 phiên</div>
+          <div class="vol-cycle">
+            <div class="vol-box" id="vc-small" onclick="setVolPhase('small')" style="cursor:pointer">
+              <div class="vol-box-label">Hẹp</div>
+              <div class="vol-box-val" style="color:var(--blue)">S</div>
+              <div style="font-size:11px;color:var(--text2);margin-top:4px">< 80% TB</div>
+            </div>
+            <div class="vol-box" id="vc-normal" onclick="setVolPhase('normal')" style="cursor:pointer">
+              <div class="vol-box-label">Trung bình</div>
+              <div class="vol-box-val" style="color:var(--text2)">N</div>
+              <div style="font-size:11px;color:var(--text2);margin-top:4px">80–120%</div>
+            </div>
+            <div class="vol-box" id="vc-large" onclick="setVolPhase('large')" style="cursor:pointer">
+              <div class="vol-box-label">Rộng</div>
+              <div class="vol-box-val" style="color:var(--amber)">L</div>
+              <div style="font-size:11px;color:var(--text2);margin-top:4px">> 120% TB</div>
+            </div>
+          </div>
+          <div id="vol-advice" class="card" style="margin-top:8px;padding:12px 14px;display:none">
+            <div class="card-sub" id="vol-advice-text"></div>
+          </div>
+        </div>
+      </div>
+      <div style="flex:0 0 auto">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.1em">Minh họa chu kỳ</div>
+        <svg viewBox="0 0 200 80" width="200" height="80" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="30" width="10" height="40" rx="1" fill="#3a7bd5" opacity=".7"/>
+          <line x1="15" y1="24" x2="15" y2="30" stroke="#3a7bd5" stroke-width="1.5" opacity=".7"/>
+          <line x1="15" y1="70" x2="15" y2="76" stroke="#3a7bd5" stroke-width="1.5" opacity=".7"/>
+          <rect x="28" y="28" width="10" height="44" rx="1" fill="#3a7bd5" opacity=".8"/>
+          <line x1="33" y1="22" x2="33" y2="28" stroke="#3a7bd5" stroke-width="1.5" opacity=".8"/>
+          <line x1="33" y1="72" x2="33" y2="78" stroke="#3a7bd5" stroke-width="1.5" opacity=".8"/>
+          <rect x="46" y="5" width="10" height="70" rx="1" fill="#d98a35" opacity=".9"/>
+          <line x1="51" y1="2" x2="51" y2="5" stroke="#d98a35" stroke-width="1.5"/>
+          <line x1="51" y1="75" x2="51" y2="78" stroke="#d98a35" stroke-width="1.5"/>
+          <rect x="64" y="32" width="10" height="36" rx="1" fill="#3a7bd5" opacity=".7"/>
+          <line x1="69" y1="27" x2="69" y2="32" stroke="#3a7bd5" stroke-width="1.5" opacity=".7"/>
+          <line x1="69" y1="68" x2="69" y2="73" stroke="#3a7bd5" stroke-width="1.5" opacity=".7"/>
+          <rect x="82" y="35" width="10" height="30" rx="1" fill="#3a7bd5" opacity=".6"/>
+          <rect x="100" y="34" width="10" height="32" rx="1" fill="#3a7bd5" opacity=".6"/>
+          <rect x="118" y="4" width="10" height="72" rx="1" fill="#d98a35" opacity=".9"/>
+          <rect x="136" y="30" width="10" height="40" rx="1" fill="#3a7bd5" opacity=".7"/>
+          <rect x="154" y="33" width="10" height="34" rx="1" fill="#3a7bd5" opacity=".6"/>
+          <rect x="172" y="32" width="10" height="36" rx="1" fill="#3a7bd5" opacity=".5"/>
+          <text x="51" y="94" text-anchor="middle" fill="#d98a35" font-size="8" font-family="monospace" opacity=".8">L</text>
+          <text x="119" y="94" text-anchor="middle" fill="#d98a35" font-size="8" font-family="monospace" opacity=".8">L</text>
+          <text x="15" y="94" text-anchor="middle" fill="#3a7bd5" font-size="8" font-family="monospace" opacity=".7">S</text>
+          <text x="33" y="94" text-anchor="middle" fill="#3a7bd5" font-size="8" font-family="monospace" opacity=".7">S</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="slabel">Chu kỳ 2 — Vị trí đóng cửa trong Range (Close Position)</div>
+  <div class="card">
+    <div class="card-sub">Williams phát hiện: <b style="color:var(--text)">Close càng gần đỉnh range = càng gần đỉnh ngắn hạn. Close càng gần đáy range = càng gần đáy ngắn hạn.</b> Dùng để xác định điểm đảo chiều tiềm năng.</div>
+    <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+      <div style="flex:1;min-width:140px;background:var(--bg3);border-radius:var(--r);padding:12px">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--green2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Bullish</div>
+        <div style="font-size:12px;color:var(--text2)">Close nằm trong <b style="color:var(--text)">25% trên cùng</b> của range hôm nay → dấu hiệu mạnh của phe mua</div>
+      </div>
+      <div style="flex:1;min-width:140px;background:var(--bg3);border-radius:var(--r);padding:12px">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--red2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Bearish</div>
+        <div style="font-size:12px;color:var(--text2)">Close nằm trong <b style="color:var(--text)">25% dưới cùng</b> của range hôm nay → dấu hiệu yếu, phe bán kiểm soát</div>
+      </div>
+    </div>
+    <div style="margin-top:12px">
+      <div class="slabel" style="margin-top:0">Kiểm tra close hôm nay</div>
+      <div class="field-grid g3">
+        <div class="field"><label>Giá cao nhất (H)</label><input type="number" id="ch-high" placeholder="52000" oninput="calcClosePos()"></div>
+        <div class="field"><label>Giá thấp nhất (L)</label><input type="number" id="ch-low" placeholder="48000" oninput="calcClosePos()"></div>
+        <div class="field"><label>Giá đóng cửa (C)</label><input type="number" id="ch-close" placeholder="51000" oninput="calcClosePos()"></div>
+      </div>
+      <div id="close-result" style="margin-top:12px;padding:10px 14px;background:var(--bg3);border-radius:var(--r);font-size:13px;display:none">
+        <span id="close-result-text"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="slabel">Chu kỳ 3 — Đóng cửa ngược chiều mở cửa</div>
+  <div class="card">
+    <div class="card-sub">Williams phát hiện: giá có xu hướng <b style="color:var(--text)">đóng cửa ngược chiều so với hướng mở đầu phiên.</b> Nếu giá mở cửa cao hơn hôm qua → khả năng đóng cửa thấp hơn. Đây là nền tảng của Bailout Exit và OOPS! pattern.</div>
+    <div style="margin-top:12px;display:flex;gap:10px">
+      <div style="flex:1;background:var(--bg3);border-radius:var(--r);padding:12px;font-size:12px;color:var(--text2)">
+        <div style="color:var(--gold2);font-weight:500;margin-bottom:4px">Gap Up mở cửa</div>
+        Giá mở cửa cao hơn high hôm qua → <b style="color:var(--text)">bẫy mua</b>, xác suất đảo chiều xuống cao. Cơ hội OOPS! sell.
+      </div>
+      <div style="flex:1;background:var(--bg3);border-radius:var(--r);padding:12px;font-size:12px;color:var(--text2)">
+        <div style="color:var(--gold2);font-weight:500;margin-bottom:4px">Gap Down mở cửa</div>
+        Giá mở cửa thấp hơn low hôm qua → <b style="color:var(--text)">bẫy bán</b>, xác suất đảo chiều lên cao. Cơ hội OOPS! buy.
+      </div>
+    </div>
+  </div>
+
+  <div class="slabel">Xác định cấu trúc ngày hôm nay</div>
+  <div class="card">
+    <div class="card-sub" style="margin-bottom:14px">Phân loại ngày để chọn chiến thuật phù hợp:</div>
+    <div class="field-grid g2">
+      <div class="field"><label>Loại ngày hôm nay</label>
+        <select id="day-type" onchange="showDayAdvice()">
+          <option value="">-- Chọn loại ngày --</option>
+          <option value="inside">Inside Day (range nằm trong hôm qua)</option>
+          <option value="outside">Outside Day (range bao ngoài hôm qua)</option>
+          <option value="gap-up">Gap Up (mở cửa > high hôm qua)</option>
+          <option value="gap-down">Gap Down (mở cửa < low hôm qua)</option>
+          <option value="normal">Normal Day (bình thường)</option>
+        </select>
+      </div>
+      <div class="field"><label>Xu hướng hiện tại</label>
+        <select id="trend-now">
+          <option value="up">Uptrend (MA20 dốc lên)</option>
+          <option value="down">Downtrend (MA20 dốc xuống)</option>
+          <option value="side">Sideways (MA20 nằm ngang)</option>
+        </select>
+      </div>
+    </div>
+    <div id="day-advice" style="margin-top:12px;display:none"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 2: MẪU HÌNH (Ch.7)                    -->
+<!-- ══════════════════════════════════════════ -->
+<div id="tab-muhinh" class="tab-panel">
+  <div class="info">
+    <p><b>Chương 7 — Patterns to Profit:</b> Williams xác định các mẫu hình giá lặp lại có xác suất cao. Chọn mẫu hình phù hợp với ngày hôm nay rồi đọc hướng dẫn chi tiết.</p>
+  </div>
+
+  <div class="pattern-grid">
+    <!-- OOPS BUY -->
+    <div class="pat-card" id="pat-oops-buy" onclick="selectPat('oops-buy')">
+      <span class="pat-chip chip-bull">Mua · Đảo chiều</span>
+      <div class="pat-name">OOPS! Buy</div>
+      <div class="pat-desc">Thị trường gap xuống dưới đáy hôm qua, rồi phục hồi ngược trở lại. Bẫy phe bán.</div>
+      <div class="pat-detail">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:10px;text-transform:uppercase;letter-spacing:.08em">Quy tắc</div>
+        <div class="pat-rule"><div class="pat-rule-num">1</div><div>Giá mở cửa hôm nay <b style="color:var(--text)">thấp hơn</b> mức giá thấp nhất của ngày hôm qua (gap down dưới low)</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">2</div><div>Chờ giá <b style="color:var(--text)">phục hồi và đóng cửa bằng hoặc cao hơn</b> mức low của hôm qua</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">3</div><div><b style="color:var(--text)">Vào lệnh mua</b> khi giá vượt trở lên trên low hôm qua + 1 đơn vị</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">4</div><div>Stop Loss: dưới điểm thấp nhất của ngày hôm nay</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">5</div><div>Exit: Bailout — thoát khi phiên tiếp theo mở cửa có lãi</div></div>
+        <div style="margin-top:12px;padding:10px;background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--r);font-size:12px;color:var(--text2)">
+          <b style="color:var(--green2)">Tâm lý:</b> Phe bán bị dụ vào lệnh khi gap down. Khi giá đảo lên, họ hoảng loạn cover → tạo lực mua đột ngột.
+        </div>
+      </div>
+    </div>
+    <!-- OOPS SELL -->
+    <div class="pat-card" id="pat-oops-sell" onclick="selectPat('oops-sell')">
+      <span class="pat-chip chip-bear">Bán · Đảo chiều</span>
+      <div class="pat-name">OOPS! Sell</div>
+      <div class="pat-desc">Thị trường gap lên trên đỉnh hôm qua, rồi đảo chiều xuống. Bẫy phe mua.</div>
+      <div class="pat-detail">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:10px;text-transform:uppercase;letter-spacing:.08em">Quy tắc</div>
+        <div class="pat-rule"><div class="pat-rule-num">1</div><div>Giá mở cửa hôm nay <b style="color:var(--text)">cao hơn</b> mức cao nhất của ngày hôm qua (gap up trên high)</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">2</div><div>Giá quay đầu xuống và <b style="color:var(--text)">xuyên thủng</b> mức high của hôm qua</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">3</div><div><b style="color:var(--text)">Vào lệnh bán</b> khi giá phá xuống dưới high hôm qua − 1 đơn vị</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">4</div><div>Stop Loss: trên đỉnh cao nhất của ngày hôm nay</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">5</div><div>Exit: Bailout — thoát khi phiên tiếp theo mở cửa có lãi</div></div>
+        <div style="margin-top:12px;padding:10px;background:var(--red-bg);border:1px solid var(--red-border);border-radius:var(--r);font-size:12px;color:var(--text2)">
+          <b style="color:var(--red2)">Tâm lý:</b> Phe mua nhảy vào theo gap up. Khi giá đảo xuống, họ bán tháo → tạo lực bán mạnh đột ngột.
+        </div>
+      </div>
+    </div>
+    <!-- SMASH DAY BUY -->
+    <div class="pat-card" id="pat-smash-buy" onclick="selectPat('smash-buy')">
+      <span class="pat-chip chip-bull">Mua · Đảo chiều</span>
+      <div class="pat-name">Smash Day Buy</div>
+      <div class="pat-desc">Ngày biến động mạnh phá đáy trong downtrend, nhưng đóng cửa ở vùng cao của range. Sắp đảo chiều lên.</div>
+      <div class="pat-detail">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:10px;text-transform:uppercase;letter-spacing:.08em">Điều kiện Smash Day hình thành</div>
+        <div class="pat-rule"><div class="pat-rule-num">1</div><div>Thị trường đang trong <b style="color:var(--text)">downtrend</b> (ngắn hạn hoặc trung hạn)</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">2</div><div>Xuất hiện nến <b style="color:var(--text)">biên độ lớn</b> phá xuống dưới đáy của 3–8 nến trước</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">3</div><div>Nến Smash Day đóng cửa trong <b style="color:var(--text)">25% TRÊN CÙNG</b> của range ngày hôm đó</div></div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:12px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em">Vào lệnh (ngày hôm sau)</div>
+        <div class="pat-rule"><div class="pat-rule-num">4</div><div><b style="color:var(--text)">Mua</b> khi giá vượt lên trên đỉnh của nến Smash Day</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">5</div><div>Stop Loss: dưới đáy nến Smash Day</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">6</div><div>Exit: Bailout hoặc khi giá đạt target trước</div></div>
+      </div>
+    </div>
+    <!-- SMASH DAY SELL -->
+    <div class="pat-card" id="pat-smash-sell" onclick="selectPat('smash-sell')">
+      <span class="pat-chip chip-bear">Bán · Đảo chiều</span>
+      <div class="pat-name">Smash Day Sell</div>
+      <div class="pat-desc">Ngày biến động mạnh phá đỉnh trong uptrend, nhưng đóng cửa ở vùng thấp của range. Sắp đảo chiều xuống.</div>
+      <div class="pat-detail">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:10px;text-transform:uppercase;letter-spacing:.08em">Điều kiện Smash Day hình thành</div>
+        <div class="pat-rule"><div class="pat-rule-num">1</div><div>Thị trường đang trong <b style="color:var(--text)">uptrend</b> (ngắn hạn hoặc trung hạn)</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">2</div><div>Xuất hiện nến <b style="color:var(--text)">biên độ lớn</b> phá lên trên đỉnh của 3–8 nến trước</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">3</div><div>Nến Smash Day đóng cửa trong <b style="color:var(--text)">25% DƯỚI CÙNG</b> của range ngày hôm đó</div></div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:12px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em">Vào lệnh (ngày hôm sau)</div>
+        <div class="pat-rule"><div class="pat-rule-num">4</div><div><b style="color:var(--text)">Bán</b> khi giá phá xuống dưới đáy của nến Smash Day</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">5</div><div>Stop Loss: trên đỉnh nến Smash Day</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">6</div><div>Exit: Bailout hoặc khi giá đạt target trước</div></div>
+      </div>
+    </div>
+    <!-- VOLATILITY BREAKOUT -->
+    <div class="pat-card" id="pat-volbo" onclick="selectPat('volbo')">
+      <span class="pat-chip chip-neutral">Breakout · Theo xu hướng</span>
+      <div class="pat-name">Volatility Breakout</div>
+      <div class="pat-desc">Mua/bán khi giá mở cửa + phần trăm ATR bị phá vỡ. Phát minh của Williams năm 1982.</div>
+      <div class="pat-detail">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:10px;text-transform:uppercase;letter-spacing:.08em">Công thức Williams</div>
+        <div class="pat-rule"><div class="pat-rule-num">1</div><div>Tính ATR (Average True Range) 3–10 ngày gần nhất</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">2</div><div><b style="color:var(--text)">Buy trigger</b> = Giá mở cửa hôm nay + (ATR × hệ số 0.5–1.0)</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">3</div><div><b style="color:var(--text)">Sell trigger</b> = Giá mở cửa hôm nay − (ATR × hệ số 0.5–1.0)</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">4</div><div>Chỉ có hiệu lực khi range các ngày trước đó <b style="color:var(--text)">hẹp</b> (tích lũy). Đừng trade breakout sau range đã rộng.</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">5</div><div>Stop Loss: đặt ở mức ATR ngược chiều từ giá mở cửa</div></div>
+        <div style="margin-top:12px;padding:10px;background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:var(--r);font-size:12px;color:var(--text2)">
+          <b style="color:var(--gold2)">Tính toán nhanh:</b> Nhập ATR vào Tab Tín hiệu để hệ thống tự tính trigger level cho bạn.
+        </div>
+      </div>
+    </div>
+    <!-- SPECIALISTS TRAP -->
+    <div class="pat-card" id="pat-trap" onclick="selectPat('trap')">
+      <span class="pat-chip chip-neutral">Bẫy giả · Đảo chiều</span>
+      <div class="pat-name">Specialists' Trap</div>
+      <div class="pat-desc">Phá vỡ giả một vùng tích lũy hẹp — được tổ chức dàn dựng để quét lệnh bán/mua của nhà đầu tư nhỏ.</div>
+      <div class="pat-detail">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:10px;text-transform:uppercase;letter-spacing:.08em">Nhận diện bẫy</div>
+        <div class="pat-rule"><div class="pat-rule-num">1</div><div>Thị trường tích lũy trong vùng giá hẹp nhiều phiên (Inside Day liên tiếp)</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">2</div><div>Giá phá vỡ ra khỏi vùng hẹp theo một chiều → thu hút đám đông nhảy vào</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">3</div><div>Giá ngay lập tức <b style="color:var(--text)">quay trở lại</b> vào vùng tích lũy → xác nhận bẫy giả</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">4</div><div>Vào lệnh <b style="color:var(--text)">ngược chiều breakout</b> khi giá quay vào trong vùng cũ</div></div>
+        <div class="pat-rule"><div class="pat-rule-num">5</div><div>Stop Loss: ngay ngoài điểm cực đại của breakout giả</div></div>
+        <div style="margin-top:12px;padding:10px;background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:var(--r);font-size:12px;color:var(--text2)">
+          <b style="color:var(--amber)">Ghi chú:</b> Nguồn gốc từ Richard Wyckoff. Williams phát triển thêm và đặt tên "Specialists' Trap" vì tổ chức (specialists) là người tạo ra bẫy này.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 3: TÍN HIỆU VÀO LỆNH                 -->
+<!-- ══════════════════════════════════════════ -->
+<div id="tab-tinhhieu" class="tab-panel">
+  <div class="info">
+    <p><b>Checklist trước khi vào lệnh.</b> Williams: "A short-term trader has one objective: to catch the current trend of the market. That's it. That's all you should try to do." Tất cả tín hiệu phải hội tụ trước khi vào.</p>
+  </div>
+
+  <div class="slabel">Bộ lọc 1 — Xu hướng dài hạn (Long-term Order)</div>
+  <div class="card">
+    <div class="check-row" onclick="toggleCheck('f1')">
+      <div class="check-box" id="f1-box"><svg width="11" height="9" viewBox="0 0 11 9"><polyline points="1,4.5 4,7.5 10,1" stroke="#0a0b0f" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="check-name">VN-Index trên MA50 — thị trường đang trong uptrend trung hạn</div><div class="check-desc">Nguyên tắc: "Bring long-term order to short-term chaos." Không trade short-term ngược xu hướng dài hạn.</div></div>
+    </div>
+    <div class="check-row" onclick="toggleCheck('f2')">
+      <div class="check-box" id="f2-box"><svg width="11" height="9" viewBox="0 0 11 9"><polyline points="1,4.5 4,7.5 10,1" stroke="#0a0b0f" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="check-name">Cổ phiếu cá nhân: MA20 dốc lên, giá trên MA20</div><div class="check-desc">Xu hướng ngắn hạn tích cực. Williams: "Trade the short-term trend within the long-term trend."</div></div>
+    </div>
+  </div>
+
+  <div class="slabel">Bộ lọc 2 — Williams %R (Momentum)</div>
+  <div class="card">
+    <div class="check-row" onclick="toggleCheck('f3')">
+      <div class="check-box" id="f3-box"><svg width="11" height="9" viewBox="0 0 11 9"><polyline points="1,4.5 4,7.5 10,1" stroke="#0a0b0f" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="check-name">Williams %R ≤ −80 (quá bán) HOẶC vừa cắt lên từ vùng quá bán</div><div class="check-desc">Chỉ báo gốc của Williams (1966). Dùng chu kỳ 3 bar cho short-term, 10 bar cho swing. Oversold trong uptrend = setup tốt nhất.</div></div>
+    </div>
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+      <div class="slabel" style="margin-top:0">Tính %R thủ công</div>
+      <div class="field-grid g3">
+        <div class="field"><label>High nhất N phiên</label><input type="number" id="wr-high" placeholder="55000" oninput="calcWR()"></div>
+        <div class="field"><label>Low nhất N phiên</label><input type="number" id="wr-low" placeholder="44000" oninput="calcWR()"></div>
+        <div class="field"><label>Close hôm nay</label><input type="number" id="wr-close" placeholder="46000" oninput="calcWR()"></div>
+      </div>
+      <div class="wr-wrap" id="wr-result" style="display:none">
+        <div class="wr-reading" id="wr-val">—</div>
+        <div class="wr-signal" id="wr-signal">—</div>
+        <div class="wr-track">
+          <div class="wr-zone-os"></div>
+          <div class="wr-zone-ob"></div>
+          <div class="wr-thumb" id="wr-thumb" style="left:50%"></div>
+        </div>
+        <div class="wr-labels"><span style="color:var(--green2)">−100 (quá bán)</span><span>−50</span><span style="color:var(--red2)">0 (quá mua)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slabel">Bộ lọc 3 — Chu kỳ biến động (Volatility Cycle)</div>
+  <div class="card">
+    <div class="check-row" onclick="toggleCheck('f4')">
+      <div class="check-box" id="f4-box"><svg width="11" height="9" viewBox="0 0 11 9"><polyline points="1,4.5 4,7.5 10,1" stroke="#0a0b0f" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="check-name">Range gần đây nhỏ (< 80% ATR) — chuẩn bị bùng nổ</div><div class="check-desc">Nguyên tắc Chu kỳ 1: Small range → Large range. Đây là thời điểm để setup lệnh Volatility Breakout.</div></div>
+    </div>
+    <div class="check-row" onclick="toggleCheck('f5')">
+      <div class="check-box" id="f5-box"><svg width="11" height="9" viewBox="0 0 11 9"><polyline points="1,4.5 4,7.5 10,1" stroke="#0a0b0f" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="check-name">Close hôm qua nằm trong 25% dưới (trong uptrend) = oversold ngắn hạn</div><div class="check-desc">Chu kỳ 2: Close position trong range. Đây là tín hiệu phe bán kiểm soát cuối phiên, chuẩn bị reversal.</div></div>
+    </div>
+  </div>
+
+  <div class="slabel">Bộ lọc 4 — Dòng tiền thông minh (Tương đương COT)</div>
+  <div class="card">
+    <div class="check-row" onclick="toggleCheck('f6')">
+      <div class="check-box" id="f6-box"><svg width="11" height="9" viewBox="0 0 11 9"><polyline points="1,4.5 4,7.5 10,1" stroke="#0a0b0f" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="check-name">Khối ngoại mua ròng liên tiếp ≥ 3 phiên</div><div class="check-desc">Williams sử dụng COT report cho futures. Với VN-Index, dữ liệu khối ngoại là công cụ thay thế tốt nhất — theo dõi "smart money."</div></div>
+    </div>
+    <div class="check-row" onclick="toggleCheck('f7')">
+      <div class="check-box" id="f7-box"><svg width="11" height="9" viewBox="0 0 11 9"><polyline points="1,4.5 4,7.5 10,1" stroke="#0a0b0f" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="check-name">Volume tăng > 150% TB 20 phiên trong phiên tăng giá</div><div class="check-desc">Volume đột biến theo chiều tăng = dòng tiền lớn đang tích lũy. Xác nhận tín hiệu từ Williams %R.</div></div>
+    </div>
+  </div>
+
+  <div class="slabel">Bộ lọc 5 — Mẫu hình & Timing</div>
+  <div class="card">
+    <div class="check-row" onclick="toggleCheck('f8')">
+      <div class="check-box" id="f8-box"><svg width="11" height="9" viewBox="0 0 11 9"><polyline points="1,4.5 4,7.5 10,1" stroke="#0a0b0f" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="check-name">Xác nhận ít nhất 1 mẫu hình (OOPS! / Smash Day / Volatility BO)</div><div class="check-desc">Không vào lệnh chỉ vì %R oversold. Cần một mẫu hình rõ ràng xác nhận điểm vào. Xem Tab Mẫu hình.</div></div>
+    </div>
+    <div class="check-row" onclick="toggleCheck('f9')">
+      <div class="check-box" id="f9-box"><svg width="11" height="9" viewBox="0 0 11 9"><polyline points="1,4.5 4,7.5 10,1" stroke="#0a0b0f" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="check-name">Không có sự kiện vĩ mô lớn trong 48 giờ (Fed, CPI, kết quả bầu cử)</div><div class="check-desc">Williams luôn tránh các sự kiện không thể dự đoán kết quả. Đây không phải giao dịch — đây là cờ bạc.</div></div>
+    </div>
+  </div>
+
+  <div class="verdict" id="sig-verdict">
+    <div class="v-score" id="sig-score">0/9</div>
+    <div class="v-text">
+      <div class="v-title" id="sig-title">Chưa đủ tín hiệu</div>
+      <div class="v-sub" id="sig-sub">Tích vào các điều kiện đã thỏa mãn</div>
+      <div class="v-bar-wrap"><div class="v-bar" id="sig-bar" style="width:0%;background:var(--text3)"></div></div>
+    </div>
+    <div class="v-tag" id="sig-tag" style="color:var(--text3);border-color:var(--border2)">WAIT</div>
+  </div>
+
+  <!-- ATR / VOLATILITY BREAKOUT CALCULATOR -->
+  <div class="slabel" style="margin-top:24px">Tính Volatility Breakout Levels</div>
+  <div class="card">
+    <div class="field-grid g2" style="gap:12px">
+      <div class="field"><label>Giá mở cửa hôm nay</label><input type="number" id="vb-open" placeholder="50000" oninput="calcVB()"></div>
+      <div class="field"><label>ATR (Average True Range)</label><input type="number" id="vb-atr" placeholder="1500" oninput="calcVB()"></div>
+      <div class="field"><label>Hệ số (0.5 – 1.0)</label>
+        <select id="vb-factor" onchange="calcVB()">
+          <option value="0.5">0.5 × ATR (nhạy hơn)</option>
+          <option value="0.7" selected>0.7 × ATR (cân bằng)</option>
+          <option value="1.0">1.0 × ATR (chắc hơn)</option>
+        </select>
+      </div>
+    </div>
+    <div id="vb-result" style="display:none;margin-top:14px">
+      <div class="metric-row m2">
+        <div class="metric"><div class="m-lbl">Buy Trigger (Mua khi vượt)</div><div class="m-val ok" id="vb-buy">—</div><div class="m-note">Open + (ATR × hệ số)</div></div>
+        <div class="metric"><div class="m-lbl">Sell Trigger (Bán khi phá)</div><div class="m-val bad" id="vb-sell">—</div><div class="m-note">Open − (ATR × hệ số)</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 4: VỊ THẾ & QUẢN LÝ VỐN (Ch.9)       -->
+<!-- ══════════════════════════════════════════ -->
+<div id="tab-vitthe" class="tab-panel">
+  <div class="info">
+    <p><b>Chương 9 — Money Management:</b> Williams: "The key to making money is not finding the right system — it is money management." Không có quản lý vốn đúng → mọi chiến thuật đều thất bại.</p>
+  </div>
+
+  <div class="slabel">Tài khoản & Rủi ro</div>
+  <div class="card">
+    <div class="field-grid g2" style="gap:14px">
+      <div class="field">
+        <label>Vốn tài khoản (VND)</label>
+        <input type="number" id="mm-cap" value="200000000" step="10000000" oninput="calcMM()">
+        <div class="hint">Chỉ dùng "risk capital" — tiền sẵn sàng mất toàn bộ</div>
+      </div>
+      <div class="field">
+        <label>% Rủi ro tối đa / lệnh</label>
+        <select id="mm-risk" onchange="calcMM()">
+          <option value="1">1% — rất thận trọng</option>
+          <option value="2" selected>2% — an toàn (Williams khuyến nghị)</option>
+          <option value="3">3% — cân bằng</option>
+          <option value="4">4% — tích cực (tối đa)</option>
+        </select>
+        <div class="hint">Williams: "Never risk more than 2–4% per trade"</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slabel">Thông số lệnh</div>
+  <div class="card">
+    <div class="field-grid g3" style="gap:14px">
+      <div class="field"><label>Giá vào lệnh (VND)</label><input type="number" id="mm-entry" value="50000" step="100" oninput="calcMM()"></div>
+      <div class="field"><label>Giá dừng lỗ (VND)</label><input type="number" id="mm-stop" value="46000" step="100" oninput="calcMM()">
+        <div class="hint">Đặt dưới đáy mẫu hình / Smash Day low</div>
+      </div>
+      <div class="field"><label>Giá mục tiêu (VND)</label><input type="number" id="mm-target" value="57000" step="100" oninput="calcMM()"></div>
+      <div class="field"><label>Phí GD mỗi chiều (%)</label><input type="number" id="mm-fee" value="0.25" step="0.05" oninput="calcMM()"></div>
+      <div class="field"><label>Phương pháp thoát</label>
+        <select id="mm-exit" onchange="calcMM()">
+          <option value="bailout">Bailout Exit (ngắn hạn)</option>
+          <option value="trail">Trailing Stop (swing)</option>
+          <option value="target">Target cố định</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="metric-row m3" id="mm-results">
+    <div class="metric"><div class="m-lbl">Số lượng CP</div><div class="m-val" id="mm-qty">—</div></div>
+    <div class="metric"><div class="m-lbl">Giá trị lệnh</div><div class="m-val" id="mm-val">—</div></div>
+    <div class="metric"><div class="m-lbl">Rủi ro thực tế</div><div class="m-val" id="mm-actualrisk">—</div></div>
+    <div class="metric"><div class="m-lbl">% Tài khoản sử dụng</div><div class="m-val" id="mm-pct">—</div></div>
+    <div class="metric"><div class="m-lbl">R:R Ratio</div><div class="m-val" id="mm-rr">—</div></div>
+    <div class="metric"><div class="m-lbl">Khoảng dừng lỗ</div><div class="m-val" id="mm-slpct">—</div></div>
+  </div>
+
+  <div class="verdict" id="mm-verdict" style="margin-top:18px;display:none">
+    <div class="v-text">
+      <div class="v-title" id="mm-v-title">—</div>
+      <div class="v-sub" id="mm-v-sub">—</div>
+    </div>
+    <div class="v-tag" id="mm-v-tag">—</div>
+  </div>
+
+  <div class="slabel" style="margin-top:28px">Quy tắc Exit theo sách</div>
+  <div class="card">
+    <div class="rule-row">
+      <div class="r-num">E1</div>
+      <div class="r-txt"><b style="color:var(--gold2)">Bailout Exit</b> — Thoát lệnh ngay khi phiên tiếp theo <b>mở cửa có lãi</b> (dù chỉ 1 đơn vị). Đây là phát minh quan trọng nhất của Williams. Không tham, không chờ thêm.<span class="r-tag green">Ưu tiên cao nhất</span></div>
+    </div>
+    <div class="rule-row">
+      <div class="r-num">E2</div>
+      <div class="r-txt">Trailing Stop: sau khi đạt 1R lợi nhuận, dời stop về hòa vốn. Sau đó trail theo MA5 hoặc đáy nến gần nhất.</div>
+    </div>
+    <div class="rule-row">
+      <div class="r-num">E3</div>
+      <div class="r-txt">Nếu Williams %R chạm vùng <b>overbought (≥ −20)</b> khi đang giữ lệnh mua → xem xét chốt lời 50% hoặc toàn bộ.</div>
+    </div>
+    <div class="rule-row">
+      <div class="r-num">E4</div>
+      <div class="r-txt">Không bao giờ dời stop <b>xa hơn</b> mức ban đầu. Chỉ dời theo chiều có lợi. Đây là kỷ luật sống còn.<span class="r-tag red">Bắt buộc</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 5: QUY TẮC SÁCH                      -->
+<!-- ══════════════════════════════════════════ -->
+<div id="tab-quytac" class="tab-panel">
+  <div class="info">
+    <p><b>12 quy tắc cốt lõi</b> chắt lọc từ toàn bộ cuốn sách "Long-Term Secrets to Short-Term Trading". Đọc lại mỗi ngày trước khi giao dịch.</p>
+  </div>
+
+  <div class="slabel">Tư duy & Nguyên tắc nền tảng (Ch.1, 3, 5)</div>
+  <div class="card">
+    <div class="rule-row"><div class="r-num">01</div><div class="r-txt">Thị trường KHÔNG ngẫu nhiên. Có các mẫu hình lặp lại có thể đo lường và giao dịch được. Nhưng không có gì là chắc chắn — xác suất là tất cả những gì ta có.<span class="r-tag">Ch.1</span></div></div>
+    <div class="rule-row"><div class="r-num">02</div><div class="r-txt">Mục tiêu duy nhất của short-term trader: bắt xu hướng hiện tại của thị trường. Không dự báo tương lai — chỉ phản ứng với hiện tại.<span class="r-tag">Ch.3</span></div></div>
+    <div class="rule-row"><div class="r-num">03</div><div class="r-txt">Thời gian dài hơn = cơ hội lợi nhuận lớn hơn. Short-term trading tự giới hạn lợi nhuận. Giải pháp: tìm entry ngắn hạn nhưng hold theo xu hướng trung hạn.<span class="r-tag">Ch.3</span></div></div>
+    <div class="rule-row"><div class="r-num">04</div><div class="r-txt">Đừng lẫn lộn "mình đúng" với "mình kiếm được tiền." Thị trường là sự thật duy nhất. Giá cả là vua — không tranh luận với những gì đang diễn ra.<span class="r-tag">Ch.5</span></div></div>
+  </div>
+
+  <div class="slabel">Chu kỳ & Nhận diện thị trường (Ch.1, 2, 4)</div>
+  <div class="card">
+    <div class="rule-row"><div class="r-num">05</div><div class="r-txt">Sau chuỗi range nhỏ → luôn có range lớn. Chờ tích lũy xong mới setup. Đừng breakout trade sau khi range đã rộng.<span class="r-tag">Ch.2</span></div></div>
+    <div class="rule-row"><div class="r-num">06</div><div class="r-txt">Volatility Breakout: mua khi Open + (ATR × hệ số) bị phá vỡ. Bán khi Open − (ATR × hệ số) bị phá. Chỉ hiệu quả khi thị trường đang ở giai đoạn range nhỏ trước đó.<span class="r-tag">Ch.4</span></div></div>
+    <div class="rule-row"><div class="r-num">07</div><div class="r-txt">Short-term High = nến có high cao hơn nến trước và nến sau. Short-term Low = tương tự. Đây là cấu trúc swing cơ bản — Williams dùng để xác định xu hướng.<span class="r-tag">Ch.1</span></div></div>
+  </div>
+
+  <div class="slabel">Các mẫu hình & Vào lệnh (Ch.7)</div>
+  <div class="card">
+    <div class="rule-row"><div class="r-num">08</div><div class="r-txt"><b style="color:var(--gold2)">OOPS!</b> — Nếu thị trường gap ngoài range hôm qua rồi quay lại: trade ngược chiều gap. Đây là bẫy đám đông cổ điển và có xác suất cao.<span class="r-tag">Ch.7</span></div></div>
+    <div class="rule-row"><div class="r-num">09</div><div class="r-txt"><b style="color:var(--gold2)">Smash Day</b> — Nến biến động mạnh phá cực trị nhưng đóng cửa ở đầu ngược lại: tín hiệu đảo chiều. Đóng trong 25% trên = bullish, 25% dưới = bearish.<span class="r-tag">Ch.7</span></div></div>
+    <div class="rule-row"><div class="r-num">10</div><div class="r-txt">Luôn có điểm dừng lỗ xác định TRước khi vào lệnh. Williams: "I believe the current trade I am in will be a loser." Suy nghĩ xấu nhất trước để bảo vệ vốn.<span class="r-tag">Ch.9</span></div></div>
+  </div>
+
+  <div class="slabel">Quản lý vốn & Tâm lý (Ch.9, 10)</div>
+  <div class="card">
+    <div class="rule-row"><div class="r-num">11</div><div class="r-txt">Chìa khóa kiếm tiền: KHÔNG phải tìm hệ thống đúng — mà là quản lý vốn đúng. Hệ thống trung bình + MM tốt > Hệ thống tốt + MM tệ.<span class="r-tag">Ch.9</span></div></div>
+    <div class="rule-row"><div class="r-num">12</div><div class="r-txt">Sample size tối thiểu 30–50 lệnh để đánh giá chiến lược. Đừng kết luận sau 5–10 lệnh. Williams: kết quả ngắn hạn là may rủi, dài hạn mới là năng lực.<span class="r-tag">Ch.10</span></div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 6: NHẬT KÝ GIAO DỊCH                  -->
+<!-- ══════════════════════════════════════════ -->
+<div id="tab-nhatky" class="tab-panel">
+  <div class="info">
+    <p><b>Nhật ký là bắt buộc.</b> Ghi lại mẫu hình đã dùng, tín hiệu đạt được, và theo dõi <b>Bailout Exit</b>. Dữ liệu được lưu tự động trong trình duyệt của bạn.</p>
+  </div>
+
+  <div id="journal-list"></div>
+  <div id="journal-empty" class="empty-state">Chưa có lệnh nào — thêm lệnh đầu tiên bên dưới.</div>
+
+  <button class="btn-add" onclick="toggleJForm()">+ Thêm lệnh mới</button>
+
+  <div id="j-form" class="add-form" style="display:none">
+    <div class="slabel" style="margin-top:0">Thông tin lệnh</div>
+    <div class="field-grid g3" style="gap:12px;margin-bottom:14px">
+      <div class="field"><label>Mã CP</label><input type="text" id="jf-tick" placeholder="VIC" style="text-transform:uppercase"></div>
+      <div class="field"><label>Mẫu hình</label>
+        <select id="jf-pat">
+          <option value="oops-buy">OOPS! Buy</option>
+          <option value="oops-sell">OOPS! Sell</option>
+          <option value="smash-buy">Smash Day Buy</option>
+          <option value="smash-sell">Smash Day Sell</option>
+          <option value="volbo">Volatility Breakout</option>
+          <option value="trap">Specialists' Trap</option>
+          <option value="other">Khác</option>
+        </select>
+      </div>
+      <div class="field"><label>Kiểu lệnh</label>
+        <select id="jf-type">
+          <option value="bailout">Ngắn hạn (Bailout)</option>
+          <option value="swing">Swing (Trailing)</option>
+        </select>
+      </div>
+      <div class="field"><label>Giá vào (VND)</label><input type="number" id="jf-entry" placeholder="50000"></div>
+      <div class="field"><label>Stop Loss</label><input type="number" id="jf-stop" placeholder="46000"></div>
+      <div class="field"><label>Target</label><input type="number" id="jf-target" placeholder="57000"></div>
+      <div class="field"><label>Tín hiệu đạt / 9</label><input type="number" id="jf-sig" placeholder="7" min="1" max="9"></div>
+    </div>
+    <button class="btn-primary" onclick="addJTrade()">Thêm lệnh</button>
+    <button class="btn-ghost" onclick="toggleJForm()">Hủy</button>
+  </div>
+
+  <div id="j-stats" style="display:none;margin-top:24px">
+    <div class="slabel">Tổng kết</div>
+    <div class="metric-row m3">
+      <div class="metric"><div class="m-lbl">Tổng lệnh</div><div class="m-val" id="js-total">0</div></div>
+      <div class="metric"><div class="m-lbl">R:R trung bình</div><div class="m-val" id="js-rr">—</div></div>
+      <div class="metric"><div class="m-lbl">Bailout thực hiện</div><div class="m-val ok" id="js-bail">0</div></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Larry Williams System · Long-Term Secrets to Short-Term Trading<br>
+  Phiên bản cho VN-Index · Dữ liệu lưu cục bộ trong trình duyệt
+</footer>
+</div>
+
+<script>
+// ── CLOCK ──
+function tick(){
+  const n=new Date();
+  document.getElementById('clock').textContent=
+    n.toLocaleDateString('vi-VN',{weekday:'short',day:'2-digit',month:'2-digit'})+
+    '  '+n.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
+}
+tick(); setInterval(tick,30000);
+
+// ── TABS ──
+function goTab(id,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('tab-'+id).classList.add('on');
+  btn.classList.add('on');
+  if(id==='vitthe')calcMM();
+}
+
+// ── VOLATILITY PHASE ──
+let volPhase='';
+function setVolPhase(p){
+  volPhase=p;
+  ['small','normal','large'].forEach(v=>{
+    const el=document.getElementById('vc-'+v);
+    el.style.borderColor=v===p?'var(--gold-border)':'var(--border)';
+    el.style.background=v===p?'var(--gold-bg)':'';
+  });
+  const ad=document.getElementById('vol-advice');
+  const adtxt=document.getElementById('vol-advice-text');
+  ad.style.display='block';
+  if(p==='small'){adtxt.innerHTML='<b style="color:var(--green2)">Pha tích lũy — chuẩn bị vào lệnh.</b> Range đang hẹp, sắp có nến lớn. Setup Volatility Breakout hoặc chờ OOPS!/Smash Day. Đây là thời điểm nguy hiểm nhất để trade theo trend cũ.';}
+  else if(p==='normal'){adtxt.innerHTML='<b style="color:var(--text)">Pha trung tính — quan sát.</b> Chờ range về hẹp hơn để setup breakout, hoặc tìm OOPS!/Smash Day pattern.';}
+  else{adtxt.innerHTML='<b style="color:var(--amber)">Pha range lớn — thận trọng.</b> Sau nến lớn thường là nến nhỏ. Không setup Volatility Breakout lúc này. Chờ thị trường về tích lũy nếu đang mua. Có thể Bailout Exit lệnh đang lời.';}
+}
+
+// ── CLOSE POSITION ──
+function calcClosePos(){
+  const h=+document.getElementById('ch-high').value;
+  const l=+document.getElementById('ch-low').value;
+  const c=+document.getElementById('ch-close').value;
+  const el=document.getElementById('close-result');
+  if(!h||!l||!c||h<=l){el.style.display='none';return;}
+  const pct=(c-l)/(h-l)*100;
+  let msg,color;
+  if(pct>=75){msg=`Close ở <b>${pct.toFixed(0)}%</b> trên range → 25% trên cùng. <span style="color:var(--green2)">Bullish — phe mua kiểm soát cuối phiên.</span> Dấu hiệu Smash Day Buy nếu hôm nay là nến biến động mạnh.`;color='var(--green-border)';}
+  else if(pct<=25){msg=`Close ở <b>${pct.toFixed(0)}%</b> trên range → 25% dưới cùng. <span style="color:var(--red2)">Bearish — phe bán kiểm soát cuối phiên.</span> Dấu hiệu Smash Day Sell nếu hôm nay là nến biến động mạnh.`;color='var(--red-border)';}
+  else{msg=`Close ở <b>${pct.toFixed(0)}%</b> trên range → vùng trung tính. Không có tín hiệu close position rõ ràng.`;color='var(--border2)';}
+  el.innerHTML=msg; el.style.display='block'; el.style.borderLeft=`2px solid ${color}`; el.style.paddingLeft='12px';
+}
+
+// ── DAY TYPE ADVICE ──
+const dayAdviceMap={
+  'inside':'<div class="card" style="margin:0;padding:12px 14px"><div class="card-title">Inside Day — Tích lũy</div><div class="card-sub" style="margin-top:6px">Toàn bộ range hôm nay nằm trong range hôm qua. Đây là giai đoạn nghỉ ngơi / tích lũy. <b style="color:var(--text)">Chuẩn bị cho breakout phiên tiếp theo.</b> Setup lệnh buy/sell trigger tại high/low của ngày hôm qua. Volatility Breakout rất hiệu quả sau Inside Day.</div></div>',
+  'outside':'<div class="card" style="margin:0;padding:12px 14px"><div class="card-title">Outside Day — Đảo chiều tiềm năng</div><div class="card-sub" style="margin-top:6px">Range hôm nay bao ngoài range hôm qua. Tín hiệu đảo chiều phụ thuộc vào <b style="color:var(--text)">vị trí đóng cửa</b>: Đóng cửa ở 25% trên = bullish. Đóng cửa ở 25% dưới = bearish. Kết hợp với Williams %R để xác nhận.</div></div>',
+  'gap-up':'<div class="card accent-red" style="margin:0;padding:12px 14px"><div class="card-title">Gap Up — Cơ hội OOPS! Sell</div><div class="card-sub" style="margin-top:6px">Mở cửa cao hơn high hôm qua. Nếu giá quay đầu và phá xuống dưới high hôm qua: <b style="color:var(--red2)">OOPS! Sell setup.</b> Chờ xác nhận trước khi vào. Nhiều trader amateur nhảy theo gap up — đây là bẫy họ.</div></div>',
+  'gap-down':'<div class="card accent-green" style="margin:0;padding:12px 14px"><div class="card-title">Gap Down — Cơ hội OOPS! Buy</div><div class="card-sub" style="margin-top:6px">Mở cửa thấp hơn low hôm qua. Nếu giá phục hồi và vượt lên trên low hôm qua: <b style="color:var(--green2)">OOPS! Buy setup.</b> Đây là setup có xác suất cao nhất trong sách Williams. Chờ giá quay lại rõ ràng.</div></div>',
+  'normal':'<div class="card" style="margin:0;padding:12px 14px"><div class="card-title">Normal Day — Theo tín hiệu kỹ thuật</div><div class="card-sub" style="margin-top:6px">Không có gap, không có Inside/Outside Day đặc biệt. Phụ thuộc vào Williams %R và chu kỳ biến động. Xem Tab Tín hiệu để đánh giá đủ điều kiện hay không.</div></div>'
+};
+function showDayAdvice(){
+  const v=document.getElementById('day-type').value;
+  const el=document.getElementById('day-advice');
+  if(!v){el.style.display='none';return;}
+  el.innerHTML=dayAdviceMap[v]||'';
+  el.style.display='block';
+}
+
+// ── PATTERN SELECTION ──
+let selPat='';
+function selectPat(id){
+  if(selPat===id){selPat='';document.getElementById('pat-'+id).classList.remove('selected');return;}
+  if(selPat)document.getElementById('pat-'+selPat).classList.remove('selected');
+  selPat=id;
+  document.getElementById('pat-'+id).classList.add('selected');
+}
+
+// ── CHECK SIGNALS ──
+const checks={};
+['f1','f2','f3','f4','f5','f6','f7','f8','f9'].forEach(c=>checks[c]=false);
+function toggleCheck(id){
+  checks[id]=!checks[id];
+  const b=document.getElementById(id+'-box');
+  b.className='check-box'+(checks[id]?' on':'');
+  updateSigVerdict();
+}
+function updateSigVerdict(){
+  const cnt=Object.values(checks).filter(Boolean).length;
+  const pct=cnt/9*100;
+  document.getElementById('sig-score').textContent=cnt+'/9';
+  document.getElementById('sig-bar').style.width=pct+'%';
+  const vt=document.getElementById('sig-title');
+  const vs=document.getElementById('sig-sub');
+  const vb=document.getElementById('sig-bar');
+  const vtag=document.getElementById('sig-tag');
+  const vbox=document.getElementById('sig-verdict');
+  if(cnt>=7){
+    vt.textContent='Đủ tín hiệu — vào lệnh';
+    vs.textContent=cnt===9?'Tất cả tín hiệu hội tụ — setup lý tưởng':'Đa số tín hiệu xanh, có thể vào lệnh';
+    vtag.textContent='GO';vtag.style.color='var(--green2)';vtag.style.borderColor='var(--green-border)';vtag.style.background='var(--green-bg)';
+    vbox.style.borderColor='var(--green-border)';vb.style.background='var(--green2)';
+  }else if(cnt>=5){
+    vt.textContent='Tín hiệu trung bình — thận trọng';
+    vs.textContent='Có thể vào lệnh nhỏ, nhưng nên chờ thêm xác nhận';
+    vtag.textContent='CAUTION';vtag.style.color='var(--amber)';vtag.style.borderColor='var(--amber-border)';vtag.style.background='var(--amber-bg)';
+    vbox.style.borderColor='var(--amber-border)';vb.style.background='var(--amber)';
+  }else{
+    vt.textContent='Chưa đủ tín hiệu — không giao dịch';
+    vs.textContent='Tích vào các điều kiện đã thỏa mãn phiên hôm nay';
+    vtag.textContent='WAIT';vtag.style.color='var(--text3)';vtag.style.borderColor='var(--border2)';vtag.style.background='';
+    vbox.style.borderColor='var(--border)';vb.style.background='var(--text3)';
+  }
+}
+
+// ── WILLIAMS %R ──
+function calcWR(){
+  const h=+document.getElementById('wr-high').value;
+  const l=+document.getElementById('wr-low').value;
+  const c=+document.getElementById('wr-close').value;
+  const el=document.getElementById('wr-result');
+  if(!h||!l||!c||h<=l){el.style.display='none';return;}
+  const wr=((h-c)/(h-l)*-100);
+  const pct=(wr+100)/100*100;
+  document.getElementById('wr-val').textContent='%R = '+wr.toFixed(1);
+  document.getElementById('wr-thumb').style.left=Math.min(Math.max(pct,2),98)+'%';
+  let sig,col;
+  if(wr<=-80){sig='QUÁ BÁN — Tín hiệu MUA tiềm năng. Chờ xác nhận mẫu hình.';col='var(--green2)';}
+  else if(wr>=-20){sig='QUÁ MUA — Cân nhắc chốt lời / tránh vào lệnh mua.';col='var(--red2)';}
+  else{sig='Vùng trung tính — chờ thêm tín hiệu.';col='var(--text2)';}
+  const sigEl=document.getElementById('wr-signal');
+  sigEl.textContent=sig; sigEl.style.color=col;
+  el.style.display='block';
+}
+
+// ── VOLATILITY BREAKOUT ──
+function calcVB(){
+  const o=+document.getElementById('vb-open').value;
+  const atr=+document.getElementById('vb-atr').value;
+  const f=+document.getElementById('vb-factor').value;
+  const el=document.getElementById('vb-result');
+  if(!o||!atr){el.style.display='none';return;}
+  const buy=o+atr*f;
+  const sell=o-atr*f;
+  const fmt=n=>new Intl.NumberFormat('vi-VN').format(Math.round(n))+'₫';
+  document.getElementById('vb-buy').textContent=fmt(buy);
+  document.getElementById('vb-sell').textContent=fmt(sell);
+  el.style.display='block';
+}
+
+// ── MONEY MANAGEMENT ──
+function calcMM(){
+  const cap=+document.getElementById('mm-cap').value||0;
+  const rp=+document.getElementById('mm-risk').value||2;
+  const entry=+document.getElementById('mm-entry').value||0;
+  const stop=+document.getElementById('mm-stop').value||0;
+  const target=+document.getElementById('mm-target').value||0;
+  const fee=+document.getElementById('mm-fee').value||0.25;
+  const fmt=n=>new Intl.NumberFormat('vi-VN').format(Math.round(n))+'₫';
+  const ids=['mm-qty','mm-val','mm-actualrisk','mm-pct','mm-rr','mm-slpct'];
+  if(!cap||!entry||!stop||entry<=stop){ids.forEach(i=>{document.getElementById(i).textContent='—';document.getElementById(i).className='m-val';});return;}
+  const riskAmt=cap*rp/100;
+  const sd=entry-stop;
+  const slpct=sd/entry*100;
+  const qty=Math.floor(riskAmt/sd/100)*100;
+  if(qty<=0){ids.forEach(i=>{document.getElementById(i).textContent='—';document.getElementById(i).className='m-val';});return;}
+  const val=qty*entry;
+  const actualRisk=qty*sd;
+  const usedPct=val/cap*100;
+  const fees=val*fee/100*2;
+  const rr=target>entry?(qty*(target-entry)-fees)/(actualRisk+fees):0;
+  document.getElementById('mm-qty').textContent=new Intl.NumberFormat('vi-VN').format(qty)+' CP';
+  document.getElementById('mm-val').textContent=fmt(val);
+  document.getElementById('mm-actualrisk').textContent=fmt(actualRisk);
+  const pEl=document.getElementById('mm-pct'); pEl.textContent=usedPct.toFixed(1)+'%'; pEl.className='m-val'+(usedPct>80?' bad':usedPct>50?' warn':'');
+  const rrEl=document.getElementById('mm-rr'); rrEl.textContent=rr.toFixed(2)+'R'; rrEl.className='m-val'+(rr>=2?' ok':rr>=1?' warn':' bad');
+  document.getElementById('mm-slpct').textContent=slpct.toFixed(1)+'%';
+  const sv=document.getElementById('mm-verdict'); sv.style.display='flex';
+  const st=document.getElementById('mm-v-title'); const ss=document.getElementById('mm-v-sub'); const stag=document.getElementById('mm-v-tag');
+  if(rr<1){st.textContent='R:R quá thấp — không vào lệnh';ss.textContent='Điều chỉnh target hoặc tight stop loss để đạt ≥2R.';stag.textContent='SKIP';stag.style.color='var(--red2)';stag.style.borderColor='var(--red-border)';stag.style.background='var(--red-bg)';sv.style.borderColor='var(--red-border)';}
+  else if(rr<2){st.textContent='R:R chấp nhận được';ss.textContent='Có thể vào. Tìm setup tốt hơn nếu được (mục tiêu ≥2R).';stag.textContent='OK';stag.style.color='var(--amber)';stag.style.borderColor='var(--amber-border)';stag.style.background='var(--amber-bg)';sv.style.borderColor='var(--amber-border)';}
+  else{st.textContent='Setup tốt — R:R đạt chuẩn';ss.textContent='Vào lệnh khi tín hiệu Tab 3 đạt ≥7/9.';stag.textContent='GOOD';stag.style.color='var(--green2)';stag.style.borderColor='var(--green-border)';stag.style.background='var(--green-bg)';sv.style.borderColor='var(--green-border)';}
+}
+
+// ── JOURNAL ──
+let jtrades=JSON.parse(localStorage.getItem('lw2-trades')||'[]');
+let jFormOpen=false;
+const patNames={'oops-buy':'OOPS! Buy','oops-sell':'OOPS! Sell','smash-buy':'Smash Day Buy','smash-sell':'Smash Day Sell','volbo':'Vol. Breakout','trap':'Specialists Trap','other':'Khác'};
+
+function saveJ(){localStorage.setItem('lw2-trades',JSON.stringify(jtrades));}
+function toggleJForm(){
+  jFormOpen=!jFormOpen;
+  document.getElementById('j-form').style.display=jFormOpen?'block':'none';
+  if(!jFormOpen)['jf-tick','jf-entry','jf-stop','jf-target','jf-sig'].forEach(i=>document.getElementById(i).value='');
+}
+function addJTrade(){
+  const tick=(document.getElementById('jf-tick').value||'').toUpperCase().trim();
+  const entry=+document.getElementById('jf-entry').value;
+  const stop=+document.getElementById('jf-stop').value;
+  const target=+document.getElementById('jf-target').value;
+  const type=document.getElementById('jf-type').value;
+  const pat=document.getElementById('jf-pat').value;
+  const sig=+document.getElementById('jf-sig').value||0;
+  if(!tick||!entry||!stop||!target)return;
+  jtrades.unshift({id:Date.now(),tick,entry,stop,target,type,pat,sig,bailout:false,date:new Date().toLocaleDateString('vi-VN')});
+  saveJ();renderJ();toggleJForm();
+}
+function toggleBailout(id){const t=jtrades.find(x=>x.id===id);if(t){t.bailout=!t.bailout;saveJ();renderJ();}}
+function delTrade(id){if(!confirm('Xóa lệnh này?'))return;jtrades=jtrades.filter(x=>x.id!==id);saveJ();renderJ();}
+function fmt(n){return new Intl.NumberFormat('vi-VN').format(Math.round(n));}
+
+function renderJ(){
+  const list=document.getElementById('journal-list');
+  const empty=document.getElementById('journal-empty');
+  const stats=document.getElementById('j-stats');
+  if(!jtrades.length){list.innerHTML='';empty.style.display='block';stats.style.display='none';return;}
+  empty.style.display='none';stats.style.display='block';
+  list.innerHTML=jtrades.map(t=>{
+    const rr=t.target>t.entry?((t.target-t.entry)/(t.entry-t.stop)).toFixed(2):'—';
+    const sl=((t.entry-t.stop)/t.entry*100).toFixed(1);
+    const rrc=parseFloat(rr)>=2?'var(--green2)':parseFloat(rr)>=1?'var(--amber)':'var(--red2)';
+    let pill='';
+    if(t.type==='bailout')pill=t.bailout?`<span class="j-pill pill-done">Bailout ✓</span>`:`<span class="j-pill pill-pending" onclick="toggleBailout(${t.id})">Đánh dấu Bailout</span>`;
+    else pill=`<span class="j-pill pill-trailing">Trailing</span>`;
+    const pname=patNames[t.pat]||t.pat;
+    return`<div class="j-row">
+      <div class="j-ticker">${t.tick}</div>
+      <div class="j-meta">
+        <span style="color:var(--gold2);font-size:10px">${pname}</span>
+        <span>Vào <b>${fmt(t.entry)}₫</b></span>
+        <span>SL <b>${fmt(t.stop)}₫</b> (${sl}%)</span>
+        <span>TP <b>${fmt(t.target)}₫</b></span>
+        <span>Sig <b>${t.sig}/9</b></span>
+        <span style="color:var(--text3)">${t.date}</span>
+      </div>
+      ${pill}
+      <div class="j-rr" style="color:${rrc}">${rr}R</div>
+      <button class="btn-del" onclick="delTrade(${t.id})">×</button>
+    </div>`;
+  }).join('');
+  const rrvals=jtrades.map(t=>t.target>t.entry?(t.target-t.entry)/(t.entry-t.stop):0).filter(Boolean);
+  const avgRR=rrvals.length?(rrvals.reduce((a,b)=>a+b,0)/rrvals.length).toFixed(2)+'R':'—';
+  document.getElementById('js-total').textContent=jtrades.length;
+  document.getElementById('js-rr').textContent=avgRR;
+  document.getElementById('js-bail').textContent=jtrades.filter(t=>t.bailout).length+'/'+jtrades.filter(t=>t.type==='bailout').length;
+}
+
+renderJ();
+calcMM();
+</script>
+</body>
+</html>
