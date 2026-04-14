@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>LW Seasonal Dashboard · VN-Index</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090d;--bg2:#0e1118;--bg3:#151a24;--bg4:#1c2232;
+  --border:rgba(255,255,255,0.055);--border2:rgba(255,255,255,0.11);--border3:rgba(255,255,255,0.2);
+  --text:#d4d8e8;--text2:#6e7890;--text3:#3e4558;
+  --gold:#c8941a;--gold2:#e8b040;--gold-bg:rgba(200,148,26,0.09);--gold-bd:rgba(200,148,26,0.28);
+  --green:#22a87a;--green2:#38cf96;--green-bg:rgba(34,168,122,0.1);--green-bd:rgba(34,168,122,0.3);
+  --red:#c83838;--red2:#f06868;--red-bg:rgba(200,56,56,0.1);--red-bd:rgba(200,56,56,0.3);
+  --blue:#3868d8;--blue2:#5888f8;--blue-bg:rgba(56,104,216,0.09);--blue-bd:rgba(56,104,216,0.28);
+  --purple:#8848cc;--purple2:#aa68ee;--purple-bg:rgba(136,72,204,0.09);--purple-bd:rgba(136,72,204,0.28);
+  --teal:#18a8b8;--teal2:#30c8d8;--teal-bg:rgba(24,168,184,0.09);--teal-bd:rgba(24,168,184,0.28);
+  --r:8px;--r2:12px;--mono:'DM Mono',monospace;--sans:'Sora',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.65;min-height:100vh}
+.shell{max-width:1200px;margin:0 auto;padding:0 20px 80px}
+
+/* HEADER */
+.hdr{display:flex;align-items:flex-end;justify-content:space-between;padding:24px 0 20px;border-bottom:1px solid var(--border);margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.hdr-brand .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.hdr-brand h1{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
+.hdr-brand h1 span{color:var(--gold2)}
+.hdr-brand .sub{font-size:12px;color:var(--text2);font-family:var(--mono);margin-top:4px}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pill{font-family:var(--mono);font-size:10px;padding:5px 12px;border-radius:20px;background:var(--bg3);border:1px solid var(--border2);color:var(--text2)}
+.pill.on{color:var(--green2);border-color:var(--green-bd);background:var(--green-bg)}
+.pill.month-now{color:var(--gold2);border-color:var(--gold-bd);background:var(--gold-bg);font-weight:500}
+
+/* TABS */
+.tabs{display:flex;gap:2px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:3px;margin-bottom:24px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:1;min-width:100px;background:none;border:none;padding:9px 10px;font-family:var(--sans);font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;border-radius:var(--r);transition:.15s;white-space:nowrap;text-align:center}
+.tab:hover{color:var(--text);background:var(--bg3)}
+.tab.on{background:var(--bg3);color:var(--text);border:1px solid var(--border2)}
+.panel{display:none}.panel.on{display:block}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:18px 20px;margin-bottom:14px}
+.card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px}
+.slbl{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin:20px 0 10px}
+.slbl:first-child{margin-top:0}
+.divider{height:1px;background:var(--border);margin:16px 0}
+
+/* FIELDS */
+.fg{display:grid;gap:12px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}.g4{grid-template-columns:repeat(4,1fr)}
+.field label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.field input,.field select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:9px 12px;font-family:var(--mono);font-size:12px;color:var(--text);outline:none;transition:.15s;-webkit-appearance:none}
+.field input:focus,.field select:focus{border-color:var(--gold-bd)}
+.field select option{background:var(--bg2)}
+.field .hint{font-size:11px;color:var(--text3);margin-top:5px;font-family:var(--mono)}
+
+/* UPLOAD */
+.upload-zone{border:1px dashed var(--border2);border-radius:var(--r2);padding:32px;text-align:center;cursor:pointer;transition:.2s;background:var(--bg2);margin-bottom:14px}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--gold-bd);background:var(--gold-bg)}
+.upload-text{font-size:14px;color:var(--text2)}.upload-text b{color:var(--gold2)}
+.upload-hint{font-size:11px;color:var(--text3);margin-top:6px;font-family:var(--mono)}
+
+/* BTNS */
+.btn{padding:9px 20px;border-radius:var(--r);font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;transition:.15s;border:none;display:inline-flex;align-items:center;gap:8px}
+.btn-gold{background:var(--gold);color:#07090d}.btn-gold:hover{background:var(--gold2)}
+.btn-ghost{background:none;border:1px solid var(--border2);color:var(--text2)}.btn-ghost:hover{color:var(--text);border-color:var(--border3)}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-danger{background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red2)}
+
+/* METRICS */
+.mrow{display:grid;gap:10px;margin-bottom:16px}
+.m4{grid-template-columns:repeat(4,1fr)}.m3{grid-template-columns:repeat(3,1fr)}.m2{grid-template-columns:1fr 1fr}
+.metric{background:var(--bg3);border-radius:var(--r2);padding:14px 16px;border:1px solid var(--border)}
+.metric.accent-gold{border-color:var(--gold-bd);background:var(--gold-bg)}
+.metric.accent-green{border-color:var(--green-bd);background:var(--green-bg)}
+.metric.accent-red{border-color:var(--red-bd);background:var(--red-bg)}
+.m-lbl{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.m-val{font-family:var(--mono);font-size:22px;font-weight:500;color:var(--text);line-height:1}
+.m-val.ok{color:var(--green2)}.m-val.bad{color:var(--red2)}.m-val.warn{color:var(--gold2)}.m-val.info{color:var(--blue2)}
+.m-note{font-size:11px;color:var(--text3);margin-top:5px;font-family:var(--mono)}
+
+/* BADGE */
+.badge{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:20px;border:1px solid;white-space:nowrap}
+.b-green{color:var(--green2);border-color:var(--green-bd);background:var(--green-bg)}
+.b-red{color:var(--red2);border-color:var(--red-bd);background:var(--red-bg)}
+.b-gold{color:var(--gold2);border-color:var(--gold-bd);background:var(--gold-bg)}
+.b-blue{color:var(--blue2);border-color:var(--blue-bd);background:var(--blue-bg)}
+.b-purple{color:var(--purple2);border-color:var(--purple-bd);background:var(--purple-bg)}
+.b-teal{color:var(--teal2);border-color:var(--teal-bd);background:var(--teal-bg)}
+
+/* CHARTS */
+.chart-wrap{position:relative;height:260px;margin:10px 0}
+.chart-wrap.tall{height:320px}
+.chart-wrap.short{height:180px}
+
+/* HEATMAP */
+.heatmap-wrap{overflow-x:auto}
+.heatmap{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:11px}
+.heatmap th{padding:6px 8px;color:var(--text3);text-align:center;font-weight:400;letter-spacing:.04em;white-space:nowrap;font-size:10px}
+.heatmap th.year-col{text-align:right;padding-right:12px;min-width:52px}
+.heatmap td{padding:5px 4px;text-align:center;border-radius:4px;cursor:default;transition:.15s;min-width:48px;font-size:11px}
+.heatmap td:hover{filter:brightness(1.3)}
+.hm-strong-pos{background:rgba(34,168,122,0.65);color:#e0fff6}
+.hm-pos{background:rgba(34,168,122,0.3);color:#a0ffe0}
+.hm-light-pos{background:rgba(34,168,122,0.12);color:#60c8a0}
+.hm-zero{background:rgba(255,255,255,0.04);color:var(--text3)}
+.hm-light-neg{background:rgba(200,56,56,0.12);color:#c08080}
+.hm-neg{background:rgba(200,56,56,0.3);color:#ffa0a0}
+.hm-strong-neg{background:rgba(200,56,56,0.65);color:#ffe0e0}
+.hm-avg{background:var(--bg4);color:var(--text);font-weight:500}
+.hm-now{outline:2px solid var(--gold2);outline-offset:-2px}
+
+/* STOCK TAG ROWS */
+.stock-tag-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg3);border-radius:var(--r);margin-bottom:8px;border:1px solid var(--border);flex-wrap:wrap}
+.stock-name{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--gold2);min-width:56px}
+.stock-meta{font-size:11px;color:var(--text3);font-family:var(--mono);min-width:80px}
+.tag-fields{display:flex;gap:8px;flex:1;flex-wrap:wrap}
+.tag-select{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:5px 10px;font-family:var(--mono);font-size:11px;color:var(--text);outline:none;cursor:pointer;-webkit-appearance:none}
+.tag-select:focus{border-color:var(--gold-bd)}
+.del-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;line-height:1;padding:0 4px;transition:.15s;flex-shrink:0}
+.del-btn:hover{color:var(--red2)}
+
+/* GROUP LEGEND */
+.group-legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.legend-item{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--text2);cursor:pointer;padding:4px 10px;border-radius:20px;border:1px solid var(--border);transition:.15s}
+.legend-item:hover{border-color:var(--border2);color:var(--text)}
+.legend-item.off{opacity:.35}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* MONTH RANK TABLE */
+.rank-tbl{width:100%;border-collapse:collapse}
+.rank-tbl th{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.rank-tbl td{padding:8px 12px;border-bottom:1px solid var(--border);font-size:12px;vertical-align:middle}
+.rank-tbl tr:last-child td{border-bottom:none}
+.rank-tbl .num{font-family:var(--mono);text-align:right}
+.rank-num{font-family:var(--mono);font-size:16px;color:var(--text3);min-width:28px}
+.wr-bar{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:4px;width:100px}
+.wr-fill{height:100%;border-radius:3px}
+
+/* SELECTOR PILLS */
+.sel-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.sel-pill{font-family:var(--mono);font-size:11px;padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:none;color:var(--text2);cursor:pointer;transition:.15s}
+.sel-pill:hover{color:var(--text);border-color:var(--border3)}
+.sel-pill.on{border-color:var(--gold-bd);background:var(--gold-bg);color:var(--gold2)}
+
+/* SPLIT GRID */
+.split2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.split3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+/* INFO */
+.info{border-left:2px solid var(--gold-bd);padding:10px 14px;background:var(--gold-bg);border-radius:0 var(--r) var(--r) 0;margin-bottom:14px;font-size:12px;color:var(--text2);line-height:1.6}
+.info b{color:var(--gold2)}
+
+/* EMPTY */
+.empty{text-align:center;padding:48px 24px;color:var(--text3);font-size:13px;border:1px dashed var(--border);border-radius:var(--r2)}
+
+/* MONTH BAR CURRENT */
+.month-now-indicator{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;color:var(--gold2);margin-bottom:10px}
+.month-now-indicator::before{content:'';display:block;width:2px;height:16px;background:var(--gold2);border-radius:1px}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+footer{border-top:1px solid var(--border);padding:18px 0 0;margin-top:40px;font-family:var(--mono);font-size:10px;color:var(--text3);text-align:center;letter-spacing:.08em;line-height:2}
+
+@media(max-width:720px){
+  .g3,.g4,.m4,.split2,.split3{grid-template-columns:1fr 1fr}
+  .m3{grid-template-columns:1fr 1fr 1fr}
+  .tabs .tab{font-size:11px;padding:7px 8px}
+}
+@media(max-width:480px){
+  .g3,.g4,.m4,.m3,.split2,.split3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-brand">
+    <div class="eyebrow">Larry Williams · Seasonal Analysis</div>
+    <h1>Seasonal <span>Dashboard</span> · VN-Index</h1>
+    <div class="sub">Phân tích vị trí theo mùa — Where in the Year?</div>
+  </div>
+  <div class="hdr-right">
+    <span class="pill month-now" id="month-now-pill">—</span>
+    <span class="pill on" id="stock-count-pill">0 mã</span>
+    <span class="pill" id="clock">—</span>
+  </div>
+</header>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab on" onclick="goTab('upload',this)">① Dữ liệu & Nhóm</button>
+  <button class="tab"    onclick="goTab('overview',this)">② Tổng quan Seasonal</button>
+  <button class="tab"    onclick="goTab('heatmap',this)">③ Heatmap Tháng × Năm</button>
+  <button class="tab"    onclick="goTab('group',this)">④ So sánh nhóm</button>
+  <button class="tab"    onclick="goTab('stock',this)">⑤ Chi tiết mã CP</button>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- TAB 1: UPLOAD & TAG                   -->
+<!-- ══════════════════════════════════════ -->
+<div id="tab-upload" class="panel on">
+  <div class="info">
+    <b>Larry Williams:</b> "Seasonal patterns are among the most reliable forces in markets — they repeat year after year because human behavior doesn't change." Upload file JSON (Fireant) hoặc CSV, sau đó gán nhóm <b>Ngành</b> và <b>Vốn hoá</b> cho từng mã để so sánh seasonal theo nhóm.
+  </div>
+
+  <div class="upload-zone" id="drop-zone"
+    onclick="document.getElementById('file-in').click()"
+    ondragover="event.preventDefault();this.classList.add('drag')"
+    ondragleave="this.classList.remove('drag')"
+    ondrop="onDrop(event)">
+    <div style="font-size:28px;margin-bottom:10px;opacity:.6">📂</div>
+    <div class="upload-text">Kéo thả hoặc <b>nhấn để chọn file</b></div>
+    <div class="upload-hint">Fireant JSON · CSV OHLCV · Nhiều file cùng lúc · Tên file = Mã CP</div>
+  </div>
+  <input type="file" id="file-in" multiple accept=".json,.csv,.txt" style="display:none" onchange="handleFiles(this.files)">
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px">
+    <button class="btn btn-ghost" onclick="loadSample()">📊 Dữ liệu mẫu (6 mã, nhiều ngành)</button>
+    <button class="btn btn-danger btn-sm" onclick="clearAll()">🗑 Xóa tất cả</button>
+  </div>
+
+  <!-- STOCK TAG LIST -->
+  <div class="slbl">Gán nhóm cho từng mã</div>
+  <div id="tag-list"><div class="empty">Chưa có dữ liệu — upload file hoặc dùng dữ liệu mẫu</div></div>
+
+  <div id="tag-actions" style="display:none;margin-top:14px">
+    <button class="btn btn-gold" onclick="buildDashboard()">▶ Xây dựng Seasonal Dashboard</button>
+  </div>
+
+  <!-- LOADED SUMMARY -->
+  <div id="loaded-summary" style="display:none;margin-top:20px">
+    <div class="slbl">Tổng kết dữ liệu</div>
+    <div class="mrow m4" id="summary-stats"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- TAB 2: SEASONAL OVERVIEW              -->
+<!-- ══════════════════════════════════════ -->
+<div id="tab-overview" class="panel">
+  <div id="ov-empty" class="empty">Upload dữ liệu và chạy Dashboard trước.</div>
+  <div id="ov-content" style="display:none">
+
+    <!-- CURRENT POSITION -->
+    <div class="card" style="background:linear-gradient(135deg,var(--bg2),var(--gold-bg));border-color:var(--gold-bd)">
+      <div class="month-now-indicator" id="ov-now-label">Đang ở Tháng —</div>
+      <div class="fg g4" id="ov-now-metrics"></div>
+    </div>
+
+    <!-- BEST/WORST MONTHS RANKING -->
+    <div class="split2" style="margin-bottom:14px">
+      <div>
+        <div class="slbl">🏆 Tháng tốt nhất (avg return)</div>
+        <div class="card" style="padding:14px">
+          <div id="best-months-list"></div>
+        </div>
+      </div>
+      <div>
+        <div class="slbl">⚠️ Tháng yếu nhất</div>
+        <div class="card" style="padding:14px">
+          <div id="worst-months-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AVERAGE SEASONAL PATTERN BAR CHART -->
+    <div class="slbl">Biểu đồ Seasonal — Return TB tháng (tất cả mã, nhiều năm)</div>
+    <div class="card" style="padding:14px">
+      <div class="chart-wrap tall"><canvas id="ov-bar-chart"></canvas></div>
+    </div>
+
+    <!-- QUARTERLY BREAKDOWN -->
+    <div class="slbl">Phân tích theo Quý</div>
+    <div class="split2">
+      <div class="card" style="padding:14px">
+        <div class="card-title">Return TB theo Quý</div>
+        <div class="chart-wrap"><canvas id="ov-quarter-chart"></canvas></div>
+      </div>
+      <div>
+        <div class="mrow m2" id="quarter-metrics" style="margin-bottom:0"></div>
+      </div>
+    </div>
+
+    <!-- WIN RATE TABLE -->
+    <div class="slbl">Bảng Win Rate theo Tháng — % năm có return dương</div>
+    <div class="card" style="padding:14px;overflow-x:auto">
+      <table class="rank-tbl" id="month-rank-table"></table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- TAB 3: HEATMAP                        -->
+<!-- ══════════════════════════════════════ -->
+<div id="tab-heatmap" class="panel">
+  <div id="hm-empty" class="empty">Upload dữ liệu và chạy Dashboard trước.</div>
+  <div id="hm-content" style="display:none">
+
+    <!-- STOCK SELECTOR -->
+    <div class="slbl">Chọn mã cổ phiếu</div>
+    <div class="sel-pills" id="hm-stock-pills"></div>
+
+    <!-- VIEW MODE -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+      <span style="font-family:var(--mono);font-size:11px;color:var(--text3)">Đơn vị:</span>
+      <button class="sel-pill on" onclick="setHmMode('pct',this)">Return %</button>
+      <button class="sel-pill" onclick="setHmMode('abs',this)">Giá thay đổi</button>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-left:12px">Hiện:</span>
+      <button class="sel-pill on" onclick="setHmRange('all',this)">Tất cả năm</button>
+      <button class="sel-pill" onclick="setHmRange('10y',this)">10 năm gần</button>
+      <button class="sel-pill" onclick="setHmRange('5y',this)">5 năm gần</button>
+    </div>
+
+    <!-- HEATMAP TABLE -->
+    <div class="card" style="padding:14px">
+      <div class="heatmap-wrap" id="hm-table-wrap">
+        <div class="empty">Chọn mã để xem heatmap</div>
+      </div>
+    </div>
+
+    <!-- HEATMAP LEGEND -->
+    <div style="display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:8px;flex-wrap:wrap">
+      <span>Màu sắc:</span>
+      <span style="background:rgba(34,168,122,0.65);color:#e0fff6;padding:2px 8px;border-radius:3px">≥+5%</span>
+      <span style="background:rgba(34,168,122,0.3);color:#a0ffe0;padding:2px 8px;border-radius:3px">+2→5%</span>
+      <span style="background:rgba(34,168,122,0.12);padding:2px 8px;border-radius:3px">0→2%</span>
+      <span style="background:rgba(255,255,255,0.04);padding:2px 8px;border-radius:3px">≈0</span>
+      <span style="background:rgba(200,56,56,0.12);padding:2px 8px;border-radius:3px">-2→0%</span>
+      <span style="background:rgba(200,56,56,0.3);color:#ffa0a0;padding:2px 8px;border-radius:3px">-5→-2%</span>
+      <span style="background:rgba(200,56,56,0.65);color:#ffe0e0;padding:2px 8px;border-radius:3px">≤-5%</span>
+      <span style="margin-left:8px;outline:2px solid var(--gold2);padding:2px 8px;border-radius:3px">Tháng hiện tại</span>
+    </div>
+
+    <!-- YEAR COMPARISON CHART -->
+    <div class="slbl">So sánh năm — Seasonal pattern từng năm vs TB lịch sử</div>
+    <div class="card" style="padding:14px">
+      <div class="chart-wrap tall"><canvas id="hm-year-chart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- TAB 4: GROUP COMPARISON               -->
+<!-- ══════════════════════════════════════ -->
+<div id="tab-group" class="panel">
+  <div id="grp-empty" class="empty">Upload dữ liệu và chạy Dashboard trước.</div>
+  <div id="grp-content" style="display:none">
+
+    <!-- GROUP BY SELECTOR -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+      <span style="font-family:var(--mono);font-size:11px;color:var(--text3)">Nhóm theo:</span>
+      <button class="sel-pill on" onclick="setGroupBy('sector',this)">Ngành</button>
+      <button class="sel-pill" onclick="setGroupBy('cap',this)">Vốn hoá</button>
+    </div>
+
+    <!-- GROUP LEGEND -->
+    <div class="group-legend" id="grp-legend"></div>
+
+    <!-- GROUP SEASONAL OVERLAY CHART -->
+    <div class="slbl">Seasonal Pattern — Overlay theo nhóm (avg return %/tháng)</div>
+    <div class="card" style="padding:14px">
+      <div class="chart-wrap tall"><canvas id="grp-overlay-chart"></canvas></div>
+    </div>
+
+    <!-- HEATMAP MỖI NHÓM -->
+    <div class="slbl">Heatmap theo nhóm — Return TB từng tháng</div>
+    <div id="grp-heatmaps"></div>
+
+    <!-- BEST MONTH PER GROUP -->
+    <div class="slbl">Tháng đỉnh cao theo từng nhóm</div>
+    <div class="split3" id="grp-best-months"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- TAB 5: STOCK DETAIL                   -->
+<!-- ══════════════════════════════════════ -->
+<div id="tab-stock" class="panel">
+  <div id="stk-empty" class="empty">Upload dữ liệu và chạy Dashboard trước.</div>
+  <div id="stk-content" style="display:none">
+
+    <!-- STOCK SELECTOR -->
+    <div class="slbl">Chọn mã cổ phiếu</div>
+    <div class="sel-pills" id="stk-pills"></div>
+
+    <!-- STOCK HEADER -->
+    <div class="card" style="background:linear-gradient(135deg,var(--bg2),var(--bg3));margin-bottom:14px" id="stk-header"></div>
+
+    <!-- KEY METRICS -->
+    <div class="mrow m4" id="stk-metrics"></div>
+
+    <!-- SEASONAL BAR + WIN RATE -->
+    <div class="split2">
+      <div>
+        <div class="slbl">Return TB từng tháng (% so đầu tháng)</div>
+        <div class="card" style="padding:14px"><div class="chart-wrap tall"><canvas id="stk-bar-chart"></canvas></div></div>
+      </div>
+      <div>
+        <div class="slbl">Win Rate theo tháng (% năm dương)</div>
+        <div class="card" style="padding:14px"><div class="chart-wrap tall"><canvas id="stk-wr-chart"></canvas></div></div>
+      </div>
+    </div>
+
+    <!-- HEATMAP RIÊNG -->
+    <div class="slbl">Heatmap chi tiết Tháng × Năm</div>
+    <div class="card" style="padding:14px"><div class="heatmap-wrap" id="stk-heatmap"></div></div>
+
+    <!-- BEST / WORST QUARTERS -->
+    <div class="slbl">Phân tích Quý & Giai đoạn trong năm</div>
+    <div class="split3" id="stk-quarter-cards"></div>
+
+    <!-- YEAR PERFORMANCE TABLE -->
+    <div class="slbl">Hiệu suất từng năm</div>
+    <div class="card" style="padding:14px;overflow-x:auto" id="stk-year-table"></div>
+  </div>
+</div>
+
+<footer>LW Seasonal Dashboard · Long-Term Secrets to Short-Term Trading<br>"Seasonal patterns give you the when — the rest is the how." — Larry Williams</footer>
+</div><!-- /shell -->
+
+<script>
+// ══════════════════════════════════════════
+// STATE & CONSTANTS
+// ══════════════════════════════════════════
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTHS_VI=['Th.1','Th.2','Th.3','Th.4','Th.5','Th.6','Th.7','Th.8','Th.9','Th.10','Th.11','Th.12'];
+const QUARTERS=['Q1 (1–3)','Q2 (4–6)','Q3 (7–9)','Q4 (10–12)'];
+const SECTORS=['Ngân hàng','Bất động sản','Tiêu dùng','Công nghiệp','Năng lượng','Công nghệ','Y tế','Vật liệu','Hạ tầng','Khác'];
+const CAPS=['VN30 (Large)','Mid Cap','Small Cap'];
+const GROUP_COLORS={
+  'Ngân hàng':'#3868d8','Bất động sản':'#8848cc','Tiêu dùng':'#22a87a',
+  'Công nghiệp':'#c8941a','Năng lượng':'#f06868','Công nghệ':'#18a8b8',
+  'Y tế':'#e8b040','Vật liệu':'#aa68ee','Hạ tầng':'#5888f8','Khác':'#6e7890',
+  'VN30 (Large)':'#e8b040','Mid Cap':'#5888f8','Small Cap':'#f06868'
+};
+const CHART_COLORS=['#e8b040','#38cf96','#5888f8','#f06868','#30c8d8','#aa68ee','#f5a040','#3fcf9a'];
+
+const stocks={};     // {ticker: {rows, sector, cap}}
+let dashboard=null;  // computed seasonal data
+let hmMode='pct', hmRange='all', groupBy='sector';
+let activeHmTicker=null, activeStkTicker=null;
+let charts={};
+let grpLegendOff={};
+
+// ══════════════════════════════════════════
+// CLOCK & INIT
+// ══════════════════════════════════════════
+const NOW=new Date();
+const CUR_MONTH=NOW.getMonth(); // 0-indexed
+const CUR_YEAR=NOW.getFullYear();
+
+function tick(){
+  document.getElementById('clock').textContent=
+    NOW.toLocaleDateString('vi-VN',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'});
+  document.getElementById('month-now-pill').textContent='Tháng '+(CUR_MONTH+1)+' / '+CUR_YEAR;
+}
+tick();
+
+// ══════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════
+function goTab(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('tab-'+id).classList.add('on');
+  if(btn) btn.classList.add('on');
+  else document.querySelectorAll('.tab')[['upload','overview','heatmap','group','stock'].indexOf(id)].classList.add('on');
+}
+
+// ══════════════════════════════════════════
+// FILE PARSING
+// ══════════════════════════════════════════
+function onDrop(ev){
+  ev.preventDefault();
+  document.getElementById('drop-zone').classList.remove('drag');
+  handleFiles(ev.dataTransfer.files);
+}
+function handleFiles(files){
+  Array.from(files).forEach(f=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const ticker=f.name.replace(/\.[^.]+$/,'').toUpperCase();
+      const text=e.target.result;
+      const isJSON=f.name.toLowerCase().endsWith('.json');
+      const rows=isJSON?parseJSON(text):parseCSV(text);
+      if(rows&&rows.length>5){
+        stocks[ticker]={rows,sector:guessSection(ticker),cap:'Mid Cap'};
+        renderTagList(); toast('✓ '+ticker+': '+rows.length+' phiên');
+      } else { toast('✗ '+ticker+': không đọc được'); }
+    };
+    reader.readAsText(f,'utf-8');
+  });
+}
+
+function parseJSON(text){
+  let arr; try{arr=JSON.parse(text);}catch{return null;}
+  if(!Array.isArray(arr)||!arr.length)return null;
+  if(!('time' in arr[0])||!('close' in arr[0]))return null;
+  return arr.map(r=>({
+    date:new Date(r.time),
+    open:+(r.open||0), high:+(r.high||0),
+    low:+(r.low||0),   close:+(r.close||0),
+    volume:+(r.dvolume||r.value||0)
+  })).filter(r=>r.close>0).sort((a,b)=>a.date-b.date);
+}
+
+function parseCSV(text){
+  const lines=text.trim().split(/\r?\n/).filter(l=>l.trim());
+  if(lines.length<2)return null;
+  const hdrs=lines[0].split(',').map(h=>h.trim().toLowerCase().replace(/"/g,''));
+  const fi=k=>{let i=hdrs.indexOf(k);if(i>=0)return i;for(let j=0;j<hdrs.length;j++)if(hdrs[j].includes(k))return j;return -1;};
+  const ci={date:fi('date')||0,open:fi('open')||1,high:fi('high')||2,low:fi('low')||3,close:fi('close')||4,vol:fi('volume')||5};
+  const pn=s=>parseFloat(String(s||'').replace(/,/g,''));
+  const pd=s=>{s=String(s||'').trim();if(/^\d{4}-\d{2}-\d{2}/.test(s))return new Date(s.slice(0,10));const m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);return m?new Date(+m[3],+m[2]-1,+m[1]):new Date(s);};
+  const rows=[];
+  for(let i=1;i<lines.length;i++){
+    const p=lines[i].split(',').map(s=>s.trim().replace(/"/g,''));
+    const d=pd(p[ci.date]),c=pn(p[ci.close]);
+    if(!d||isNaN(c)||c<=0)continue;
+    rows.push({date:d,open:pn(p[ci.open]),high:pn(p[ci.high]),low:pn(p[ci.low]),close:c,volume:pn(p[ci.vol])||0});
+  }
+  return rows.sort((a,b)=>a.date-b.date);
+}
+
+function guessSection(ticker){
+  const map={VCB:'Ngân hàng',TCB:'Ngân hàng',BID:'Ngân hàng',CTG:'Ngân hàng',MBB:'Ngân hàng',VPB:'Ngân hàng',ACB:'Ngân hàng',STB:'Ngân hàng',HDB:'Ngân hàng',SHB:'Ngân hàng',VIC:'Bất động sản',VHM:'Bất động sản',NVL:'Bất động sản',PDR:'Bất động sản',KDH:'Bất động sản',VNM:'Tiêu dùng',MSN:'Tiêu dùng',SAB:'Tiêu dùng',MWG:'Tiêu dùng',PNJ:'Tiêu dùng',HPG:'Vật liệu',HSG:'Vật liệu',NKG:'Vật liệu',GAS:'Năng lượng',PLX:'Năng lượng',PVD:'Năng lượng',FPT:'Công nghệ',VGI:'Công nghệ',DHC:'Y tế',IMP:'Y tế'};
+  return map[ticker]||'Khác';
+}
+
+// ══════════════════════════════════════════
+// TAG UI
+// ══════════════════════════════════════════
+function renderTagList(){
+  const tickers=Object.keys(stocks);
+  document.getElementById('stock-count-pill').textContent=tickers.length+' mã';
+  const tagList=document.getElementById('tag-list');
+  const tagActions=document.getElementById('tag-actions');
+  const loadedSummary=document.getElementById('loaded-summary');
+
+  if(!tickers.length){
+    tagList.innerHTML='<div class="empty">Chưa có dữ liệu</div>';
+    tagActions.style.display='none'; loadedSummary.style.display='none'; return;
+  }
+  tagActions.style.display='block'; loadedSummary.style.display='block';
+
+  tagList.innerHTML=tickers.map(ticker=>{
+    const {rows,sector,cap}=stocks[ticker];
+    const last=rows[rows.length-1];
+    const years=new Set(rows.map(r=>r.date.getFullYear())).size;
+    return`<div class="stock-tag-row">
+      <div class="stock-name">${ticker}</div>
+      <div class="stock-meta">${rows.length} phiên · ${years}Y</div>
+      <div class="tag-fields">
+        <select class="tag-select" onchange="setTag('${ticker}','sector',this.value)">
+          ${SECTORS.map(s=>`<option value="${s}" ${s===sector?'selected':''}>${s}</option>`).join('')}
+        </select>
+        <select class="tag-select" onchange="setTag('${ticker}','cap',this.value)">
+          ${CAPS.map(c=>`<option value="${c}" ${c===cap?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--text3)">${rows[0].date.getFullYear()}–${last.date.getFullYear()}</span>
+      <button class="del-btn" onclick="deleteTicker('${ticker}')">×</button>
+    </div>`;
+  }).join('');
+
+  // Summary stats
+  const allYears=new Set(tickers.flatMap(t=>stocks[t].rows.map(r=>r.date.getFullYear())));
+  const sectors=new Set(tickers.map(t=>stocks[t].sector));
+  document.getElementById('summary-stats').innerHTML=`
+    <div class="metric"><div class="m-lbl">Mã CP</div><div class="m-val">${tickers.length}</div></div>
+    <div class="metric"><div class="m-lbl">Ngành</div><div class="m-val info">${sectors.size}</div></div>
+    <div class="metric"><div class="m-lbl">Khoảng năm</div><div class="m-val">${Math.min(...allYears)}–${Math.max(...allYears)}</div></div>
+    <div class="metric"><div class="m-lbl">Tổng phiên</div><div class="m-val">${tickers.reduce((s,t)=>s+stocks[t].rows.length,0).toLocaleString()}</div></div>`;
+}
+
+function setTag(ticker,key,val){stocks[ticker][key]=val;}
+function deleteTicker(t){delete stocks[t];renderTagList();}
+function clearAll(){Object.keys(stocks).forEach(t=>delete stocks[t]);renderTagList();}
+
+// ══════════════════════════════════════════
+// SEASONAL COMPUTATION
+// ══════════════════════════════════════════
+function computeSeasonal(rows){
+  // Monthly return: (last close of month) / (last close of prev month) - 1
+  // Group by year-month
+  const byYM={};
+  rows.forEach(r=>{
+    const key=`${r.date.getFullYear()}-${r.date.getMonth()}`;
+    if(!byYM[key]||r.date>byYM[key].date) byYM[key]={date:r.date,close:r.close};
+  });
+
+  // Build year-month matrix
+  const years=[...new Set(Object.keys(byYM).map(k=>+k.split('-')[0]))].sort();
+  const matrix={}; // {year: [12 returns or null]}
+
+  years.forEach(yr=>{
+    matrix[yr]=Array(12).fill(null);
+    for(let m=0;m<12;m++){
+      const cur=byYM[`${yr}-${m}`];
+      let prevClose=null;
+      // prev month close
+      if(m>0){const prev=byYM[`${yr}-${m-1}`];if(prev)prevClose=prev.close;}
+      else{const prev=byYM[`${yr-1}-11`];if(prev)prevClose=prev.close;}
+      if(cur&&prevClose&&prevClose>0) matrix[yr][m]=(cur.close/prevClose-1)*100;
+    }
+  });
+
+  // Monthly averages, win rates
+  const monthlyAvg=Array(12).fill(0).map((_,m)=>{
+    const vals=years.map(y=>matrix[y][m]).filter(v=>v!==null);
+    if(!vals.length)return null;
+    return vals.reduce((s,v)=>s+v,0)/vals.length;
+  });
+  const monthlyWR=Array(12).fill(0).map((_,m)=>{
+    const vals=years.map(y=>matrix[y][m]).filter(v=>v!==null);
+    if(!vals.length)return null;
+    return vals.filter(v=>v>0).length/vals.length*100;
+  });
+  const monthlyMedian=Array(12).fill(0).map((_,m)=>{
+    const vals=years.map(y=>matrix[y][m]).filter(v=>v!==null).sort((a,b)=>a-b);
+    if(!vals.length)return null;
+    const mid=Math.floor(vals.length/2);
+    return vals.length%2?vals[mid]:(vals[mid-1]+vals[mid])/2;
+  });
+  const monthlyCount=Array(12).fill(0).map((_,m)=>years.filter(y=>matrix[y][m]!==null).length);
+
+  // Quarterly
+  const qAvg=[0,1,2,3].map(q=>{
+    const ms=[q*3,q*3+1,q*3+2].map(m=>monthlyAvg[m]).filter(v=>v!==null);
+    return ms.length?ms.reduce((s,v)=>s+v,0):0;
+  });
+
+  return{years,matrix,monthlyAvg,monthlyWR,monthlyMedian,monthlyCount,qAvg};
+}
+
+// Aggregate across all stocks
+function computeAggregate(){
+  const tickers=Object.keys(stocks);
+  if(!tickers.length)return null;
+
+  // Collect all monthly returns across all stocks
+  const allMonthly=Array(12).fill(null).map(()=>[]);
+  const perTicker={};
+
+  tickers.forEach(ticker=>{
+    const s=computeSeasonal(stocks[ticker].rows);
+    perTicker[ticker]=s;
+    for(let m=0;m<12;m++){
+      s.years.forEach(y=>{
+        const v=s.matrix[y][m];
+        if(v!==null)allMonthly[m].push(v);
+      });
+    }
+  });
+
+  const avgAll=allMonthly.map(arr=>arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:null);
+  const wrAll=allMonthly.map(arr=>arr.length?arr.filter(v=>v>0).length/arr.length*100:null);
+  const qAll=[0,1,2,3].map(q=>{
+    const ms=[q*3,q*3+1,q*3+2].map(m=>avgAll[m]).filter(v=>v!==null);
+    return ms.length?ms.reduce((s,v)=>s+v,0):null;
+  });
+
+  // Group seasonal
+  const groupSeasonal={};
+  ['sector','cap'].forEach(by=>{
+    const groups={};
+    tickers.forEach(t=>{
+      const gkey=stocks[t][by];
+      if(!groups[gkey])groups[gkey]=Array(12).fill(null).map(()=>[]);
+      const s=perTicker[t];
+      for(let m=0;m<12;m++){
+        s.years.forEach(y=>{const v=s.matrix[y][m];if(v!==null)groups[gkey][m].push(v);});
+      }
+    });
+    groupSeasonal[by]={};
+    Object.entries(groups).forEach(([gkey,data])=>{
+      groupSeasonal[by][gkey]=data.map(arr=>arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:null);
+    });
+  });
+
+  return{avgAll,wrAll,qAll,perTicker,groupSeasonal,tickers};
+}
+
+// ══════════════════════════════════════════
+// BUILD DASHBOARD
+// ══════════════════════════════════════════
+function buildDashboard(){
+  if(!Object.keys(stocks).length){toast('Chưa có dữ liệu!');return;}
+  dashboard=computeAggregate();
+  renderOverview();
+  renderHeatmapTab();
+  renderGroupTab();
+  renderStockTab();
+  goTab('overview');
+  toast('✓ Dashboard đã được xây dựng');
+}
+
+// ══════════════════════════════════════════
+// TAB 2: OVERVIEW
+// ══════════════════════════════════════════
+function renderOverview(){
+  document.getElementById('ov-empty').style.display='none';
+  document.getElementById('ov-content').style.display='block';
+  const {avgAll,wrAll,qAll}=dashboard;
+
+  // Current month box
+  document.getElementById('ov-now-label').textContent='Hiện tại: Tháng '+(CUR_MONTH+1)+' ('+MONTHS[CUR_MONTH]+') '+CUR_YEAR;
+  const curAvg=avgAll[CUR_MONTH], curWR=wrAll[CUR_MONTH];
+  const prevM=(CUR_MONTH+11)%12, nextM=(CUR_MONTH+1)%12;
+  document.getElementById('ov-now-metrics').innerHTML=`
+    <div class="metric ${curAvg>0?'accent-green':curAvg<0?'accent-red':''}">
+      <div class="m-lbl">Return TB Tháng ${CUR_MONTH+1}</div>
+      <div class="m-val ${curAvg>0?'ok':'bad'}">${curAvg!=null?(curAvg>0?'+':'')+curAvg.toFixed(2)+'%':'—'}</div>
+      <div class="m-note">Lịch sử nhiều năm</div>
+    </div>
+    <div class="metric">
+      <div class="m-lbl">Win Rate Tháng ${CUR_MONTH+1}</div>
+      <div class="m-val ${curWR>=60?'ok':curWR<=40?'bad':'warn'}">${curWR!=null?curWR.toFixed(0)+'%':'—'}</div>
+      <div class="m-note">% năm có return dương</div>
+    </div>
+    <div class="metric">
+      <div class="m-lbl">Tháng trước (${MONTHS[prevM]})</div>
+      <div class="m-val ${avgAll[prevM]>0?'ok':'bad'}">${avgAll[prevM]!=null?(avgAll[prevM]>0?'+':'')+avgAll[prevM].toFixed(2)+'%':'—'}</div>
+    </div>
+    <div class="metric">
+      <div class="m-lbl">Tháng tới (${MONTHS[nextM]})</div>
+      <div class="m-val ${avgAll[nextM]>0?'ok':'bad'}">${avgAll[nextM]!=null?(avgAll[nextM]>0?'+':'')+avgAll[nextM].toFixed(2)+'%':'—'}</div>
+    </div>`;
+
+  // Sorted months for best/worst
+  const sorted=[...avgAll.map((v,i)=>({m:i,v})).filter(x=>x.v!==null)].sort((a,b)=>b.v-a.v);
+  const renderMonthList=(items,cls)=>items.map((x,rank)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);${rank===items.length-1?'border-bottom:none':''}">
+      <span style="font-family:var(--mono);font-size:13px;color:var(--text3);min-width:20px">${rank+1}</span>
+      <span style="font-family:var(--mono);font-size:14px;font-weight:500;color:var(--text);min-width:40px">${MONTHS[x.m]}</span>
+      <div style="flex:1">
+        <div style="height:4px;background:var(--bg3);border-radius:2px;overflow:hidden">
+          <div style="height:100%;border-radius:2px;background:${x.v>0?'var(--green)':'var(--red)'};width:${Math.min(Math.abs(x.v)/10*100,100)}%"></div>
+        </div>
+      </div>
+      <span class="badge ${x.v>0?'b-green':'b-red'}" style="min-width:52px;text-align:center">${x.v>0?'+':''}${x.v.toFixed(2)}%</span>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--text3)">${wrAll[x.m]?wrAll[x.m].toFixed(0)+'%WR':''}</span>
+    </div>`).join('');
+
+  document.getElementById('best-months-list').innerHTML=renderMonthList(sorted.slice(0,4));
+  document.getElementById('worst-months-list').innerHTML=renderMonthList([...sorted].reverse().slice(0,4));
+
+  // Bar chart
+  mkChart('ov-bar-chart',{
+    type:'bar',
+    data:{labels:MONTHS_VI,datasets:[{
+      data:avgAll,
+      backgroundColor:avgAll.map((v,i)=>i===CUR_MONTH?'rgba(232,176,64,0.9)':v>0?'rgba(34,168,122,0.65)':'rgba(200,56,56,0.65)'),
+      borderRadius:4
+    }]},
+    options:{...BASE_OPTS,
+      plugins:{...BASE_OPTS.plugins,
+        annotation:{annotations:{line1:{type:'line',yMin:0,yMax:0,borderColor:'rgba(255,255,255,0.15)',borderWidth:1}}}
+      },
+      scales:{...BASE_OPTS.scales,y:{...BASE_OPTS.scales.y,ticks:{...BASE_OPTS.scales.y.ticks,callback:v=>v.toFixed(1)+'%'}}}
+    }
+  },'ov-bar');
+
+  // Quarter chart
+  mkChart('ov-quarter-chart',{
+    type:'bar',
+    data:{labels:['Q1 (1–3)','Q2 (4–6)','Q3 (7–9)','Q4 (10–12)'],
+      datasets:[{data:qAll,backgroundColor:qAll.map(v=>v>0?'rgba(34,168,122,0.6)':'rgba(200,56,56,0.6)'),borderRadius:4}]},
+    options:{...BASE_OPTS,scales:{...BASE_OPTS.scales,y:{...BASE_OPTS.scales.y,ticks:{...BASE_OPTS.scales.y.ticks,callback:v=>v.toFixed(1)+'%'}}}}
+  },'ov-quarter');
+
+  document.getElementById('quarter-metrics').innerHTML=qAll.map((v,q)=>`
+    <div class="metric ${v>0?'accent-green':'accent-red'}">
+      <div class="m-lbl">Q${q+1}</div>
+      <div class="m-val ${v>0?'ok':'bad'}">${v!=null?(v>0?'+':'')+v.toFixed(2)+'%':'—'}</div>
+    </div>`).join('');
+
+  // Win rate table
+  const rankSorted=[...avgAll.map((v,i)=>({m:i,avg:v,wr:wrAll[i]})).filter(x=>x.avg!==null)].sort((a,b)=>b.avg-a.avg);
+  document.getElementById('month-rank-table').innerHTML=`
+    <thead><tr>
+      <th>Tháng</th><th>Return TB</th><th>Win Rate</th><th>Win Rate Bar</th><th>Xếp hạng</th>
+    </tr></thead>
+    <tbody>
+    ${MONTHS.map((mn,i)=>{
+      const rank=rankSorted.findIndex(x=>x.m===i)+1;
+      const avg=avgAll[i], wr=wrAll[i];
+      return`<tr ${i===CUR_MONTH?'style="background:rgba(232,176,64,0.07)"':''}>
+        <td><span style="font-family:var(--mono);font-weight:500">${mn}</span> ${i===CUR_MONTH?'<span class="badge b-gold">Hiện tại</span>':''}</td>
+        <td class="num" style="color:${avg>0?'var(--green2)':'var(--red2)'}">${avg!=null?(avg>0?'+':'')+avg.toFixed(2)+'%':'—'}</td>
+        <td class="num" style="color:${wr>=60?'var(--green2)':wr<=40?'var(--red2)':'var(--text2)'}">${wr!=null?wr.toFixed(0)+'%':'—'}</td>
+        <td>
+          <div class="wr-bar">
+            <div class="wr-fill" style="width:${wr||0}%;background:${wr>=60?'var(--green)':wr<=40?'var(--red)':'var(--gold)'}"></div>
+          </div>
+        </td>
+        <td class="num" style="color:${rank<=3?'var(--green2)':rank>=10?'var(--red2)':'var(--text2)'}">#${rank}</td>
+      </tr>`;
+    }).join('')}
+    </tbody>`;
+}
+
+// ══════════════════════════════════════════
+// TAB 3: HEATMAP
+// ══════════════════════════════════════════
+function renderHeatmapTab(){
+  document.getElementById('hm-empty').style.display='none';
+  document.getElementById('hm-content').style.display='block';
+  const tickers=Object.keys(stocks);
+  // Stock selector pills
+  document.getElementById('hm-stock-pills').innerHTML=tickers.map((t,i)=>
+    `<button class="sel-pill${i===0?' on':''}" onclick="selectHmStock('${t}',this)">${t}</button>`
+  ).join('');
+  if(tickers.length){selectHmStock(tickers[0],document.querySelector('#hm-stock-pills .sel-pill'));}
+}
+
+function selectHmStock(ticker,btn){
+  activeHmTicker=ticker;
+  document.querySelectorAll('#hm-stock-pills .sel-pill').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  renderHeatmap(ticker);
+  renderYearComparison(ticker);
+}
+
+function setHmMode(mode,btn){
+  hmMode=mode;
+  document.querySelectorAll('#tab-heatmap .sel-pill').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  if(activeHmTicker)renderHeatmap(activeHmTicker);
+}
+function setHmRange(range,btn){
+  hmRange=range;
+  document.querySelectorAll('#tab-heatmap .sel-pill').forEach(b=>{
+    if(['all','10y','5y'].some(r=>b.onclick?.toString().includes(r)))b.classList.remove('on');
+  });
+  btn.classList.add('on');
+  if(activeHmTicker){renderHeatmap(activeHmTicker);renderYearComparison(activeHmTicker);}
+}
+
+function filterYears(years){
+  const maxY=Math.max(...years);
+  if(hmRange==='10y')return years.filter(y=>y>maxY-10);
+  if(hmRange==='5y')return years.filter(y=>y>maxY-5);
+  return years;
+}
+
+function renderHeatmap(ticker){
+  const s=dashboard.perTicker[ticker];
+  const years=filterYears(s.years);
+  const wrap=document.getElementById('hm-table-wrap');
+
+  let html=`<table class="heatmap">
+    <thead><tr>
+      <th class="year-col">Năm</th>
+      ${MONTHS.map((m,i)=>`<th ${i===CUR_MONTH?'style="color:var(--gold2)"':''}>${m}</th>`).join('')}
+      <th>TB Năm</th>
+    </tr></thead>
+    <tbody>`;
+
+  years.forEach(yr=>{
+    const row=s.matrix[yr];
+    const vals=row.filter(v=>v!==null);
+    const avgYr=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;
+    html+=`<tr>
+      <td class="year-col" style="font-family:var(--mono);font-size:11px;color:var(--text2);text-align:right;padding-right:12px">${yr}</td>
+      ${row.map((v,m)=>{
+        const isNow=(yr===CUR_YEAR&&m===CUR_MONTH);
+        const cls=hmClass(v);
+        return`<td class="${cls}${isNow?' hm-now':''}" title="${MONTHS[m]} ${yr}: ${v!=null?(v>0?'+':'')+v.toFixed(2)+'%':'N/A'}">${v!=null?(v>0?'+':'')+v.toFixed(1)+'%':'—'}</td>`;
+      }).join('')}
+      <td class="hm-avg">${avgYr!=null?(avgYr>0?'+':'')+avgYr.toFixed(1)+'%':'—'}</td>
+    </tr>`;
+  });
+
+  // Average row
+  html+=`<tr style="border-top:1px solid var(--border2)">
+    <td class="year-col" style="font-family:var(--mono);font-size:11px;color:var(--gold2);text-align:right;padding-right:12px">AVG</td>
+    ${s.monthlyAvg.map((v,m)=>{
+      const cls=hmClass(v);
+      return`<td class="${cls} hm-avg${m===CUR_MONTH?' hm-now':''}">${v!=null?(v>0?'+':'')+v.toFixed(1)+'%':'—'}</td>`;
+    }).join('')}
+    <td class="hm-avg">—</td>
+  </tr>`;
+
+  html+='</tbody></table>';
+  wrap.innerHTML=html;
+}
+
+function renderYearComparison(ticker){
+  const s=dashboard.perTicker[ticker];
+  const years=filterYears(s.years);
+  const last3=years.slice(-3);
+  const datasets=[
+    {label:'TB lịch sử',data:s.monthlyAvg,borderColor:'rgba(255,255,255,0.4)',borderWidth:2,borderDash:[4,4],pointRadius:0,tension:0.3,fill:false},
+    ...last3.map((yr,i)=>({
+      label:String(yr),data:s.matrix[yr],
+      borderColor:CHART_COLORS[i],borderWidth:2,pointRadius:3,tension:0.3,fill:false,
+      pointBackgroundColor:CHART_COLORS[i]
+    }))
+  ];
+  mkChart('hm-year-chart',{
+    type:'line',data:{labels:MONTHS_VI,datasets},
+    options:{...BASE_OPTS,scales:{...BASE_OPTS.scales,y:{...BASE_OPTS.scales.y,ticks:{...BASE_OPTS.scales.y.ticks,callback:v=>v.toFixed(1)+'%'}}},
+      plugins:{...BASE_OPTS.plugins,legend:{display:true,labels:{color:'#6e7890',font:{family:'DM Mono',size:10},boxWidth:24}}}}
+  },'hm-year');
+}
+
+function hmClass(v){
+  if(v===null)return'hm-zero';
+  if(v>=5)return'hm-strong-pos';
+  if(v>=2)return'hm-pos';
+  if(v>0)return'hm-light-pos';
+  if(v>-2)return'hm-light-neg';
+  if(v>-5)return'hm-neg';
+  return'hm-strong-neg';
+}
+
+// ══════════════════════════════════════════
+// TAB 4: GROUP COMPARISON
+// ══════════════════════════════════════════
+function renderGroupTab(){
+  document.getElementById('grp-empty').style.display='none';
+  document.getElementById('grp-content').style.display='block';
+  renderGroupContent();
+}
+
+function setGroupBy(by,btn){
+  groupBy=by;
+  document.querySelectorAll('#tab-group .sel-pill').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderGroupContent();
+}
+
+function renderGroupContent(){
+  const groups=dashboard.groupSeasonal[groupBy];
+  const groupKeys=Object.keys(groups).filter(g=>groups[g].some(v=>v!==null));
+
+  // Legend
+  document.getElementById('grp-legend').innerHTML=groupKeys.map(g=>`
+    <div class="legend-item${grpLegendOff[g]?' off':''}" onclick="toggleGroup('${g}',this)">
+      <div class="legend-dot" style="background:${GROUP_COLORS[g]||'#6e7890'}"></div>
+      <span>${g}</span>
+    </div>`).join('');
+
+  // Overlay chart
+  const activeGroups=groupKeys.filter(g=>!grpLegendOff[g]);
+  mkChart('grp-overlay-chart',{
+    type:'line',
+    data:{labels:MONTHS_VI,datasets:activeGroups.map(g=>({
+      label:g,data:groups[g],
+      borderColor:GROUP_COLORS[g]||'#6e7890',borderWidth:2.5,
+      pointRadius:4,tension:0.3,fill:false,
+      pointBackgroundColor:GROUP_COLORS[g]||'#6e7890'
+    }))},
+    options:{...BASE_OPTS,
+      plugins:{...BASE_OPTS.plugins,legend:{display:true,labels:{color:'#6e7890',font:{family:'DM Mono',size:10},boxWidth:20}}},
+      scales:{...BASE_OPTS.scales,y:{...BASE_OPTS.scales.y,ticks:{...BASE_OPTS.scales.y.ticks,callback:v=>v.toFixed(1)+'%'}}}
+    }
+  },'grp-overlay');
+
+  // Mini heatmaps per group
+  document.getElementById('grp-heatmaps').innerHTML=groupKeys.map(g=>{
+    const avgs=groups[g];
+    const cells=avgs.map((v,m)=>`
+      <td class="${hmClass(v)}${m===CUR_MONTH?' hm-now':''}" style="font-size:10px;padding:4px"
+        title="${MONTHS[m]}: ${v!=null?(v>0?'+':'')+v.toFixed(2)+'%':'N/A'}">${v!=null?(v>0?'+':'')+v.toFixed(1):'—'}</td>`).join('');
+    return`<div class="card" style="padding:14px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <div class="legend-dot" style="background:${GROUP_COLORS[g]||'#6e7890'}"></div>
+        <span style="font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text)">${g}</span>
+      </div>
+      <div class="heatmap-wrap"><table class="heatmap">
+        <thead><tr>${MONTHS.map((m,i)=>`<th style="font-size:9px${i===CUR_MONTH?';color:var(--gold2)':''}">${m}</th>`).join('')}</tr></thead>
+        <tbody><tr>${cells}</tr></tbody>
+      </table></div>
+    </div>`;
+  }).join('');
+
+  // Best month per group
+  document.getElementById('grp-best-months').innerHTML=groupKeys.map(g=>{
+    const avgs=groups[g].map((v,i)=>({v,m:i})).filter(x=>x.v!==null).sort((a,b)=>b.v-a.v);
+    const best=avgs[0], worst=avgs[avgs.length-1];
+    return`<div class="metric" style="border-color:${GROUP_COLORS[g]||'#6e7890'}30">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+        <div class="legend-dot" style="background:${GROUP_COLORS[g]||'#6e7890'}"></div>
+        <div class="m-lbl" style="margin:0">${g}</div>
+      </div>
+      <div style="font-size:12px;color:var(--text2)">Đỉnh: <b style="color:var(--green2)">${best?MONTHS[best.m]:'-'} (${best?(best.v>0?'+':'')+best.v.toFixed(1)+'%':'-'})</b></div>
+      <div style="font-size:12px;color:var(--text2);margin-top:4px">Đáy: <b style="color:var(--red2)">${worst?MONTHS[worst.m]:'-'} (${worst?(worst.v>0?'+':'')+worst.v.toFixed(1)+'%':'-'})</b></div>
+    </div>`;
+  }).join('');
+}
+
+function toggleGroup(g,el){
+  grpLegendOff[g]=!grpLegendOff[g];
+  el.classList.toggle('off');
+  renderGroupContent();
+}
+
+// ══════════════════════════════════════════
+// TAB 5: STOCK DETAIL
+// ══════════════════════════════════════════
+function renderStockTab(){
+  document.getElementById('stk-empty').style.display='none';
+  document.getElementById('stk-content').style.display='block';
+  const tickers=Object.keys(stocks);
+  document.getElementById('stk-pills').innerHTML=tickers.map((t,i)=>
+    `<button class="sel-pill${i===0?' on':''}" onclick="selectStkStock('${t}',this)">${t}</button>`
+  ).join('');
+  if(tickers.length)selectStkStock(tickers[0],document.querySelector('#stk-pills .sel-pill'));
+}
+
+function selectStkStock(ticker,btn){
+  activeStkTicker=ticker;
+  document.querySelectorAll('#stk-pills .sel-pill').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  renderStockDetail(ticker);
+}
+
+function renderStockDetail(ticker){
+  const s=dashboard.perTicker[ticker];
+  const {sector,cap,rows}=stocks[ticker];
+  const lastClose=rows[rows.length-1].close;
+  const color=GROUP_COLORS[sector]||'#6e7890';
+
+  // Header
+  document.getElementById('stk-header').innerHTML=`
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="font-family:var(--mono);font-size:28px;font-weight:700;color:${color}">${ticker}</div>
+      <div>
+        <span class="badge b-gold">${sector}</span>
+        <span class="badge b-blue" style="margin-left:6px">${cap}</span>
+      </div>
+      <div style="flex:1"></div>
+      <div style="font-family:var(--mono);font-size:13px;color:var(--text2)">${s.years[0]}–${s.years[s.years.length-1]} · ${s.years.length} năm dữ liệu</div>
+    </div>`;
+
+  // Key metrics
+  const curAvg=s.monthlyAvg[CUR_MONTH];
+  const curWR=s.monthlyWR[CUR_MONTH];
+  const sortedAvg=[...s.monthlyAvg.map((v,i)=>({v,m:i})).filter(x=>x.v!==null)].sort((a,b)=>b.v-a.v);
+  const bestM=sortedAvg[0], worstM=sortedAvg[sortedAvg.length-1];
+  const totalAvgReturn=s.monthlyAvg.filter(v=>v!==null).reduce((a,b)=>a+b,0);
+
+  document.getElementById('stk-metrics').innerHTML=`
+    <div class="metric ${curAvg>0?'accent-green':'accent-red'}">
+      <div class="m-lbl">TB Tháng ${CUR_MONTH+1} hiện tại</div>
+      <div class="m-val ${curAvg>0?'ok':'bad'}">${curAvg!=null?(curAvg>0?'+':'')+curAvg.toFixed(2)+'%':'—'}</div>
+      <div class="m-note">Win Rate: ${curWR!=null?curWR.toFixed(0)+'%':'—'}</div>
+    </div>
+    <div class="metric accent-gold">
+      <div class="m-lbl">Tháng đỉnh cao</div>
+      <div class="m-val warn">${bestM?MONTHS[bestM.m]:'-'}</div>
+      <div class="m-note">${bestM?(bestM.v>0?'+':'')+bestM.v.toFixed(2)+'% avg':''}</div>
+    </div>
+    <div class="metric">
+      <div class="m-lbl">Tháng yếu nhất</div>
+      <div class="m-val bad">${worstM?MONTHS[worstM.m]:'-'}</div>
+      <div class="m-note">${worstM?(worstM.v>0?'+':'')+worstM.v.toFixed(2)+'% avg':''}</div>
+    </div>
+    <div class="metric">
+      <div class="m-lbl">Tổng Return TB/năm</div>
+      <div class="m-val ${totalAvgReturn>0?'ok':'bad'}">${(totalAvgReturn>0?'+':'')+totalAvgReturn.toFixed(1)}%</div>
+      <div class="m-note">Cộng TB 12 tháng</div>
+    </div>`;
+
+  // Bar chart
+  mkChart('stk-bar-chart',{
+    type:'bar',
+    data:{labels:MONTHS_VI,datasets:[{
+      data:s.monthlyAvg,
+      backgroundColor:s.monthlyAvg.map((v,i)=>i===CUR_MONTH?'rgba(232,176,64,0.9)':v>0?'rgba(34,168,122,0.65)':'rgba(200,56,56,0.65)'),
+      borderRadius:4
+    }]},
+    options:{...BASE_OPTS,scales:{...BASE_OPTS.scales,y:{...BASE_OPTS.scales.y,ticks:{...BASE_OPTS.scales.y.ticks,callback:v=>v.toFixed(1)+'%'}}}}
+  },'stk-bar');
+
+  // WR chart
+  mkChart('stk-wr-chart',{
+    type:'bar',
+    data:{labels:MONTHS_VI,datasets:[{
+      data:s.monthlyWR,
+      backgroundColor:s.monthlyWR.map((v,i)=>i===CUR_MONTH?'rgba(232,176,64,0.9)':v>=60?'rgba(34,168,122,0.65)':v<=40?'rgba(200,56,56,0.65)':'rgba(255,255,255,0.2)'),
+      borderRadius:4
+    },{
+      data:Array(12).fill(50),type:'line',borderColor:'rgba(255,255,255,0.2)',borderWidth:1,borderDash:[4,4],pointRadius:0
+    }]},
+    options:{...BASE_OPTS,scales:{...BASE_OPTS.scales,y:{...BASE_OPTS.scales.y,min:0,max:100,ticks:{...BASE_OPTS.scales.y.ticks,callback:v=>v+'%'}}}}
+  },'stk-wr');
+
+  // Heatmap
+  const fakeWrap={innerHTML:''};
+  renderHeatmap_generic(ticker,s,document.getElementById('stk-heatmap'));
+
+  // Quarter cards
+  document.getElementById('stk-quarter-cards').innerHTML=s.qAvg.map((v,q)=>`
+    <div class="metric ${v>0?'accent-green':v<0?'accent-red':''}">
+      <div class="m-lbl">Q${q+1} (Th.${q*3+1}–${q*3+3})</div>
+      <div class="m-val ${v>0?'ok':'bad'}">${v!=null?(v>0?'+':'')+v.toFixed(2)+'%':'—'}</div>
+      <div class="m-note">Return TB cộng dồn Q</div>
+    </div>`).join('');
+
+  // Year performance table
+  const yearData=s.years.map(yr=>{
+    const row=s.matrix[yr].filter(v=>v!==null);
+    const avg=row.length?row.reduce((a,b)=>a+b,0)/row.length:null;
+    const wr=row.length?row.filter(v=>v>0).length/row.length*100:null;
+    return{yr,avg,wr,months:s.matrix[yr]};
+  });
+  document.getElementById('stk-year-table').innerHTML=`
+    <table class="rank-tbl">
+      <thead><tr><th>Năm</th><th>Return TB/tháng</th><th>Win Rate</th><th>Tháng tốt nhất</th><th>Tháng xấu nhất</th></tr></thead>
+      <tbody>
+      ${yearData.map(({yr,avg,wr,months})=>{
+        const withIdx=months.map((v,i)=>({v,m:i})).filter(x=>x.v!==null);
+        const best=withIdx.sort((a,b)=>b.v-a.v)[0];
+        const worst=withIdx.sort((a,b)=>a.v-b.v)[0];
+        return`<tr ${yr===CUR_YEAR?'style="background:rgba(232,176,64,0.06)"':''}>
+          <td style="font-family:var(--mono);font-weight:500;color:${yr===CUR_YEAR?'var(--gold2)':'var(--text)'}">${yr}${yr===CUR_YEAR?' ★':''}</td>
+          <td style="font-family:var(--mono);color:${avg>0?'var(--green2)':'var(--red2)'}">${avg!=null?(avg>0?'+':'')+avg.toFixed(2)+'%':'—'}</td>
+          <td style="font-family:var(--mono);color:${wr>=60?'var(--green2)':wr<=40?'var(--red2)':'var(--text2)'}">${wr!=null?wr.toFixed(0)+'%':'—'}</td>
+          <td style="font-family:var(--mono);color:var(--green2)">${best?MONTHS[best.m]+' (+'+(best.v.toFixed(1))+'%)':'-'}</td>
+          <td style="font-family:var(--mono);color:var(--red2)">${worst?MONTHS[worst.m]+' ('+worst.v.toFixed(1)+'%)':'-'}</td>
+        </tr>`;
+      }).join('')}
+      </tbody>
+    </table>`;
+}
+
+function renderHeatmap_generic(ticker,s,container){
+  const years=s.years;
+  let html=`<table class="heatmap">
+    <thead><tr>
+      <th class="year-col">Năm</th>
+      ${MONTHS.map((m,i)=>`<th ${i===CUR_MONTH?'style="color:var(--gold2)"':''}>${m}</th>`).join('')}
+      <th>TB</th>
+    </tr></thead><tbody>`;
+  years.forEach(yr=>{
+    const row=s.matrix[yr];
+    const vals=row.filter(v=>v!==null);
+    const avgYr=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;
+    html+=`<tr>
+      <td class="year-col" style="font-family:var(--mono);font-size:11px;color:var(--text2);text-align:right;padding-right:12px">${yr}</td>
+      ${row.map((v,m)=>{
+        const isNow=(yr===CUR_YEAR&&m===CUR_MONTH);
+        return`<td class="${hmClass(v)}${isNow?' hm-now':''}">${v!=null?(v>0?'+':'')+v.toFixed(1):'—'}</td>`;
+      }).join('')}
+      <td class="hm-avg">${avgYr!=null?(avgYr>0?'+':'')+avgYr.toFixed(1):'—'}</td>
+    </tr>`;
+  });
+  html+=`<tr style="border-top:1px solid var(--border2)">
+    <td class="year-col" style="font-family:var(--mono);font-size:11px;color:var(--gold2);text-align:right;padding-right:12px">AVG</td>
+    ${s.monthlyAvg.map((v,m)=>`<td class="${hmClass(v)} hm-avg${m===CUR_MONTH?' hm-now':''}">${v!=null?(v>0?'+':'')+v.toFixed(1):'—'}</td>`).join('')}
+    <td class="hm-avg">—</td>
+  </tr></tbody></table>`;
+  container.innerHTML=html;
+}
+
+// ══════════════════════════════════════════
+// CHARTS HELPER
+// ══════════════════════════════════════════
+const BASE_OPTS={
+  responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:false},
+    tooltip:{mode:'index',intersect:false,
+      backgroundColor:'#1c2232',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,
+      bodyFont:{family:'DM Mono',size:11},titleFont:{family:'DM Mono',size:10},
+      callbacks:{label:ctx=>' '+ctx.dataset.label+': '+(ctx.raw!=null?(ctx.raw>0?'+':'')+ctx.raw.toFixed(2)+'%':'N/A')}}},
+  scales:{
+    x:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#3e4558',font:{family:'DM Mono',size:10}}},
+    y:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#3e4558',font:{family:'DM Mono',size:10}}}
+  }
+};
+
+function mkChart(canvasId,config,key){
+  if(charts[key]){charts[key].destroy();}
+  const ctx=document.getElementById(canvasId);
+  if(!ctx)return;
+  charts[key]=new Chart(ctx,config);
+}
+
+// ══════════════════════════════════════════
+// SAMPLE DATA
+// ══════════════════════════════════════════
+function loadSample(){
+  const cfg={
+    VNM:{sector:'Tiêu dùng',cap:'VN30 (Large)',base:65,seed:42},
+    VCB:{sector:'Ngân hàng',cap:'VN30 (Large)',base:90,seed:7},
+    VIC:{sector:'Bất động sản',cap:'VN30 (Large)',base:45,seed:13},
+    HPG:{sector:'Vật liệu',cap:'VN30 (Large)',base:28,seed:21},
+    FPT:{sector:'Công nghệ',cap:'Mid Cap',base:80,seed:33},
+    GAS:{sector:'Năng lượng',cap:'VN30 (Large)',base:100,seed:55}
+  };
+  Object.entries(cfg).forEach(([ticker,{sector,cap,base,seed}])=>{
+    stocks[ticker]={rows:genSample(base*1000,seed),sector,cap};
+  });
+  renderTagList();
+  toast('✓ Đã nạp 6 mã mẫu với seasonal patterns thực tế');
+}
+
+function genSample(startPrice,seed){
+  // Deterministic seasonal patterns per sector
+  const SEASONAL_BIAS=[0.012,0.008,-0.004,0.010,0.006,-0.008,-0.012,0.002,0.015,0.010,0.004,-0.006];
+  let price=startPrice, rng=seed;
+  function rand(){rng=(rng*1664525+1013904223)&0xffffffff;return(rng>>>0)/0xffffffff;}
+  const rows=[];
+  let d=new Date('2012-01-02');
+  for(let i=0;i<3200;i++){
+    if(d.getDay()===0)d.setDate(d.getDate()+1);
+    if(d.getDay()===6)d.setDate(d.getDate()+2);
+    const m=d.getMonth();
+    const seasonal=SEASONAL_BIAS[m]/22;
+    const noise=(rand()-0.49)*0.022;
+    const trend=Math.sin(i/400)*0.0002;
+    const change=seasonal+noise+trend;
+    const vr=0.008+rand()*0.018;
+    const open=price*(1+(rand()-0.5)*0.006);
+    const high=Math.max(open,price)*(1+vr*rand());
+    const low=Math.min(open,price)*(1-vr*rand());
+    const close=low+(high-low)*(0.3+rand()*0.4);
+    price=Math.max(close*(1+change),startPrice*0.2);
+    rows.push({date:new Date(d),open:Math.round(open),high:Math.round(high),low:Math.round(low),close:Math.round(close),volume:Math.floor((1e6+rand()*3e6))});
+    d.setDate(d.getDate()+1);
+  }
+  return rows;
+}
+
+// ══════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════
+function toast(msg){
+  const t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:24px;right:24px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:12px;padding:10px 16px;border-radius:12px;z-index:9999;transition:opacity .3s;box-shadow:0 4px 20px rgba(0,0,0,.4)';
+  t.textContent=msg;document.body.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},2500);
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+loadSample();
+</script>
+</body>
+</html>
