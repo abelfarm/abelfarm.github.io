@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMC Trading System — Smart Money Concept</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=JetBrains+Mono:wght@400;600&family=Exo+2:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+/* ===== CSS VARIABLES (same as Elder System) ===== */
+:root {
+  --bg-void:    #06070d;
+  --bg-base:    #090c16;
+  --bg-card:    #0d1020;
+  --bg-panel:   #111425;
+  --bg-input:   #0a0d1a;
+  --border:     #1a2040;
+  --border-glow:#243060;
+  --primary:    #38bdf8;
+  --primary-dim:#1d6a8f;
+  --bull:       #4ade80;
+  --bull-dim:   #166534;
+  --bear:       #f87171;
+  --bear-dim:   #7f1d1d;
+  --warn:       #fbbf24;
+  --neutral:    #94a3b8;
+  --text:       #e2e8f0;
+  --text-dim:   #64748b;
+  --text-faint: #334155;
+  --font-display:'Orbitron', sans-serif;
+  --font-mono:   'JetBrains Mono', monospace;
+  --font-body:   'Exo 2', sans-serif;
+  --radius:      8px;
+  /* SMC Specific */
+  --ob-bull-bg:     rgba(74,222,128,.12);
+  --ob-bull-border: rgba(74,222,128,.6);
+  --ob-bear-bg:     rgba(248,113,113,.12);
+  --ob-bear-border: rgba(248,113,113,.6);
+  --fvg-bull-bg:    rgba(56,189,248,.08);
+  --fvg-bull-border:rgba(56,189,248,.5);
+  --fvg-bear-bg:    rgba(251,191,36,.08);
+  --fvg-bear-border:rgba(251,191,36,.5);
+  --bos-color:   #38bdf8;
+  --choch-color: #f59e0b;
+  --bsl-color:   #4ade80;
+  --ssl-color:   #f87171;
+  --eqh-color:   rgba(74,222,128,.4);
+  --eql-color:   rgba(248,113,113,.4);
+}
+*, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
+html { font-size:14px; }
+body { background:var(--bg-void); color:var(--text); font-family:var(--font-body); min-height:100vh; overflow-x:hidden; }
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:var(--bg-base); }
+::-webkit-scrollbar-thumb { background:var(--border-glow); border-radius:3px; }
+
+/* ===== HEADER ===== */
+.header {
+  background:linear-gradient(180deg,#0d1428,var(--bg-base));
+  border-bottom:1px solid var(--border);
+  padding:14px 24px;
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  position:sticky; top:0; z-index:100;
+}
+.logo-block { display:flex; align-items:center; gap:12px; }
+.logo-icon {
+  width:38px; height:38px;
+  background:linear-gradient(135deg,#f59e0b,#ef4444);
+  border-radius:10px; display:flex; align-items:center; justify-content:center;
+  font-size:18px; box-shadow:0 0 20px rgba(245,158,11,.2);
+}
+.logo-text { font-family:var(--font-display); font-size:1rem; font-weight:700; color:var(--warn); letter-spacing:2px; }
+.logo-sub  { font-size:.68rem; color:var(--text-dim); letter-spacing:1px; margin-top:1px; }
+.header-mid { display:flex; align-items:center; gap:10px; flex:1; }
+.ticker-label { font-family:var(--font-display); font-size:.65rem; color:var(--text-dim); letter-spacing:1px; }
+.ticker-input {
+  background:var(--bg-input); border:1px solid var(--border); border-radius:var(--radius);
+  color:var(--text); font-family:var(--font-mono); font-size:.95rem; font-weight:600;
+  padding:7px 12px; width:90px; text-transform:uppercase; outline:none; transition:border-color .2s;
+}
+.ticker-input:focus { border-color:var(--warn); }
+.btn { padding:7px 16px; border:none; border-radius:var(--radius); font-family:var(--font-display); font-size:.62rem; font-weight:600; letter-spacing:1px; cursor:pointer; transition:all .2s; }
+.btn-warn  { background:var(--warn); color:#000; }
+.btn-warn:hover { background:#fde68a; box-shadow:0 0 14px rgba(251,191,36,.3); }
+.btn-ghost { background:transparent; border:1px solid var(--border); color:var(--text-dim); }
+.btn-ghost:hover { border-color:var(--warn); color:var(--warn); }
+.status-badge { display:flex; align-items:center; gap:6px; padding:6px 12px; border-radius:100px; border:1px solid var(--border); font-size:.72rem; color:var(--text-dim); font-family:var(--font-mono); margin-left:auto; }
+.status-dot { width:7px; height:7px; border-radius:50%; background:var(--text-faint); }
+.status-dot.ready { background:var(--warn); box-shadow:0 0 6px var(--warn); animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;}50%{opacity:.4;} }
+.data-info { font-family:var(--font-mono); font-size:.7rem; color:var(--text-dim); }
+
+/* ===== TAB NAV ===== */
+.tab-nav { display:flex; border-bottom:1px solid var(--border); background:var(--bg-base); padding:0 24px; gap:0; overflow-x:auto; }
+.tab-btn { padding:12px 18px; background:none; border:none; border-bottom:2px solid transparent; color:var(--text-dim); font-family:var(--font-display); font-size:.62rem; font-weight:600; letter-spacing:1px; cursor:pointer; transition:all .2s; white-space:nowrap; }
+.tab-btn:hover { color:var(--warn); }
+.tab-btn.active { color:var(--warn); border-bottom-color:var(--warn); }
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+.main-content { padding:18px 24px; }
+
+/* ===== SIGNAL CARDS ===== */
+.signal-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
+.signal-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; position:relative; overflow:hidden; }
+.signal-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--text-faint); }
+.signal-card.bull::before  { background:linear-gradient(90deg,var(--bull),transparent); }
+.signal-card.bear::before  { background:linear-gradient(90deg,var(--bear),transparent); }
+.signal-card.warn::before  { background:linear-gradient(90deg,var(--warn),transparent); }
+.signal-card.info::before  { background:linear-gradient(90deg,var(--primary),transparent); }
+.sig-label { font-family:var(--font-display); font-size:.58rem; letter-spacing:1.5px; color:var(--text-dim); margin-bottom:6px; }
+.sig-value { font-family:var(--font-display); font-size:1.1rem; font-weight:700; color:var(--neutral); }
+.sig-value.bull { color:var(--bull); }
+.sig-value.bear { color:var(--bear); }
+.sig-value.warn { color:var(--warn); }
+.sig-value.info { color:var(--primary); }
+.sig-desc { font-size:.72rem; color:var(--text-dim); margin-top:3px; }
+
+/* ===== CHARTS ===== */
+.chart-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:14px; margin-bottom:14px; }
+.chart-card:hover { border-color:var(--border-glow); }
+.chart-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.chart-title { font-family:var(--font-display); font-size:.62rem; letter-spacing:1.5px; color:var(--text-dim); display:flex; align-items:center; gap:8px; }
+.chart-wrap { position:relative; border-radius:4px; overflow:hidden; }
+.chart-wrap canvas.overlay { position:absolute; top:0; left:0; pointer-events:none; z-index:10; }
+.chart-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.badge { font-size:.58rem; padding:2px 8px; border-radius:4px; font-family:var(--font-mono); border:1px solid; }
+.badge-bull  { color:var(--bull);    border-color:var(--bull-dim);    background:var(--ob-bull-bg); }
+.badge-bear  { color:var(--bear);    border-color:var(--bear-dim);    background:var(--ob-bear-bg); }
+.badge-warn  { color:var(--warn);    border-color:#78350f;            background:var(--fvg-bear-bg); }
+.badge-info  { color:var(--primary); border-color:var(--primary-dim); background:var(--fvg-bull-bg); }
+.badge-neutral { color:var(--neutral); border-color:var(--text-faint); background:var(--bg-panel); }
+.legend { display:flex; gap:12px; flex-wrap:wrap; }
+.legend-item { display:flex; align-items:center; gap:5px; font-size:.7rem; color:var(--text-dim); }
+.legend-dot { width:10px; height:3px; border-radius:2px; }
+
+/* ===== TABLES ===== */
+.smc-table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+.smc-table { width:100%; border-collapse:collapse; }
+.smc-table thead { background:var(--bg-panel); }
+.smc-table th { padding:10px 10px; text-align:left; font-family:var(--font-display); font-size:.57rem; letter-spacing:1.5px; color:var(--text-dim); border-bottom:1px solid var(--border); white-space:nowrap; }
+.smc-table td { padding:9px 10px; font-size:.8rem; border-bottom:1px solid var(--border); vertical-align:middle; }
+.smc-table tr:last-child td { border-bottom:none; }
+.smc-table tr:hover td { background:rgba(245,158,11,.03); }
+.mono { font-family:var(--font-mono); }
+.fresh-badge  { color:var(--bull); background:var(--ob-bull-bg); border:1px solid var(--bull-dim); padding:2px 8px; border-radius:4px; font-size:.68rem; font-family:var(--font-display); letter-spacing:.5px; }
+.miti-badge   { color:var(--text-dim); background:var(--bg-panel); border:1px solid var(--border); padding:2px 8px; border-radius:4px; font-size:.68rem; font-family:var(--font-display); letter-spacing:.5px; }
+.open-badge   { color:var(--primary); background:var(--fvg-bull-bg); border:1px solid var(--primary-dim); padding:2px 8px; border-radius:4px; font-size:.68rem; }
+.filled-badge { color:var(--text-dim); background:var(--bg-panel); border:1px solid var(--border); padding:2px 8px; border-radius:4px; font-size:.68px; }
+.bull-text { color:var(--bull); font-weight:600; }
+.bear-text { color:var(--bear); font-weight:600; }
+.warn-text { color:var(--warn); font-weight:600; }
+.info-text { color:var(--primary); font-weight:600; }
+
+/* ===== SECTION TITLE ===== */
+.section-title { font-family:var(--font-display); font-size:.7rem; letter-spacing:2px; color:var(--text-dim); padding:12px 0 10px; border-bottom:1px solid var(--border); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+.section-title::before { content:''; display:block; width:3px; height:14px; background:var(--warn); border-radius:2px; }
+
+/* ===== HINT BOX ===== */
+.hint-box { background:var(--bg-panel); border:1px solid var(--border); border-radius:6px; padding:12px; font-size:.78rem; color:var(--text-dim); line-height:1.6; }
+.hint-box strong { color:var(--warn); }
+.hint-box.bull-hint { border-color:var(--bull-dim); }
+.hint-box.bear-hint { border-color:var(--bear-dim); }
+.hint-box.info-hint { border-color:var(--primary-dim); }
+
+/* ===== KILL ZONE ===== */
+.kz-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:14px; }
+.kz-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:14px; text-align:center; transition:all .3s; }
+.kz-card.active { border-color:var(--warn); background:rgba(245,158,11,.06); box-shadow:0 0 16px rgba(245,158,11,.1); }
+.kz-name { font-family:var(--font-display); font-size:.6rem; letter-spacing:1px; color:var(--text-dim); margin-bottom:6px; }
+.kz-time { font-family:var(--font-mono); font-size:1rem; font-weight:600; color:var(--text); }
+.kz-countdown { font-size:.75rem; color:var(--text-dim); margin-top:4px; }
+.kz-card.active .kz-name   { color:var(--warn); }
+.kz-card.active .kz-time   { color:var(--warn); }
+.kz-card.active .kz-countdown { color:var(--bull); }
+.kz-status { font-size:.7rem; padding:2px 8px; border-radius:4px; display:inline-block; margin-top:4px; }
+.kz-status.live   { background:rgba(74,222,128,.15); color:var(--bull); border:1px solid var(--bull-dim); }
+.kz-status.closed { background:var(--bg-panel); color:var(--text-faint); border:1px solid var(--border); }
+
+/* ===== CHECKLIST ===== */
+.checklist { display:flex; flex-direction:column; gap:8px; }
+.check-item { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--bg-panel); border:1px solid var(--border); border-radius:6px; transition:all .2s; cursor:pointer; }
+.check-item.pass { border-color:var(--bull-dim); background:var(--ob-bull-bg); }
+.check-item.fail { border-color:var(--bear-dim); background:var(--ob-bear-bg); }
+.check-item.warn { border-color:#78350f; background:var(--fvg-bear-bg); }
+.check-left { display:flex; align-items:center; gap:10px; }
+.check-icon { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.75rem; border:1px solid var(--border); background:var(--bg-card); flex-shrink:0; }
+.check-item.pass .check-icon { background:var(--bull-dim); border-color:var(--bull); color:var(--bull); }
+.check-item.fail .check-icon { background:var(--bear-dim); border-color:var(--bear); color:var(--bear); }
+.check-item.warn .check-icon { background:#78350f; border-color:var(--warn); color:var(--warn); }
+.check-name { font-size:.82rem; font-weight:600; }
+.check-desc { font-size:.72rem; color:var(--text-dim); }
+.check-toggle { display:flex; gap:6px; }
+.toggle-btn { padding:4px 10px; border:none; border-radius:4px; font-size:.68rem; cursor:pointer; font-family:var(--font-display); letter-spacing:.5px; transition:all .2s; }
+.toggle-yes { background:var(--bull-dim); color:var(--bull); border:1px solid var(--bull-dim); }
+.toggle-yes:hover, .toggle-yes.sel { background:var(--bull); color:#000; }
+.toggle-no  { background:var(--bear-dim); color:var(--bear); border:1px solid var(--bear-dim); }
+.toggle-no:hover, .toggle-no.sel  { background:var(--bear); color:#000; }
+
+/* ===== CONFLUENCE GAUGE ===== */
+.gauge-wrap { display:flex; flex-direction:column; align-items:center; padding:20px; }
+.gauge-ring { position:relative; width:160px; height:160px; }
+.gauge-ring svg { transform:rotate(-90deg); }
+.gauge-score { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.gauge-num { font-family:var(--font-display); font-size:2.2rem; font-weight:900; }
+.gauge-label { font-size:.65rem; color:var(--text-dim); letter-spacing:1px; }
+.gauge-signal { font-family:var(--font-display); font-size:.9rem; font-weight:700; margin-top:12px; letter-spacing:1px; }
+.factor-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.factor-item { display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:var(--bg-panel); border:1px solid var(--border); border-radius:6px; font-size:.78rem; }
+.factor-item .fi-name { color:var(--text-dim); }
+.factor-pts { font-family:var(--font-mono); font-weight:600; }
+
+/* ===== PO3 PHASE ===== */
+.po3-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px; }
+.po3-card { background:var(--bg-card); border:2px solid var(--border); border-radius:var(--radius); padding:16px; text-align:center; cursor:pointer; transition:all .2s; }
+.po3-card:hover { border-color:var(--border-glow); }
+.po3-card.selected-acc  { border-color:var(--primary); background:var(--fvg-bull-bg); }
+.po3-card.selected-man  { border-color:var(--warn);    background:rgba(245,158,11,.06); }
+.po3-card.selected-dist { border-color:var(--bull);    background:var(--ob-bull-bg); }
+.po3-icon  { font-size:1.8rem; margin-bottom:8px; }
+.po3-title { font-family:var(--font-display); font-size:.65rem; letter-spacing:1px; margin-bottom:6px; }
+.po3-desc  { font-size:.73rem; color:var(--text-dim); line-height:1.5; }
+
+/* ===== FORM ===== */
+.form-group { display:flex; flex-direction:column; gap:5px; }
+.form-label { font-size:.68rem; color:var(--text-dim); letter-spacing:.5px; }
+.form-input  { background:var(--bg-input); border:1px solid var(--border); border-radius:6px; color:var(--text); font-family:var(--font-mono); font-size:.88rem; padding:8px 10px; outline:none; transition:border-color .2s; width:100%; }
+.form-input:focus { border-color:var(--warn); }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+
+/* ===== EMPTY STATE ===== */
+.empty-state { text-align:center; padding:36px 20px; color:var(--text-dim); }
+.empty-state .icon { font-size:2.5rem; margin-bottom:8px; opacity:.35; }
+.empty-state p { font-size:.82rem; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width:900px) {
+  .signal-row,.kz-grid,.po3-grid { grid-template-columns:1fr 1fr; }
+  .chart-grid-2,.factor-grid { grid-template-columns:1fr; }
+}
+@media (max-width:600px) {
+  .signal-row,.kz-grid,.po3-grid { grid-template-columns:1fr; }
+  .main-content { padding:12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="header">
+  <div class="logo-block">
+    <div class="logo-icon">💰</div>
+    <div>
+      <div class="logo-text">SMC SYSTEM</div>
+      <div class="logo-sub">SMART MONEY CONCEPT — INSTITUTIONAL TRADING</div>
+    </div>
+  </div>
+  <div class="header-mid">
+    <span class="ticker-label">TICKER</span>
+    <input type="text" class="ticker-input" id="tickerInput" value="FPT" maxlength="10">
+    <button class="btn btn-warn" onclick="loadTicker()">LOAD</button>
+    <label class="btn btn-ghost" style="cursor:pointer">
+      UPLOAD <input type="file" id="fileInput" accept=".json" style="display:none" onchange="loadFile(event)">
+    </label>
+    <span class="data-info" id="dataInfo"></span>
+  </div>
+  <div class="status-badge">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">CHƯA TẢI DỮ LIỆU</span>
+  </div>
+</header>
+
+<!-- ===== TAB NAV ===== -->
+<nav class="tab-nav">
+  <button class="tab-btn active"  onclick="switchTab('structure',this)">📊 MARKET STRUCTURE</button>
+  <button class="tab-btn"         onclick="switchTab('liquidity',this)">💧 LIQUIDITY</button>
+  <button class="tab-btn"         onclick="switchTab('ob',this)">📦 ORDER BLOCKS</button>
+  <button class="tab-btn"         onclick="switchTab('fvg',this)">⚡ FVG SCANNER</button>
+  <button class="tab-btn"         onclick="switchTab('setup',this)">🎯 SETUP CHECKER</button>
+  <button class="tab-btn"         onclick="switchTab('confluence',this)">🔗 CONFLUENCE</button>
+</nav>
+
+<!-- ===== TAB 1: MARKET STRUCTURE ===== -->
+<div id="tab-structure" class="tab-content active">
+<div class="main-content">
+  <div class="signal-row">
+    <div class="signal-card neutral" id="ms-card-htf">
+      <div class="sig-label">HTF BIAS — WEEKLY</div>
+      <div class="sig-value neutral" id="ms-htf-val">—</div>
+      <div class="sig-desc" id="ms-htf-desc">Chờ dữ liệu</div>
+    </div>
+    <div class="signal-card neutral" id="ms-card-ltf">
+      <div class="sig-label">LTF STRUCTURE — DAILY</div>
+      <div class="sig-value neutral" id="ms-ltf-val">—</div>
+      <div class="sig-desc" id="ms-ltf-desc">Chờ dữ liệu</div>
+    </div>
+    <div class="signal-card neutral" id="ms-card-last">
+      <div class="sig-label">SỰ KIỆN GẦN NHẤT</div>
+      <div class="sig-value neutral" id="ms-last-val">—</div>
+      <div class="sig-desc" id="ms-last-desc">BOS / CHoCH</div>
+    </div>
+    <div class="signal-card neutral" id="ms-card-swing">
+      <div class="sig-label">SWING POINTS (50 bars)</div>
+      <div class="sig-value neutral" id="ms-swing-val">—</div>
+      <div class="sig-desc" id="ms-swing-desc">Highs / Lows</div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="chart-title">📊 MARKET STRUCTURE — DAILY
+        <span class="badge badge-info" id="ms-trend-badge">NEUTRAL</span>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#38bdf8"></div>BOS</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>CHoCH</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div>Swing H/L</div>
+      </div>
+    </div>
+    <div class="chart-wrap" id="ms-chart-wrap">
+      <div id="ms-chart" style="height:340px"></div>
+    </div>
+  </div>
+
+  <div class="section-title">📋 LỊCH SỬ CẤU TRÚC — BOS & CHoCH</div>
+  <div class="smc-table-wrap">
+    <table class="smc-table">
+      <thead><tr>
+        <th>NGÀY</th><th>LOẠI</th><th>HƯỚNG</th>
+        <th>GIÁ BREAK</th><th>SWING REF</th><th>Ý NGHĨA</th>
+      </tr></thead>
+      <tbody id="ms-tbody"></tbody>
+    </table>
+    <div class="empty-state" id="ms-empty"><div class="icon">📊</div><p>Tải dữ liệu để phân tích cấu trúc</p></div>
+  </div>
+</div>
+</div>
+
+<!-- ===== TAB 2: LIQUIDITY ===== -->
+<div id="tab-liquidity" class="tab-content">
+<div class="main-content">
+  <div class="signal-row">
+    <div class="signal-card neutral" id="liq-card-bsl">
+      <div class="sig-label">BUY SIDE LIQUIDITY</div>
+      <div class="sig-value bull" id="liq-bsl-val">—</div>
+      <div class="sig-desc" id="liq-bsl-desc">Stop loss của SHORT</div>
+    </div>
+    <div class="signal-card neutral" id="liq-card-ssl">
+      <div class="sig-label">SELL SIDE LIQUIDITY</div>
+      <div class="sig-value bear" id="liq-ssl-val">—</div>
+      <div class="sig-desc" id="liq-ssl-desc">Stop loss của LONG</div>
+    </div>
+    <div class="signal-card neutral" id="liq-card-sweep">
+      <div class="sig-label">GẦN ĐÂY NHẤT — SWEEP</div>
+      <div class="sig-value neutral" id="liq-sweep-val">—</div>
+      <div class="sig-desc" id="liq-sweep-desc">Liquidity bị quét</div>
+    </div>
+    <div class="signal-card neutral" id="liq-card-eq">
+      <div class="sig-label">EQUAL H/L (EQH/EQL)</div>
+      <div class="sig-value warn" id="liq-eq-val">—</div>
+      <div class="sig-desc" id="liq-eq-desc">Thanh khoản tập trung</div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="chart-title">💧 LIQUIDITY MAP — BSL / SSL / SWEEPS
+        <span class="badge badge-bull">BSL</span>
+        <span class="badge badge-bear">SSL</span>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#4ade80;height:2px;border-top:1px dashed"></div>BSL</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f87171;height:2px;border-top:1px dashed"></div>SSL</div>
+        <div class="legend-item" style="font-size:.68rem">🔵 Sweep</div>
+      </div>
+    </div>
+    <div class="chart-wrap" id="liq-chart-wrap">
+      <div id="liq-chart" style="height:320px"></div>
+    </div>
+  </div>
+
+  <div class="hint-box info-hint" style="margin-bottom:14px">
+    <strong>💡 Quy tắc Liquidity:</strong> Smart Money luôn di chuyển giá đến nơi có nhiều stop loss (liquidity pools) trước khi đi theo hướng thực sự. BSL = đỉnh swing / đường kháng cự = stop của SHORT. SSL = đáy swing / đường hỗ trợ = stop của LONG.
+  </div>
+
+  <div class="section-title">⚡ LIQUIDITY SWEEPS GẦN ĐÂY</div>
+  <div class="smc-table-wrap">
+    <table class="smc-table">
+      <thead><tr>
+        <th>NGÀY SWEEP</th><th>LOẠI</th><th>GIÁ SWEEP</th>
+        <th>GIÁ ĐỈNH/ĐÁY REF</th><th>ĐỘ MẠNH</th><th>KẾT QUẢ</th>
+      </tr></thead>
+      <tbody id="liq-tbody"></tbody>
+    </table>
+    <div class="empty-state" id="liq-empty"><div class="icon">💧</div><p>Tải dữ liệu để xem liquidity sweeps</p></div>
+  </div>
+</div>
+</div>
+
+<!-- ===== TAB 3: ORDER BLOCKS ===== -->
+<div id="tab-ob" class="tab-content">
+<div class="main-content">
+  <div class="signal-row">
+    <div class="signal-card null" id="ob-card-fresh">
+      <div class="sig-label">FRESH ORDER BLOCKS</div>
+      <div class="sig-value warn" id="ob-fresh-count">—</div>
+      <div class="sig-desc">Chưa bị mitigate</div>
+    </div>
+    <div class="signal-card neutral" id="ob-card-nearest-bull">
+      <div class="sig-label">OB BULL GẦN NHẤT</div>
+      <div class="sig-value bull" id="ob-nearest-bull">—</div>
+      <div class="sig-desc" id="ob-nearest-bull-desc">Vùng hỗ trợ tổ chức</div>
+    </div>
+    <div class="signal-card neutral" id="ob-card-nearest-bear">
+      <div class="sig-label">OB BEAR GẦN NHẤT</div>
+      <div class="sig-value bear" id="ob-nearest-bear">—</div>
+      <div class="sig-desc" id="ob-nearest-bear-desc">Vùng kháng cự tổ chức</div>
+    </div>
+    <div class="signal-card neutral" id="ob-card-price">
+      <div class="sig-label">GIÁ HIỆN TẠI VS OB</div>
+      <div class="sig-value neutral" id="ob-price-pos">—</div>
+      <div class="sig-desc" id="ob-price-pos-desc">Vị trí trong cấu trúc</div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="chart-title">📦 ORDER BLOCK ZONES
+        <span class="badge badge-bull">BULLISH OB</span>
+        <span class="badge badge-bear">BEARISH OB</span>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#4ade80;height:8px;border-radius:1px;opacity:.6"></div>Fresh Bull OB</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f87171;height:8px;border-radius:1px;opacity:.6"></div>Fresh Bear OB</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#64748b;height:8px;border-radius:1px;opacity:.4"></div>Mitigated</div>
+      </div>
+    </div>
+    <div class="chart-wrap" id="ob-chart-wrap">
+      <div id="ob-chart" style="height:320px"></div>
+    </div>
+  </div>
+
+  <div class="hint-box" style="margin-bottom:14px">
+    <strong>📦 Order Block là gì:</strong> Nến giảm cuối cùng trước một đợt tăng mạnh (Bull OB) hoặc nến tăng cuối cùng trước một đợt giảm mạnh (Bear OB). Smart Money chưa fill hết lệnh → giá quay về để "lấy nốt". OB bị <strong>mitigate</strong> khi giá quay về chạm vào vùng đó.
+  </div>
+
+  <div class="section-title">📋 DANH SÁCH ORDER BLOCKS</div>
+  <div class="smc-table-wrap">
+    <table class="smc-table">
+      <thead><tr>
+        <th>NGÀY TẠO</th><th>LOẠI</th><th>HIGH</th><th>LOW</th>
+        <th>MIDPOINT</th><th>KHOẢNG CÁCH</th><th>TRẠNG THÁI</th>
+      </tr></thead>
+      <tbody id="ob-tbody"></tbody>
+    </table>
+    <div class="empty-state" id="ob-empty"><div class="icon">📦</div><p>Tải dữ liệu để scan Order Blocks</p></div>
+  </div>
+</div>
+</div>
+
+<!-- ===== TAB 4: FVG SCANNER ===== -->
+<div id="tab-fvg" class="tab-content">
+<div class="main-content">
+  <div class="signal-row">
+    <div class="signal-card neutral" id="fvg-card-open">
+      <div class="sig-label">FVG ĐANG MỞ</div>
+      <div class="sig-value warn" id="fvg-open-count">—</div>
+      <div class="sig-desc">Chưa được lấp đầy</div>
+    </div>
+    <div class="signal-card neutral" id="fvg-card-bull">
+      <div class="sig-label">BULLISH FVG GẦN NHẤT</div>
+      <div class="sig-value bull" id="fvg-bull-val">—</div>
+      <div class="sig-desc" id="fvg-bull-desc">Vùng mất cân bằng tăng</div>
+    </div>
+    <div class="signal-card neutral" id="fvg-card-bear">
+      <div class="sig-label">BEARISH FVG GẦN NHẤT</div>
+      <div class="sig-value bear" id="fvg-bear-val">—</div>
+      <div class="sig-desc" id="fvg-bear-desc">Vùng mất cân bằng giảm</div>
+    </div>
+    <div class="signal-card neutral" id="fvg-card-price">
+      <div class="sig-label">GIÁ GẦN FVG NHẤT</div>
+      <div class="sig-value info" id="fvg-nearest">—</div>
+      <div class="sig-desc" id="fvg-nearest-desc">Vùng cần chú ý</div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="chart-title">⚡ FAIR VALUE GAPS
+        <span class="badge badge-info">BULL FVG</span>
+        <span class="badge badge-warn">BEAR FVG</span>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#38bdf8;height:8px;border-radius:1px;opacity:.6"></div>Bull FVG (open)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#fbbf24;height:8px;border-radius:1px;opacity:.6"></div>Bear FVG (open)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#64748b;height:8px;border-radius:1px;opacity:.3"></div>Filled</div>
+      </div>
+    </div>
+    <div class="chart-wrap" id="fvg-chart-wrap">
+      <div id="fvg-chart" style="height:320px"></div>
+    </div>
+  </div>
+
+  <div class="hint-box info-hint" style="margin-bottom:14px">
+    <strong>⚡ FVG (Fair Value Gap):</strong> Khoảng trống giữa bóng nến 1 và bóng nến 3 trong chuỗi 3 nến liên tiếp. Giá có xu hướng quay lại lấp đầy (50%) để cân bằng trước khi tiếp tục. FVG + OB cùng vùng = <strong>Confluence mạnh nhất</strong>.
+  </div>
+
+  <div class="section-title">📋 DANH SÁCH FVG</div>
+  <div class="smc-table-wrap">
+    <table class="smc-table">
+      <thead><tr>
+        <th>NGÀY</th><th>LOẠI</th><th>TOP</th><th>BOTTOM</th>
+        <th>SIZE (pts)</th><th>% LẤP ĐẦY</th><th>TRẠNG THÁI</th>
+      </tr></thead>
+      <tbody id="fvg-tbody"></tbody>
+    </table>
+    <div class="empty-state" id="fvg-empty"><div class="icon">⚡</div><p>Tải dữ liệu để scan FVG</p></div>
+  </div>
+</div>
+</div>
+
+<!-- ===== TAB 5: SETUP CHECKER ===== -->
+<div id="tab-setup" class="tab-content">
+<div class="main-content">
+
+  <!-- Kill Zones -->
+  <div class="section-title">⏰ KILL ZONES — <span id="kz-current-time" style="color:var(--primary);font-family:var(--font-mono)"></span></div>
+  <div class="kz-grid" id="kz-grid">
+    <div class="kz-card" id="kz-asian">
+      <div class="kz-name">ASIAN SESSION</div>
+      <div class="kz-time">00:00 – 05:00</div>
+      <div class="kz-countdown" id="kz-asian-cd">—</div>
+      <div class="kz-status closed" id="kz-asian-st">CLOSED</div>
+    </div>
+    <div class="kz-card" id="kz-london">
+      <div class="kz-name">LONDON OPEN</div>
+      <div class="kz-time">14:00 – 17:00</div>
+      <div class="kz-countdown" id="kz-london-cd">—</div>
+      <div class="kz-status closed" id="kz-london-st">CLOSED</div>
+    </div>
+    <div class="kz-card" id="kz-ny">
+      <div class="kz-name">NEW YORK OPEN</div>
+      <div class="kz-time">19:30 – 22:00</div>
+      <div class="kz-countdown" id="kz-ny-cd">—</div>
+      <div class="kz-status closed" id="kz-ny-st">CLOSED</div>
+    </div>
+    <div class="kz-card" id="kz-lc">
+      <div class="kz-name">LONDON CLOSE</div>
+      <div class="kz-time">22:00 – 00:00</div>
+      <div class="kz-countdown" id="kz-lc-cd">—</div>
+      <div class="kz-status closed" id="kz-lc-st">CLOSED</div>
+    </div>
+  </div>
+
+  <!-- PO3 Phase -->
+  <div class="section-title">🔄 PO3 — POWER OF THREE PHASE</div>
+  <div class="po3-grid">
+    <div class="po3-card" id="po3-acc" onclick="selectPO3('acc')">
+      <div class="po3-icon">📦</div>
+      <div class="po3-title" style="color:var(--primary)">ACCUMULATION</div>
+      <div class="po3-desc">Giá đi ngang. Smart Money gom lệnh lặng lẽ. Retail không chú ý.</div>
+    </div>
+    <div class="po3-card" id="po3-man" onclick="selectPO3('man')">
+      <div class="po3-icon">⚡</div>
+      <div class="po3-title" style="color:var(--warn)">MANIPULATION</div>
+      <div class="po3-desc">Giá fake breakout → quét stop loss → bẫy retail vào hướng sai.</div>
+    </div>
+    <div class="po3-card" id="po3-dist" onclick="selectPO3('dist')">
+      <div class="po3-icon">🚀</div>
+      <div class="po3-title" style="color:var(--bull)">DISTRIBUTION</div>
+      <div class="po3-desc">Smart Money đẩy giá đúng hướng. Retail thấy tín hiệu đẹp mới vào.</div>
+    </div>
+  </div>
+  <div class="hint-box" id="po3-hint" style="margin-bottom:16px">Chọn phase hiện tại của thị trường để nhận gợi ý chiến lược.</div>
+
+  <!-- SMC Checklist -->
+  <div class="section-title">✅ SMC ENTRY CHECKLIST</div>
+  <div class="chart-grid-2">
+    <div>
+      <div class="checklist" id="smc-checklist">
+        <div class="check-item" id="chk-htf">
+          <div class="check-left">
+            <div class="check-icon">1</div>
+            <div><div class="check-name">HTF Bias rõ ràng</div><div class="check-desc">Weekly/Daily có xu hướng xác định</div></div>
+          </div>
+          <div class="check-toggle">
+            <button class="toggle-btn toggle-yes" onclick="toggleCheck('htf',true,this)">✓ CÓ</button>
+            <button class="toggle-btn toggle-no"  onclick="toggleCheck('htf',false,this)">✗ KHÔNG</button>
+          </div>
+        </div>
+        <div class="check-item" id="chk-sweep">
+          <div class="check-left">
+            <div class="check-icon">2</div>
+            <div><div class="check-name">Liquidity đã bị Sweep</div><div class="check-desc">Giá đã quét BSL hoặc SSL gần đây</div></div>
+          </div>
+          <div class="check-toggle">
+            <button class="toggle-btn toggle-yes" onclick="toggleCheck('sweep',true,this)">✓ CÓ</button>
+            <button class="toggle-btn toggle-no"  onclick="toggleCheck('sweep',false,this)">✗ KHÔNG</button>
+          </div>
+        </div>
+        <div class="check-item" id="chk-choch">
+          <div class="check-left">
+            <div class="check-icon">3</div>
+            <div><div class="check-name">CHoCH đã xác nhận</div><div class="check-desc">Change of Character trên LTF sau sweep</div></div>
+          </div>
+          <div class="check-toggle">
+            <button class="toggle-btn toggle-yes" onclick="toggleCheck('choch',true,this)">✓ CÓ</button>
+            <button class="toggle-btn toggle-no"  onclick="toggleCheck('choch',false,this)">✗ KHÔNG</button>
+          </div>
+        </div>
+        <div class="check-item" id="chk-ob">
+          <div class="check-left">
+            <div class="check-icon">4</div>
+            <div><div class="check-name">Giá tại Order Block</div><div class="check-desc">Fresh OB chưa bị mitigate</div></div>
+          </div>
+          <div class="check-toggle">
+            <button class="toggle-btn toggle-yes" onclick="toggleCheck('ob',true,this)">✓ CÓ</button>
+            <button class="toggle-btn toggle-no"  onclick="toggleCheck('ob',false,this)">✗ KHÔNG</button>
+          </div>
+        </div>
+        <div class="check-item" id="chk-fvg">
+          <div class="check-left">
+            <div class="check-icon">5</div>
+            <div><div class="check-name">FVG cùng vùng OB</div><div class="check-desc">FVG chưa lấp + OB = confluence mạnh</div></div>
+          </div>
+          <div class="check-toggle">
+            <button class="toggle-btn toggle-yes" onclick="toggleCheck('fvg',true,this)">✓ CÓ</button>
+            <button class="toggle-btn toggle-no"  onclick="toggleCheck('fvg',false,this)">✗ KHÔNG</button>
+          </div>
+        </div>
+        <div class="check-item" id="chk-kz">
+          <div class="check-left">
+            <div class="check-icon">6</div>
+            <div><div class="check-name">Trong Kill Zone</div><div class="check-desc">London Open hoặc NY Open</div></div>
+          </div>
+          <div class="check-toggle">
+            <button class="toggle-btn toggle-yes" onclick="toggleCheck('kz',true,this)">✓ CÓ</button>
+            <button class="toggle-btn toggle-no"  onclick="toggleCheck('kz',false,this)">✗ KHÔNG</button>
+          </div>
+        </div>
+        <div class="check-item" id="chk-rr">
+          <div class="check-left">
+            <div class="check-icon">7</div>
+            <div><div class="check-name">R:R ≥ 1:2</div><div class="check-desc">Target = ít nhất 2× stop loss distance</div></div>
+          </div>
+          <div class="check-toggle">
+            <button class="toggle-btn toggle-yes" onclick="toggleCheck('rr',true,this)">✓ CÓ</button>
+            <button class="toggle-btn toggle-no"  onclick="toggleCheck('rr',false,this)">✗ KHÔNG</button>
+          </div>
+        </div>
+        <div class="check-item" id="chk-po3">
+          <div class="check-left">
+            <div class="check-icon">8</div>
+            <div><div class="check-name">PO3 — Đang ở Distribution</div><div class="check-desc">Sau manipulation, vào lệnh theo hướng thật</div></div>
+          </div>
+          <div class="check-toggle">
+            <button class="toggle-btn toggle-yes" onclick="toggleCheck('po3',true,this)">✓ CÓ</button>
+            <button class="toggle-btn toggle-no"  onclick="toggleCheck('po3',false,this)">✗ KHÔNG</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Entry Planning -->
+    <div>
+      <div class="chart-card" style="margin-bottom:12px">
+        <div class="section-title" style="margin-bottom:10px">🎯 SMC ENTRY PLANNER</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">HƯỚNG LỆNH</label>
+            <select class="form-input" id="smc-dir" style="cursor:pointer" onchange="calcSMCEntry()">
+              <option value="LONG">📈 LONG (Buy)</option>
+              <option value="SHORT">📉 SHORT (Sell)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">VỐN (VNĐ)</label>
+            <input type="number" class="form-input" id="smc-capital" value="100000000" oninput="calcSMCEntry()">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">ENTRY — Tại OB low/high</label>
+            <input type="number" class="form-input" id="smc-entry" placeholder="100000" oninput="calcSMCEntry()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">STOP — Dưới OB low</label>
+            <input type="number" class="form-input" id="smc-sl" placeholder="97000" oninput="calcSMCEntry()">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">TARGET — BSL / SSL tiếp theo</label>
+            <input type="number" class="form-input" id="smc-tp" placeholder="106000" oninput="calcSMCEntry()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">% RỦI RO / LỆNH</label>
+            <input type="number" class="form-input" id="smc-risk" value="2" min="0.5" max="5" step="0.5" oninput="calcSMCEntry()">
+          </div>
+        </div>
+        <div id="smc-entry-result" style="background:var(--bg-panel);border:1px solid var(--border-glow);border-radius:6px;padding:12px;font-size:.8rem"></div>
+      </div>
+
+      <!-- Score meter -->
+      <div class="chart-card">
+        <div class="section-title" style="margin-bottom:10px">📊 ĐIỂM SETUP HIỆN TẠI</div>
+        <div style="text-align:center;padding:10px 0">
+          <div style="font-family:var(--font-display);font-size:2.5rem;font-weight:900" id="setup-score-num">0/8</div>
+          <div style="font-size:.72rem;color:var(--text-dim);margin:4px 0 12px">tiêu chí đạt</div>
+          <div style="height:8px;background:var(--bg-panel);border-radius:4px;border:1px solid var(--border)">
+            <div id="setup-score-bar" style="height:100%;border-radius:4px;background:var(--text-faint);width:0%;transition:width .5s"></div>
+          </div>
+          <div style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-top:12px" id="setup-score-label">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ===== TAB 6: CONFLUENCE SCORE ===== -->
+<div id="tab-confluence" class="tab-content">
+<div class="main-content">
+  <div class="chart-grid-2">
+    <!-- Gauge -->
+    <div class="chart-card">
+      <div class="section-title">🔗 SMC CONFLUENCE SCORE</div>
+      <div class="gauge-wrap">
+        <div class="gauge-ring">
+          <svg width="160" height="160" viewBox="0 0 160 160">
+            <circle cx="80" cy="80" r="68" fill="none" stroke="#1a2040" stroke-width="14"/>
+            <circle id="gauge-circle" cx="80" cy="80" r="68" fill="none"
+              stroke="var(--warn)" stroke-width="14"
+              stroke-dasharray="427" stroke-dashoffset="427"
+              stroke-linecap="round" style="transition:stroke-dashoffset 1s ease"/>
+          </svg>
+          <div class="gauge-score">
+            <div class="gauge-num" id="gauge-num" style="color:var(--warn)">0</div>
+            <div class="gauge-label">/ 100</div>
+          </div>
+        </div>
+        <div class="gauge-signal" id="gauge-signal" style="color:var(--text-dim)">CHỜ DỮ LIỆU</div>
+        <div style="font-size:.72rem;color:var(--text-dim);text-align:center;margin-top:6px" id="gauge-direction">Tải dữ liệu hoặc điền checklist</div>
+      </div>
+    </div>
+
+    <!-- Factors breakdown -->
+    <div class="chart-card">
+      <div class="section-title">📊 PHÂN TÍCH YẾU TỐ</div>
+      <div class="factor-grid" id="factor-grid">
+        <div class="factor-item"><span class="fi-name">HTF Bias</span><span class="factor-pts" id="f-htf" style="color:var(--text-faint)">0 / 25</span></div>
+        <div class="factor-item"><span class="fi-name">CHoCH / BOS</span><span class="factor-pts" id="f-choch" style="color:var(--text-faint)">0 / 20</span></div>
+        <div class="factor-item"><span class="fi-name">Order Block</span><span class="factor-pts" id="f-ob" style="color:var(--text-faint)">0 / 15</span></div>
+        <div class="factor-item"><span class="fi-name">FVG</span><span class="factor-pts" id="f-fvg" style="color:var(--text-faint)">0 / 10</span></div>
+        <div class="factor-item"><span class="fi-name">Liquidity Sweep</span><span class="factor-pts" id="f-sweep" style="color:var(--text-faint)">0 / 15</span></div>
+        <div class="factor-item"><span class="fi-name">Giá tại Zone</span><span class="factor-pts" id="f-zone" style="color:var(--text-faint)">0 / 15</span></div>
+      </div>
+
+      <div style="margin-top:16px">
+        <div class="hint-box">
+          <strong>🎯 Ngưỡng giao dịch theo Elder SMC:</strong><br>
+          <span style="color:var(--bull)">≥ 75%</span> — Vào lệnh đầy đủ size<br>
+          <span style="color:var(--warn)">50-74%</span> — Vào lệnh 50% size, thận trọng<br>
+          <span style="color:var(--bear)">< 50%</span> — Không vào lệnh, chờ confluence tốt hơn
+        </div>
+      </div>
+
+      <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-warn" onclick="recalcConfluence()">🔄 TÍNH LẠI</button>
+        <button class="btn btn-ghost" onclick="resetAll()">🗑 RESET</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SMC Summary -->
+  <div class="chart-card" style="margin-top:4px">
+    <div class="section-title">📋 TÓM TẮT PHÂN TÍCH SMC</div>
+    <div id="smc-summary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+      <div class="hint-box bull-hint" id="sum-structure">
+        <strong>📊 Cấu trúc:</strong><br>
+        <span id="sum-structure-text" style="color:var(--text-dim)">Chưa có dữ liệu</span>
+      </div>
+      <div class="hint-box info-hint" id="sum-zones">
+        <strong>📦 Vùng chính:</strong><br>
+        <span id="sum-zones-text" style="color:var(--text-dim)">Chưa có dữ liệu</span>
+      </div>
+      <div class="hint-box" id="sum-action">
+        <strong>🎯 Hành động:</strong><br>
+        <span id="sum-action-text" style="color:var(--text-dim)">Tải dữ liệu để nhận phân tích</span>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let dailyBars = [], weeklyBars = [];
+let smcData = { swings:{}, structure:[], sweeps:[], obs:[], fvgs:[] };
+let lwCharts = {}, overlayCanvases = {};
+let checkState = { htf:null, sweep:null, choch:null, ob:null, fvg:null, kz:null, rr:null, po3:null };
+let currentTicker = 'FPT';
+let po3Phase = null;
+let kzTimer = null;
+
+// ============================================================
+// DATA LOADING
+// ============================================================
+async function loadTicker() {
+  const t = document.getElementById('tickerInput').value.trim().toUpperCase();
+  if (!t) return;
+  currentTicker = t;
+  setStatus('loading', 'ĐANG TẢI ' + t + '...');
+  try {
+    const res = await fetch(`data/${t}.json`);
+    if (!res.ok) throw new Error('Không tìm thấy ' + t + '.json');
+    const json = await res.json();
+    processData(json, t);
+  } catch(e) { setStatus('error', 'LỖI: ' + e.message); }
+}
+
+function loadFile(evt) {
+  const file = evt.target.files[0]; if (!file) return;
+  const name = file.name.replace('.json','').toUpperCase();
+  currentTicker = name;
+  document.getElementById('tickerInput').value = name;
+  setStatus('loading', 'ĐANG ĐỌC...');
+  const reader = new FileReader();
+  reader.onload = e => { try { processData(JSON.parse(e.target.result), name); } catch(err) { setStatus('error','JSON LỖI'); } };
+  reader.readAsText(file);
+}
+
+function processData(raw, ticker) {
+  if (!Array.isArray(raw)) { setStatus('error','Định dạng không hỗ trợ'); return; }
+  const bars = raw.map(b => ({
+    time:  b.t || b.time || b.timestamp,
+    open:  +(b.o || b.open), high: +(b.h || b.high),
+    low:   +(b.l || b.low),  close:+(b.c || b.close),
+    volume:+(b.v || b.volume || 0)
+  })).filter(b => b.time && b.close > 0).sort((a,b) => a.time - b.time);
+
+  dailyBars  = bars;
+  weeklyBars = aggregateWeekly(bars);
+
+  const first = new Date(bars[0].time*1000).toLocaleDateString('vi-VN');
+  const last  = new Date(bars[bars.length-1].time*1000).toLocaleDateString('vi-VN');
+  document.getElementById('dataInfo').textContent = `${ticker} • ${bars.length} bars • ${first} → ${last}`;
+  setStatus('ready', ticker + ' READY');
+
+  // Run all SMC analysis
+  analyzeSMC();
+
+  // Render charts for active tab
+  destroyAllCharts();
+  renderStructureTab();
+  updateConfluence();
+  updateSummary();
+}
+
+// ============================================================
+// WEEKLY AGGREGATION
+// ============================================================
+function aggregateWeekly(bars) {
+  const map = {};
+  bars.forEach(bar => {
+    const d = new Date(bar.time*1000);
+    const day = d.getDay();
+    const mon = new Date(d); mon.setDate(d.getDate()-(day===0?6:day-1));
+    const key = mon.toISOString().slice(0,10);
+    if (!map[key]) map[key] = { time:Math.floor(mon/1000), open:bar.open, high:bar.high, low:bar.low, close:bar.close, volume:bar.volume };
+    else { map[key].high=Math.max(map[key].high,bar.high); map[key].low=Math.min(map[key].low,bar.low); map[key].close=bar.close; map[key].volume+=bar.volume; }
+  });
+  return Object.values(map).sort((a,b)=>a.time-b.time);
+}
+
+// ============================================================
+// SMC ANALYSIS ENGINE
+// ============================================================
+function analyzeSMC() {
+  const bars = dailyBars;
+  if (!bars.length) return;
+
+  // 1. Swing points
+  const swings = findSwingPoints(bars, 5);
+
+  // 2. BOS / CHoCH
+  const structure = detectStructure(bars, swings);
+
+  // 3. Liquidity sweeps
+  const sweeps = detectSweeps(bars, swings);
+
+  // 4. Order Blocks
+  const obs = findOrderBlocks(bars);
+
+  // 5. FVGs
+  const fvgs = findFVGs(bars);
+
+  smcData = { swings, structure, sweeps, obs, fvgs };
+
+  // Update UI
+  updateStructureCards();
+  updateStructureTable();
+  updateLiquidityCards();
+  updateLiquidityTable();
+  updateOBCards();
+  updateOBTable();
+  updateFVGCards();
+  updateFVGTable();
+}
+
+// ============================================================
+// SWING POINTS
+// ============================================================
+function findSwingPoints(bars, lookback=5) {
+  const highs = [], lows = [];
+  for (let i = lookback; i < bars.length - lookback; i++) {
+    const bar = bars[i];
+    if (bars.slice(i-lookback,i).every(b=>b.high<=bar.high) &&
+        bars.slice(i+1,i+lookback+1).every(b=>b.high<bar.high))
+      highs.push({ idx:i, time:bar.time, price:bar.high });
+    if (bars.slice(i-lookback,i).every(b=>b.low>=bar.low) &&
+        bars.slice(i+1,i+lookback+1).every(b=>b.low>bar.low))
+      lows.push({ idx:i, time:bar.time, price:bar.low });
+  }
+  return { highs, lows };
+}
+
+// ============================================================
+// BOS / CHoCH DETECTION
+// ============================================================
+function detectStructure(bars, swings) {
+  const events = [];
+  const recentHighs = swings.highs.slice(-20);
+  const recentLows  = swings.lows.slice(-20);
+
+  // BOS Bullish: close above previous swing high
+  for (let h of recentHighs) {
+    for (let i = h.idx+1; i < bars.length; i++) {
+      if (bars[i].close > h.price) {
+        events.push({ type:'BOS', dir:'BULL', time:bars[i].time, price:bars[i].close, ref:h.price, idx:i });
+        break;
+      }
+    }
+  }
+  // BOS Bearish: close below previous swing low
+  for (let l of recentLows) {
+    for (let i = l.idx+1; i < bars.length; i++) {
+      if (bars[i].close < l.price) {
+        events.push({ type:'BOS', dir:'BEAR', time:bars[i].time, price:bars[i].close, ref:l.price, idx:i });
+        break;
+      }
+    }
+  }
+  // CHoCH: latest trend broken
+  // Deduplicate and sort
+  const unique = [];
+  const seen = new Set();
+  events.sort((a,b)=>a.time-b.time).forEach(e => {
+    const key = `${e.type}-${e.dir}-${e.time}`;
+    if (!seen.has(key)) { seen.add(key); unique.push(e); }
+  });
+
+  // Detect CHoCH: when structure breaks opposite to current trend
+  let trend = 'NEUTRAL';
+  const withChoch = [];
+  for (const e of unique) {
+    if (trend === 'BULL' && e.dir === 'BEAR') { withChoch.push({...e, type:'CHoCH'}); trend='BEAR'; }
+    else if (trend === 'BEAR' && e.dir === 'BULL') { withChoch.push({...e, type:'CHoCH'}); trend='BULL'; }
+    else { withChoch.push(e); if(e.dir==='BULL') trend='BULL'; else if(e.dir==='BEAR') trend='BEAR'; }
+  }
+  return withChoch.slice(-30);
+}
+
+// ============================================================
+// LIQUIDITY SWEEPS
+// ============================================================
+function detectSweeps(bars, swings) {
+  const sweeps = [];
+  const N = Math.min(bars.length, 200);
+  const recent = bars.slice(-N);
+  const offset = bars.length - N;
+
+  // BSL sweep: wick above swing high but closes below
+  for (const sh of swings.highs.filter(h => h.idx >= offset)) {
+    for (let i = sh.idx - offset + 1; i < recent.length; i++) {
+      if (recent[i].high > sh.price && recent[i].close < sh.price) {
+        const strength = ((recent[i].high - sh.price) / sh.price * 100).toFixed(2);
+        sweeps.push({ type:'BSL', time:recent[i].time, sweepPrice:recent[i].high, refPrice:sh.price, strength, result:'Rejection' });
+        break;
+      }
+    }
+  }
+  // SSL sweep: wick below swing low but closes above
+  for (const sl of swings.lows.filter(l => l.idx >= offset)) {
+    for (let i = sl.idx - offset + 1; i < recent.length; i++) {
+      if (recent[i].low < sl.price && recent[i].close > sl.price) {
+        const strength = ((sl.price - recent[i].low) / sl.price * 100).toFixed(2);
+        sweeps.push({ type:'SSL', time:recent[i].time, sweepPrice:recent[i].low, refPrice:sl.price, strength, result:'Rejection' });
+        break;
+      }
+    }
+  }
+  return sweeps.sort((a,b)=>b.time-a.time).slice(0,20);
+}
+
+// ============================================================
+// ORDER BLOCKS
+// ============================================================
+function findOrderBlocks(bars) {
+  const obs = [];
+  const N = Math.min(bars.length, 300);
+  const recent = bars.slice(-N);
+
+  for (let i = 1; i < recent.length - 1; i++) {
+    const cur = recent[i], prev = recent[i-1], next = recent[i+1];
+
+    // Bullish OB: bearish candle followed by strong bullish move
+    const isBearCandle = cur.close < cur.open;
+    const isStrongBull = next.close > cur.high && (next.close - next.open) > (cur.open - cur.close) * 0.8;
+    if (isBearCandle && isStrongBull) {
+      const ob = { type:'BULL', time:cur.time, high:cur.high, low:cur.low, idx:i, mitigated:false };
+      // Check mitigation
+      for (let j = i+2; j < recent.length; j++) {
+        if (recent[j].low <= ob.high && recent[j].high >= ob.low) { ob.mitigated=true; ob.mitigatedTime=recent[j].time; break; }
+      }
+      obs.push(ob);
+    }
+
+    // Bearish OB: bullish candle followed by strong bearish move
+    const isBullCandle = cur.close > cur.open;
+    const isStrongBear = next.close < cur.low && (cur.close - cur.open) * 0.8 < (next.open - next.close);
+    if (isBullCandle && isStrongBear) {
+      const ob = { type:'BEAR', time:cur.time, high:cur.high, low:cur.low, idx:i, mitigated:false };
+      for (let j = i+2; j < recent.length; j++) {
+        if (recent[j].low <= ob.high && recent[j].high >= ob.low) { ob.mitigated=true; ob.mitigatedTime=recent[j].time; break; }
+      }
+      obs.push(ob);
+    }
+  }
+  return obs.sort((a,b)=>b.time-a.time).slice(0,30);
+}
+
+// ============================================================
+// FVG DETECTION
+// ============================================================
+function findFVGs(bars) {
+  const fvgs = [];
+  const N = Math.min(bars.length, 300);
+  const recent = bars.slice(-N);
+
+  for (let i = 1; i < recent.length - 1; i++) {
+    const a = recent[i-1], c = recent[i+1];
+
+    // Bullish FVG: gap between a.high and c.low
+    if (a.high < c.low) {
+      const fvg = { type:'BULL', time:recent[i].time, top:c.low, bottom:a.high, size:c.low-a.high, filled:false, fillPct:0 };
+      // Check fill
+      for (let j = i+2; j < recent.length; j++) {
+        if (recent[j].low < fvg.top) {
+          const fill = Math.min(recent[j].low, fvg.top) - fvg.bottom;
+          fvg.fillPct = Math.min(100, Math.round(fill / fvg.size * 100));
+          if (fvg.fillPct >= 50) { fvg.filled = true; break; }
+        }
+      }
+      fvgs.push(fvg);
+    }
+
+    // Bearish FVG: gap between a.low and c.high
+    if (a.low > c.high) {
+      const fvg = { type:'BEAR', time:recent[i].time, top:a.low, bottom:c.high, size:a.low-c.high, filled:false, fillPct:0 };
+      for (let j = i+2; j < recent.length; j++) {
+        if (recent[j].high > fvg.bottom) {
+          const fill = fvg.top - Math.max(recent[j].high, fvg.bottom);
+          fvg.fillPct = Math.max(0, Math.min(100, Math.round((1-fill/fvg.size)*100)));
+          if (fvg.fillPct >= 50) { fvg.filled = true; break; }
+        }
+      }
+      fvgs.push(fvg);
+    }
+  }
+  return fvgs.sort((a,b)=>b.time-a.time).slice(0,30);
+}
+
+// ============================================================
+// CHART RENDERING
+// ============================================================
+function destroyAllCharts() {
+  Object.values(lwCharts).forEach(c => { try { c.remove(); } catch(e){} });
+  lwCharts = {}; overlayCanvases = {};
+}
+
+function makeLWChart(id, height=300) {
+  const el = document.getElementById(id); if (!el) return null;
+  el.innerHTML = '';
+  el.style.height = height + 'px';
+  const c = LightweightCharts.createChart(el, {
+    width: el.clientWidth || 600, height,
+    layout:      { background:{color:'transparent'}, textColor:'#64748b' },
+    grid:        { vertLines:{color:'#1a2040'}, horzLines:{color:'#1a2040'} },
+    crosshair:   { mode: LightweightCharts.CrosshairMode.Normal },
+    rightPriceScale: { borderColor:'#1a2040' },
+    timeScale:   { borderColor:'#1a2040', timeVisible:true },
+  });
+  lwCharts[id] = c;
+  window.addEventListener('resize', () => c.applyOptions({width:el.clientWidth}));
+  return c;
+}
+
+function makeOverlay(wrapId, chart) {
+  const wrap = document.getElementById(wrapId); if (!wrap) return null;
+  const existing = wrap.querySelector('canvas.overlay');
+  if (existing) existing.remove();
+  const canvas = document.createElement('canvas');
+  canvas.className = 'overlay';
+  canvas.width  = wrap.clientWidth;
+  canvas.height = wrap.clientHeight;
+  canvas.style.width  = wrap.clientWidth + 'px';
+  canvas.style.height = wrap.clientHeight + 'px';
+  wrap.appendChild(canvas);
+  overlayCanvases[wrapId] = canvas;
+  return canvas;
+}
+
+function drawZones(wrapId, chart, zones) {
+  const canvas = overlayCanvases[wrapId]; if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  zones.forEach(z => {
+    try {
+      const y1 = chart.priceScale('right').priceToCoordinate(z.top);
+      const y2 = chart.priceScale('right').priceToCoordinate(z.bottom);
+      const x1 = chart.timeScale().timeToCoordinate(z.startTime);
+      const x2 = z.endTime ? chart.timeScale().timeToCoordinate(z.endTime) : W - 60;
+      if (y1===null||y2===null||x1===null) return;
+      const x = Math.max(0, x1), w = Math.max(4, (x2||W-60) - x);
+      const yTop = Math.min(y1,y2), h = Math.max(2, Math.abs(y2-y1));
+
+      ctx.globalAlpha = z.mitigated ? 0.25 : 0.7;
+      ctx.fillStyle = z.bg;
+      ctx.fillRect(x, yTop, w, h);
+      ctx.globalAlpha = z.mitigated ? 0.2 : 0.8;
+      ctx.strokeStyle = z.border;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x, yTop, w, h);
+      ctx.globalAlpha = 1;
+
+      // Label
+      if (!z.mitigated && h > 6) {
+        ctx.font = '500 10px "Orbitron",sans-serif';
+        ctx.fillStyle = z.border;
+        ctx.fillText(z.label||'', x+4, yTop+Math.min(h-2,12));
+      }
+    } catch(e) {}
+  });
+}
+
+// ============================================================
+// STRUCTURE TAB
+// ============================================================
+function renderStructureTab() {
+  if (!dailyBars.length) return;
+  const bars  = dailyBars.slice(-200);
+  const wBars = weeklyBars.slice(-52);
+
+  const chart = makeLWChart('ms-chart', 340);
+  if (!chart) return;
+
+  const cs = chart.addCandlestickSeries({ upColor:'#4ade80', downColor:'#f87171', borderVisible:false, wickUpColor:'#4ade80', wickDownColor:'#f87171' });
+  cs.setData(bars.map(b=>({time:b.time,open:b.open,high:b.high,low:b.low,close:b.close})));
+
+  // Swing point markers
+  const { highs, lows } = smcData.swings;
+  const markers = [];
+  const offset = dailyBars.length - 200;
+  highs.filter(h=>h.idx>=offset).forEach(h => markers.push({ time:h.time, position:'aboveBar', color:'#a78bfa', shape:'arrowDown', text:'H' }));
+  lows.filter(l=>l.idx>=offset).forEach(l  => markers.push({ time:l.time, position:'belowBar', color:'#a78bfa', shape:'arrowUp',   text:'L' }));
+
+  // BOS/CHoCH markers
+  smcData.structure.slice(-20).forEach(e => {
+    const isBull = e.dir === 'BULL';
+    const color  = e.type === 'BOS' ? '#38bdf8' : '#f59e0b';
+    markers.push({ time:e.time, position: isBull ? 'belowBar' : 'aboveBar', color, shape: isBull ? 'arrowUp' : 'arrowDown', text: e.type });
+  });
+
+  markers.sort((a,b)=>a.time-b.time);
+  cs.setMarkers(markers);
+
+  // Subscribe to redraw overlay on scroll
+  setTimeout(() => {
+    const wrap = document.getElementById('ms-chart-wrap');
+    if (wrap) {
+      const canvas = makeOverlay('ms-chart-wrap', chart);
+      const redraw = () => drawStructureOverlay('ms-chart-wrap', chart);
+      chart.timeScale().subscribeVisibleTimeRangeChange(redraw);
+      chart.timeScale().subscribeVisibleLogicalRangeChange(redraw);
+      chart.subscribeCrosshairMove(redraw);
+      setTimeout(redraw, 100);
+    }
+  }, 50);
+}
+
+function drawStructureOverlay(wrapId, chart) {
+  const canvas = overlayCanvases[wrapId]; if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Draw BOS/CHoCH horizontal lines
+  smcData.structure.slice(-10).forEach(e => {
+    try {
+      const y = chart.priceScale('right').priceToCoordinate(e.ref);
+      if (y===null) return;
+      ctx.globalAlpha = 0.4;
+      ctx.strokeStyle = e.type==='BOS' ? '#38bdf8' : '#f59e0b';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width-60,y); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+    } catch(e) {}
+  });
+}
+
+// ============================================================
+// RENDER TABS ON SWITCH
+// ============================================================
+function renderLiquidityTab() {
+  if (!dailyBars.length) return;
+  const chart = makeLWChart('liq-chart', 320);
+  if (!chart) return;
+  const bars = dailyBars.slice(-200);
+  const cs = chart.addCandlestickSeries({ upColor:'#4ade80', downColor:'#f87171', borderVisible:false, wickUpColor:'#4ade80', wickDownColor:'#f87171' });
+  cs.setData(bars.map(b=>({time:b.time,open:b.open,high:b.high,low:b.low,close:b.close})));
+
+  // BSL price lines (top swing highs)
+  smcData.swings.highs.slice(-5).forEach(h => {
+    chart.addLineSeries({ color:'rgba(74,222,128,.5)', lineWidth:1, lineStyle:2, priceLineVisible:false })
+      .setData([{time:h.time, value:h.price}, {time:bars[bars.length-1].time, value:h.price}]);
+  });
+  // SSL price lines (recent swing lows)
+  smcData.swings.lows.slice(-5).forEach(l => {
+    chart.addLineSeries({ color:'rgba(248,113,113,.5)', lineWidth:1, lineStyle:2, priceLineVisible:false })
+      .setData([{time:l.time, value:l.price}, {time:bars[bars.length-1].time, value:l.price}]);
+  });
+  // Sweep markers
+  const markers = smcData.sweeps.slice(-15).map(s => ({
+    time: s.time,
+    position: s.type==='BSL' ? 'aboveBar' : 'belowBar',
+    color: s.type==='BSL' ? '#4ade80' : '#f87171',
+    shape: s.type==='BSL' ? 'circle' : 'circle',
+    text: '⚡'
+  }));
+  cs.setMarkers(markers);
+}
+
+function renderOBTab() {
+  if (!dailyBars.length) return;
+  const chart = makeLWChart('ob-chart', 320);
+  if (!chart) return;
+  const bars = dailyBars.slice(-200);
+  const offset = dailyBars.length - 200;
+  const cs = chart.addCandlestickSeries({ upColor:'#4ade80', downColor:'#f87171', borderVisible:false, wickUpColor:'#4ade80', wickDownColor:'#f87171' });
+  cs.setData(bars.map(b=>({time:b.time,open:b.open,high:b.high,low:b.low,close:b.close})));
+
+  setTimeout(() => {
+    const wrap = document.getElementById('ob-chart-wrap');
+    if (!wrap) return;
+    const canvas = makeOverlay('ob-chart-wrap', chart);
+    const zones = smcData.obs.filter(ob => {
+      // only show obs in visible range
+      const t = ob.time;
+      return t >= bars[0].time;
+    }).map(ob => ({
+      startTime: ob.time,
+      top:    ob.high,
+      bottom: ob.low,
+      bg:     ob.type==='BULL' ? 'rgba(74,222,128,.15)' : 'rgba(248,113,113,.15)',
+      border: ob.type==='BULL' ? '#4ade80' : '#f87171',
+      label:  ob.type + ' OB',
+      mitigated: ob.mitigated
+    }));
+    const redraw = () => drawZones('ob-chart-wrap', chart, zones);
+    chart.timeScale().subscribeVisibleTimeRangeChange(redraw);
+    chart.timeScale().subscribeVisibleLogicalRangeChange(redraw);
+    chart.subscribeCrosshairMove(redraw);
+    setTimeout(redraw, 100);
+  }, 50);
+}
+
+function renderFVGTab() {
+  if (!dailyBars.length) return;
+  const chart = makeLWChart('fvg-chart', 320);
+  if (!chart) return;
+  const bars = dailyBars.slice(-200);
+  const cs = chart.addCandlestickSeries({ upColor:'#4ade80', downColor:'#f87171', borderVisible:false, wickUpColor:'#4ade80', wickDownColor:'#f87171' });
+  cs.setData(bars.map(b=>({time:b.time,open:b.open,high:b.high,low:b.low,close:b.close})));
+
+  setTimeout(() => {
+    const wrap = document.getElementById('fvg-chart-wrap');
+    if (!wrap) return;
+    const canvas = makeOverlay('fvg-chart-wrap', chart);
+    const zones = smcData.fvgs.filter(f=>f.time>=bars[0].time).map(f=>({
+      startTime: f.time,
+      top:    f.top,
+      bottom: f.bottom,
+      bg:     f.type==='BULL' ? 'rgba(56,189,248,.1)' : 'rgba(251,191,36,.1)',
+      border: f.type==='BULL' ? '#38bdf8' : '#fbbf24',
+      label:  f.type + ' FVG',
+      mitigated: f.filled
+    }));
+    const redraw = () => drawZones('fvg-chart-wrap', chart, zones);
+    chart.timeScale().subscribeVisibleTimeRangeChange(redraw);
+    chart.timeScale().subscribeVisibleLogicalRangeChange(redraw);
+    chart.subscribeCrosshairMove(redraw);
+    setTimeout(redraw, 100);
+  }, 50);
+}
+
+// ============================================================
+// UI UPDATE FUNCTIONS
+// ============================================================
+function updateStructureCards() {
+  const events = smcData.structure;
+  if (!events.length) return;
+
+  // HTF: weekly bias
+  const wCloses = weeklyBars.map(b=>b.close);
+  const n = wCloses.length;
+  const htfBull = n>5 && wCloses[n-1]>wCloses[n-5];
+  const htfBias = htfBull ? 'BULLISH' : 'BEARISH';
+  const htfCls  = htfBull ? 'bull' : 'bear';
+  setCard('ms-card-htf','ms-htf-val', htfCls, htfBias, 'Dựa trên giá đóng cửa Weekly');
+  document.getElementById('ms-trend-badge').className = `badge badge-${htfCls}`;
+  document.getElementById('ms-trend-badge').textContent = htfBias;
+
+  // LTF: last structure event
+  const last = events[events.length-1];
+  const ltfCls = last.dir==='BULL'?'bull':'bear';
+  setCard('ms-card-ltf','ms-ltf-val', ltfCls, last.dir==='BULL'?'BULLISH':'BEARISH', `Cấu trúc Daily`);
+
+  // Last event
+  const evCls = last.type==='CHoCH'?'warn':'info';
+  setCard('ms-card-last','ms-last-val', evCls, last.type, `${last.dir} tại ${fmtP(last.price)}`);
+
+  // Swing count
+  const { highs, lows } = smcData.swings;
+  const offset = dailyBars.length - 50;
+  const h50 = highs.filter(h=>h.idx>=offset).length;
+  const l50 = lows.filter(l=>l.idx>=offset).length;
+  setCard('ms-card-swing','ms-swing-val','info',`${h50}H / ${l50}L`,`Swing points trong 50 bars`);
+}
+
+function updateStructureTable() {
+  const tbody = document.getElementById('ms-tbody');
+  const empty = document.getElementById('ms-empty');
+  const events = smcData.structure.slice(-20).reverse();
+  empty.style.display = events.length ? 'none' : 'block';
+  tbody.innerHTML = events.map(e => `<tr>
+    <td class="mono">${fmtDate(e.time)}</td>
+    <td><span class="${e.type==='BOS'?'fresh-badge':'miti-badge'}">${e.type}</span></td>
+    <td class="${e.dir==='BULL'?'bull-text':'bear-text'}">${e.dir==='BULL'?'▲ TĂNG':'▼ GIẢM'}</td>
+    <td class="mono">${fmtP(e.price)}</td>
+    <td class="mono" style="color:var(--text-dim)">${fmtP(e.ref)}</td>
+    <td style="font-size:.72rem;color:var(--text-dim)">${e.type==='BOS'?'Xu hướng tiếp diễn':'Cấu trúc đảo chiều ⚠️'}</td>
+  </tr>`).join('');
+}
+
+function updateLiquidityCards() {
+  const { highs, lows } = smcData.swings;
+  const bars = dailyBars;
+  const lastClose = bars[bars.length-1]?.close || 0;
+
+  const bsl = highs.length ? Math.max(...highs.slice(-5).map(h=>h.price)) : 0;
+  const ssl = lows.length  ? Math.min(...lows.slice(-5).map(l=>l.price))  : 0;
+  const lastSweep = smcData.sweeps[0];
+  const eqCount = findEqualHL(bars).length;
+
+  if (bsl) setCard('liq-card-bsl','liq-bsl-val','bull',fmtP(bsl),`${((bsl-lastClose)/lastClose*100).toFixed(1)}% trên giá`);
+  if (ssl) setCard('liq-card-ssl','liq-ssl-val','bear',fmtP(ssl),`${((lastClose-ssl)/lastClose*100).toFixed(1)}% dưới giá`);
+  if (lastSweep) setCard('liq-card-sweep','liq-sweep-val','warn',lastSweep.type,`${fmtDate(lastSweep.time)} — ${fmtP(lastSweep.sweepPrice)}`);
+  setCard('liq-card-eq','liq-eq-val','info',eqCount + ' vùng',`Equal Highs/Lows gần đây`);
+}
+
+function updateLiquidityTable() {
+  const tbody = document.getElementById('liq-tbody');
+  const empty = document.getElementById('liq-empty');
+  const sweeps = smcData.sweeps.slice(0,15);
+  empty.style.display = sweeps.length ? 'none' : 'block';
+  tbody.innerHTML = sweeps.map(s=>`<tr>
+    <td class="mono">${fmtDate(s.time)}</td>
+    <td><span class="${s.type==='BSL'?'fresh-badge':'miti-badge'}">${s.type}</span></td>
+    <td class="mono ${s.type==='BSL'?'bull-text':'bear-text'}">${fmtP(s.sweepPrice)}</td>
+    <td class="mono" style="color:var(--text-dim)">${fmtP(s.refPrice)}</td>
+    <td class="mono ${+s.strength>0.3?'warn-text':''}">${s.strength}%</td>
+    <td style="color:var(--bull);font-size:.75rem">Rejection ✓</td>
+  </tr>`).join('');
+}
+
+function updateOBCards() {
+  const obs = smcData.obs;
+  const fresh = obs.filter(ob=>!ob.mitigated);
+  const lastClose = dailyBars[dailyBars.length-1]?.close || 0;
+  const freshBull = fresh.filter(ob=>ob.type==='BULL').sort((a,b)=>b.high-a.high);
+  const freshBear = fresh.filter(ob=>ob.type==='BEAR').sort((a,b)=>a.low-b.low);
+
+  setCard('ob-card-fresh','ob-fresh-count','warn', fresh.length + ' OB', 'Bull: ' + freshBull.length + ' | Bear: ' + freshBear.length);
+
+  if (freshBull.length) {
+    const ob = freshBull[0];
+    document.getElementById('ob-nearest-bull').textContent = fmtP(ob.low) + ' – ' + fmtP(ob.high);
+    document.getElementById('ob-nearest-bull').className = 'sig-value bull';
+    document.getElementById('ob-nearest-bull-desc').textContent = fmtDate(ob.time) + ' — ' + (lastClose>ob.high?'Giá TRÊN OB':'Giá DƯỚI OB');
+  }
+  if (freshBear.length) {
+    const ob = freshBear[0];
+    document.getElementById('ob-nearest-bear').textContent = fmtP(ob.low) + ' – ' + fmtP(ob.high);
+    document.getElementById('ob-nearest-bear').className = 'sig-value bear';
+    document.getElementById('ob-nearest-bear-desc').textContent = fmtDate(ob.time) + ' — ' + (lastClose<ob.low?'Giá DƯỚI OB':'Giá TRÊN OB');
+  }
+
+  // Price position
+  const nearestOB = [...freshBull, ...freshBear].reduce((best,ob)=>{
+    const dist = Math.min(Math.abs(lastClose-ob.high), Math.abs(lastClose-ob.low));
+    return !best || dist < best.dist ? {...ob, dist} : best;
+  }, null);
+  if (nearestOB) {
+    const inOB = lastClose >= nearestOB.low && lastClose <= nearestOB.high;
+    setCard('ob-card-price','ob-price-pos', inOB?'warn':'info', inOB?'TRONG OB':'GẦN OB', `Cách ${fmtP(nearestOB.dist)} | ${nearestOB.type} OB`);
+  }
+}
+
+function updateOBTable() {
+  const tbody = document.getElementById('ob-tbody');
+  const empty = document.getElementById('ob-empty');
+  const obs = smcData.obs.slice(0,20);
+  const lastClose = dailyBars[dailyBars.length-1]?.close || 0;
+  empty.style.display = obs.length ? 'none' : 'block';
+  tbody.innerHTML = obs.map(ob=>{
+    const dist = ((Math.abs(lastClose-(ob.high+ob.low)/2)/lastClose)*100).toFixed(1);
+    return `<tr>
+      <td class="mono">${fmtDate(ob.time)}</td>
+      <td><span class="${ob.type==='BULL'?'badge badge-bull':'badge badge-bear'}">${ob.type}</span></td>
+      <td class="mono bull-text">${fmtP(ob.high)}</td>
+      <td class="mono bear-text">${fmtP(ob.low)}</td>
+      <td class="mono info-text">${fmtP((ob.high+ob.low)/2)}</td>
+      <td class="mono">${dist}%</td>
+      <td>${ob.mitigated?'<span class="miti-badge">MITIGATED</span>':'<span class="fresh-badge">FRESH ✓</span>'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function updateFVGCards() {
+  const fvgs = smcData.fvgs;
+  const open = fvgs.filter(f=>!f.filled);
+  const lastClose = dailyBars[dailyBars.length-1]?.close || 0;
+  const openBull = open.filter(f=>f.type==='BULL').sort((a,b)=>b.bottom-a.bottom);
+  const openBear = open.filter(f=>f.type==='BEAR').sort((a,b)=>a.top-b.top);
+
+  document.getElementById('fvg-open-count').textContent = open.length;
+
+  if (openBull.length) {
+    const f = openBull[0];
+    document.getElementById('fvg-bull-val').textContent = fmtP(f.bottom) + ' – ' + fmtP(f.top);
+    document.getElementById('fvg-bull-val').className = 'sig-value bull';
+    document.getElementById('fvg-bull-desc').textContent = fmtDate(f.time) + ' | size: ' + fmtP(f.size);
+  }
+  if (openBear.length) {
+    const f = openBear[0];
+    document.getElementById('fvg-bear-val').textContent = fmtP(f.bottom) + ' – ' + fmtP(f.top);
+    document.getElementById('fvg-bear-val').className = 'sig-value bear';
+    document.getElementById('fvg-bear-desc').textContent = fmtDate(f.time) + ' | size: ' + fmtP(f.size);
+  }
+
+  const nearest = open.reduce((best,f)=>{
+    const dist = Math.min(Math.abs(lastClose-f.top), Math.abs(lastClose-f.bottom));
+    return !best||dist<best.dist?{...f,dist}:best;
+  },null);
+  if (nearest) {
+    document.getElementById('fvg-nearest').textContent = nearest.type + ' ' + fmtP(nearest.bottom) + '–' + fmtP(nearest.top);
+    document.getElementById('fvg-nearest-desc').textContent = 'Cách ' + fmtP(nearest.dist) + ' | Fill: ' + nearest.fillPct + '%';
+  }
+}
+
+function updateFVGTable() {
+  const tbody = document.getElementById('fvg-tbody');
+  const empty = document.getElementById('fvg-empty');
+  const fvgs = smcData.fvgs.slice(0,20);
+  empty.style.display = fvgs.length ? 'none' : 'block';
+  tbody.innerHTML = fvgs.map(f=>`<tr>
+    <td class="mono">${fmtDate(f.time)}</td>
+    <td><span class="${f.type==='BULL'?'badge badge-info':'badge badge-warn'}">${f.type}</span></td>
+    <td class="mono bull-text">${fmtP(f.top)}</td>
+    <td class="mono bear-text">${fmtP(f.bottom)}</td>
+    <td class="mono">${fmtP(f.size)}</td>
+    <td>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:50px;height:5px;background:var(--bg-panel);border-radius:2px;border:1px solid var(--border)">
+          <div style="width:${f.fillPct}%;height:100%;background:${f.type==='BULL'?'#38bdf8':'#fbbf24'};border-radius:2px"></div>
+        </div>
+        <span class="mono" style="font-size:.72rem">${f.fillPct}%</span>
+      </div>
+    </td>
+    <td>${f.filled?'<span class="miti-badge">FILLED</span>':'<span class="open-badge">OPEN</span>'}</td>
+  </tr>`).join('');
+}
+
+// ============================================================
+// SETUP CHECKLIST
+// ============================================================
+function toggleCheck(key, val, btn) {
+  checkState[key] = val;
+  const item = document.getElementById('chk-'+key);
+  if (val) {
+    item.className = 'check-item pass';
+    item.querySelector('.check-icon').textContent = '✓';
+    btn.parentElement.querySelectorAll('.toggle-yes').forEach(b=>b.classList.add('sel'));
+    btn.parentElement.querySelectorAll('.toggle-no').forEach(b=>b.classList.remove('sel'));
+  } else {
+    item.className = 'check-item fail';
+    item.querySelector('.check-icon').textContent = '✗';
+    btn.parentElement.querySelectorAll('.toggle-no').forEach(b=>b.classList.add('sel'));
+    btn.parentElement.querySelectorAll('.toggle-yes').forEach(b=>b.classList.remove('sel'));
+  }
+  updateSetupScore();
+  updateConfluence();
+}
+
+function updateSetupScore() {
+  const vals = Object.values(checkState).filter(v=>v!==null);
+  const passes = Object.values(checkState).filter(v=>v===true).length;
+  const total  = Object.keys(checkState).length;
+  const pct = Math.round(passes/total*100);
+
+  document.getElementById('setup-score-num').textContent = passes + '/' + total;
+  const bar = document.getElementById('setup-score-bar');
+  bar.style.width = pct + '%';
+  bar.style.background = pct>=75?'var(--bull)':pct>=50?'var(--warn)':'var(--bear)';
+
+  const lbl = document.getElementById('setup-score-label');
+  if      (pct>=75) { lbl.textContent='✅ VÀO LỆNH'; lbl.style.color='var(--bull)'; }
+  else if (pct>=50) { lbl.textContent='⚠️ THẬN TRỌNG'; lbl.style.color='var(--warn)'; }
+  else              { lbl.textContent='❌ CHƯA ĐỦ ĐIỀU KIỆN'; lbl.style.color='var(--bear)'; }
+}
+
+function calcSMCEntry() {
+  const dir     = document.getElementById('smc-dir').value;
+  const capital = +document.getElementById('smc-capital').value || 0;
+  const entry   = +document.getElementById('smc-entry').value  || 0;
+  const sl      = +document.getElementById('smc-sl').value     || 0;
+  const tp      = +document.getElementById('smc-tp').value     || 0;
+  const risk    = +document.getElementById('smc-risk').value/100 || 0.02;
+  const el      = document.getElementById('smc-entry-result');
+
+  if (!capital||!entry||!sl) { el.innerHTML='<span style="color:var(--text-dim)">Điền thông tin để tính</span>'; return; }
+  const riskAmt = capital * risk;
+  const riskPer = Math.abs(entry - sl);
+  if (!riskPer) { el.innerHTML='<span style="color:var(--bear)">Entry = SL, kiểm tra lại</span>'; return; }
+
+  const shares = Math.floor(riskAmt/riskPer/100)*100;
+  const value  = shares*entry;
+  const loss   = shares*riskPer;
+  const profit = tp ? shares*Math.abs(tp-entry) : null;
+  const rr     = tp ? (Math.abs(tp-entry)/riskPer).toFixed(1) : '—';
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:.78rem">
+      <div style="color:var(--text-dim)">Số cổ phiếu</div><div class="mono" style="color:var(--primary)">${shares.toLocaleString('vi-VN')} CP</div>
+      <div style="color:var(--text-dim)">Giá trị lệnh</div><div class="mono">${(value/1e6).toFixed(1)}M ₫</div>
+      <div style="color:var(--text-dim)">Max Loss</div><div class="mono" style="color:var(--bear)">-${loss.toLocaleString('vi-VN')} ₫</div>
+      <div style="color:var(--text-dim)">Target P&L</div><div class="mono" style="color:var(--bull)">${profit?'+'+profit.toLocaleString('vi-VN')+' ₫':'—'}</div>
+      <div style="color:var(--text-dim)">R:R</div><div class="mono" style="color:var(--warn)">1 : ${rr}</div>
+      <div style="color:var(--text-dim)">SL vị trí</div><div style="color:var(--text-dim);font-size:.7rem">Dưới OB low ${fmtP(sl)}</div>
+    </div>`;
+}
+
+// ============================================================
+// PO3 PHASE
+// ============================================================
+function selectPO3(phase) {
+  po3Phase = phase;
+  ['acc','man','dist'].forEach(p => {
+    document.getElementById('po3-'+p).className = 'po3-card' + (p===phase?' selected-'+p:'');
+  });
+  const hints = {
+    acc: '📦 <strong>Accumulation:</strong> Không vào lệnh. Chờ price coil, tích lũy range. Chuẩn bị tâm lý cho manipulation sắp đến.',
+    man: '⚡ <strong>Manipulation:</strong> KHÔNG bẫy. Giá fake breakout để quét stop. Chờ rejection + CHoCH trước khi vào lệnh.',
+    dist: '🚀 <strong>Distribution:</strong> ĐÂY là lúc vào lệnh. Sau sweep + CHoCH, giá di chuyển đúng hướng. Entry tại OB/FVG với tight stop.'
+  };
+  document.getElementById('po3-hint').innerHTML = hints[phase];
+}
+
+// ============================================================
+// KILL ZONES TIMER
+// ============================================================
+const KILL_ZONES = [
+  { id:'asian',  name:'Asian',    start:[0,0],  end:[5,0]   },
+  { id:'london', name:'London',   start:[14,0], end:[17,0]  },
+  { id:'ny',     name:'NY',       start:[19,30],end:[22,0]  },
+  { id:'lc',     name:'LC',       start:[22,0], end:[24,0]  }
+];
+
+function updateKillZones() {
+  const now = new Date();
+  const h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
+  const nowMins = h*60+m;
+
+  document.getElementById('kz-current-time').textContent =
+    String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0') + ' ICT (GMT+7)';
+
+  KILL_ZONES.forEach(kz => {
+    const startM = kz.start[0]*60+kz.start[1];
+    const endM   = kz.end[0]*60+kz.end[1];
+    const inZone = nowMins >= startM && nowMins < endM;
+    const card   = document.getElementById('kz-'+kz.id);
+    const cdEl   = document.getElementById('kz-'+kz.id+'-cd');
+    const stEl   = document.getElementById('kz-'+kz.id+'-st');
+
+    card.className = 'kz-card' + (inZone?' active':'');
+    stEl.className = 'kz-status ' + (inZone?'live':'closed');
+    stEl.textContent = inZone ? '🔴 LIVE' : 'CLOSED';
+
+    if (inZone) {
+      const remaining = (endM - nowMins)*60 - s;
+      cdEl.textContent = 'Còn ' + Math.floor(remaining/60) + 'm ' + (remaining%60) + 's';
+      if (checkState.kz !== true) { toggleCheckAuto('kz', true); }
+    } else if (nowMins < startM) {
+      const toStart = (startM - nowMins)*60 - s;
+      cdEl.textContent = 'Mở sau ' + Math.floor(toStart/60) + 'm ' + (toStart%60) + 's';
+    } else {
+      cdEl.textContent = 'Đã đóng';
+    }
+  });
+}
+
+function toggleCheckAuto(key, val) {
+  checkState[key] = val;
+  updateSetupScore();
+}
+
+// ============================================================
+// CONFLUENCE SCORE
+// ============================================================
+function updateConfluence() {
+  const c = checkState;
+  let score = 0;
+  const pts = { htf:0, choch:0, ob:0, fvg:0, sweep:0, zone:0 };
+
+  if (c.htf   ===true) { score+=25; pts.htf=25; }
+  if (c.choch ===true) { score+=20; pts.choch=20; }
+  if (c.ob    ===true) { score+=15; pts.ob=15; }
+  if (c.fvg   ===true) { score+=10; pts.fvg=10; }
+  if (c.sweep ===true) { score+=15; pts.sweep=15; }
+  if (c.rr    ===true) { score+=15; pts.zone=15; }
+
+  // Update gauge
+  const circumference = 427;
+  const offset = circumference - (score/100)*circumference;
+  document.getElementById('gauge-circle').style.strokeDashoffset = offset;
+  document.getElementById('gauge-circle').style.stroke = score>=75?'#4ade80':score>=50?'#fbbf24':'#f87171';
+  document.getElementById('gauge-num').textContent = score;
+  document.getElementById('gauge-num').style.color = score>=75?'#4ade80':score>=50?'#fbbf24':'#f87171';
+
+  let sig, sigColor, dir;
+  if      (score>=85) { sig='🚀 VÀO LỆNH FULL';   sigColor='var(--bull)';  dir='Confluence xuất sắc — size đầy đủ'; }
+  else if (score>=70) { sig='✅ VÀO LỆNH';        sigColor='var(--bull)';  dir='Confluence tốt — size bình thường'; }
+  else if (score>=50) { sig='⚠️ THẬN TRỌNG';      sigColor='var(--warn)';  dir='Confluence trung bình — size nhỏ 50%'; }
+  else if (score>=25) { sig='🔍 QUAN SÁT';         sigColor='var(--primary)'; dir='Chưa đủ confluence — chờ thêm xác nhận'; }
+  else                { sig='❌ KHÔNG VÀO';         sigColor='var(--bear)';  dir='Thiếu điều kiện cơ bản'; }
+
+  document.getElementById('gauge-signal').textContent = sig;
+  document.getElementById('gauge-signal').style.color = sigColor;
+  document.getElementById('gauge-direction').textContent = dir;
+
+  // Factor breakdown
+  const fmap = { 'f-htf':[pts.htf,25], 'f-choch':[pts.choch,20], 'f-ob':[pts.ob,15], 'f-fvg':[pts.fvg,10], 'f-sweep':[pts.sweep,15], 'f-zone':[pts.zone,15] };
+  Object.entries(fmap).forEach(([id,[got,max]]) => {
+    const el = document.getElementById(id);
+    el.textContent = `${got} / ${max}`;
+    el.style.color = got===max ? 'var(--bull)' : got>0 ? 'var(--warn)' : 'var(--text-faint)';
+  });
+}
+
+function recalcConfluence() { updateConfluence(); }
+
+function updateSummary() {
+  if (!smcData.structure.length) return;
+  const last = smcData.structure[smcData.structure.length-1];
+  const fresh = smcData.obs.filter(ob=>!ob.mitigated);
+  const openFVG = smcData.fvgs.filter(f=>!f.filled);
+  const lastSweep = smcData.sweeps[0];
+
+  document.getElementById('sum-structure-text').innerHTML =
+    `${last.type} <strong style="color:${last.dir==='BULL'?'var(--bull)':'var(--bear)'}">${last.dir}</strong> tại ${fmtP(last.price)} (${fmtDate(last.time)})`;
+
+  document.getElementById('sum-zones-text').innerHTML =
+    `${fresh.length} fresh OB · ${openFVG.length} open FVG<br>` +
+    (fresh[0] ? `Gần nhất: ${fresh[0].type} OB ${fmtP(fresh[0].low)}–${fmtP(fresh[0].high)}` : '');
+
+  const bias = last.dir==='BULL'?'LONG':'SHORT';
+  document.getElementById('sum-action-text').innerHTML =
+    `<strong style="color:${last.dir==='BULL'?'var(--bull)':'var(--bear)'}">BIAS: ${bias}</strong><br>` +
+    (lastSweep ? `${lastSweep.type} swept ${fmtDate(lastSweep.time)} — tìm CHoCH` : 'Chờ liquidity sweep');
+}
+
+function resetAll() {
+  Object.keys(checkState).forEach(k => checkState[k] = null);
+  document.querySelectorAll('.check-item').forEach(el => {
+    el.className = 'check-item';
+    el.querySelector('.check-icon').textContent = el.dataset.n || '';
+    el.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('sel'));
+  });
+  updateSetupScore();
+  updateConfluence();
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function findEqualHL(bars, tolerance=0.002) {
+  const { highs, lows } = smcData.swings;
+  const eq = [];
+  for (let i=0;i<highs.length;i++) for(let j=i+1;j<highs.length;j++) {
+    if (Math.abs(highs[i].price-highs[j].price)/highs[i].price<tolerance) eq.push({type:'EQH',price:highs[i].price});
+  }
+  return eq;
+}
+
+function setCard(cardId, valId, cls, val, desc) {
+  const card = document.getElementById(cardId);
+  const valEl = document.getElementById(valId);
+  if (!card||!valEl) return;
+  card.className = `signal-card ${cls}`;
+  valEl.className = `sig-value ${cls}`;
+  valEl.textContent = val;
+  const descEl = card.querySelector('.sig-desc');
+  if (descEl) descEl.textContent = desc;
+}
+
+function fmtP(v) { if (!v&&v!==0) return '—'; return (+v).toLocaleString('vi-VN',{maximumFractionDigits:0}); }
+function fmtDate(t) { if(!t) return '—'; return new Date(t*1000).toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit',year:'2-digit'}); }
+function setStatus(state, text) {
+  document.getElementById('statusText').textContent = text;
+  document.getElementById('statusDot').className = 'status-dot ' + (state==='ready'?'ready':'');
+}
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if (btn) btn.classList.add('active');
+
+  if (!dailyBars.length) return;
+  setTimeout(() => {
+    if (name==='structure')  renderStructureTab();
+    if (name==='liquidity')  renderLiquidityTab();
+    if (name==='ob')         renderOBTab();
+    if (name==='fvg')        renderFVGTab();
+    if (name==='confluence') updateConfluence();
+  }, 30);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  updateKillZones();
+  kzTimer = setInterval(updateKillZones, 1000);
+  calcSMCEntry();
+  updateSetupScore();
+});
+</script>
+</body>
+</html>
