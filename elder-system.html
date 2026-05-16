@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elder Trading System — Alexander Elder Method</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=JetBrains+Mono:wght@400;600&family=Exo+2:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+/* ===== CSS VARIABLES ===== */
+:root {
+  --bg-void:    #06070d;
+  --bg-base:    #090c16;
+  --bg-card:    #0d1020;
+  --bg-panel:   #111425;
+  --bg-input:   #0a0d1a;
+  --border:     #1a2040;
+  --border-glow:#243060;
+  --primary:    #38bdf8;
+  --primary-dim:#1d6a8f;
+  --bull:       #4ade80;
+  --bull-dim:   #166534;
+  --bear:       #f87171;
+  --bear-dim:   #7f1d1d;
+  --warn:       #fbbf24;
+  --neutral:    #94a3b8;
+  --text:       #e2e8f0;
+  --text-dim:   #64748b;
+  --text-faint: #334155;
+  --font-display: 'Orbitron', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+  --font-body:    'Exo 2', sans-serif;
+  --radius:     8px;
+  --glow-blue:  0 0 20px rgba(56,189,248,.15);
+  --glow-green: 0 0 20px rgba(74,222,128,.15);
+  --glow-red:   0 0 20px rgba(248,113,113,.15);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; scroll-behavior: smooth; }
+body {
+  background: var(--bg-void);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-weight: 400;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 3px; }
+
+/* ===== HEADER ===== */
+.header {
+  background: linear-gradient(180deg, #0d1428 0%, var(--bg-base) 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+.logo-block { display: flex; align-items: center; gap: 12px; }
+.logo-icon {
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, var(--primary), #0ea5e9);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; box-shadow: var(--glow-blue);
+}
+.logo-text { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--primary); letter-spacing: 2px; }
+.logo-sub { font-size: 0.7rem; color: var(--text-dim); letter-spacing: 1px; margin-top: 1px; }
+.header-controls { display: flex; align-items: center; gap: 10px; flex: 1; }
+.ticker-group { display: flex; align-items: center; gap: 8px; }
+.ticker-label { font-family: var(--font-display); font-size: 0.7rem; color: var(--text-dim); letter-spacing: 1px; }
+.ticker-input {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 8px 12px;
+  width: 100px;
+  text-transform: uppercase;
+  outline: none;
+  transition: border-color .2s;
+}
+.ticker-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(56,189,248,.1); }
+.btn {
+  padding: 8px 18px;
+  border: none; border-radius: var(--radius);
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-primary { background: var(--primary); color: #000; }
+.btn-primary:hover { background: #7dd3fc; box-shadow: var(--glow-blue); }
+.btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
+.btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
+.btn-danger { background: var(--bear-dim); border: 1px solid var(--bear); color: var(--bear); }
+.btn-danger:hover { background: var(--bear); color: #000; }
+.btn-success { background: var(--bull-dim); border: 1px solid var(--bull); color: var(--bull); font-family: var(--font-body); font-size: 0.8rem; }
+.btn-success:hover { background: var(--bull); color: #000; }
+.status-badge {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 12px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  margin-left: auto;
+}
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-faint); }
+.status-dot.ready { background: var(--bull); box-shadow: 0 0 6px var(--bull); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.5; } }
+.data-info { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim); }
+
+/* ===== TABS ===== */
+.tab-nav {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-base);
+  padding: 0 24px;
+  gap: 0;
+  overflow-x: auto;
+}
+.tab-btn {
+  padding: 14px 20px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--primary); }
+.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.main-content { padding: 20px 24px; }
+
+/* ===== SIGNAL CARDS ===== */
+.signal-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 20px; }
+.signal-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow .3s;
+}
+.signal-card::before {
+  content: '';
+  position: absolute; top:0; left:0; right:0; height: 2px;
+  background: var(--text-faint);
+}
+.signal-card.bull::before { background: linear-gradient(90deg, var(--bull), transparent); box-shadow: var(--glow-green); }
+.signal-card.bear::before { background: linear-gradient(90deg, var(--bear), transparent); box-shadow: var(--glow-red); }
+.signal-card.neutral::before { background: linear-gradient(90deg, var(--warn), transparent); }
+.signal-label {
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.signal-label .screen-num {
+  width: 18px; height: 18px; border-radius: 4px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem; color: var(--primary);
+}
+.signal-value {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--neutral);
+  margin-bottom: 4px;
+}
+.signal-value.bull { color: var(--bull); }
+.signal-value.bear { color: var(--bear); }
+.signal-value.warn { color: var(--warn); }
+.signal-desc { font-size: 0.78rem; color: var(--text-dim); }
+
+/* ===== CHART GRID ===== */
+.chart-grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+.chart-grid-2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; }
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  transition: border-color .2s;
+}
+.chart-card:hover { border-color: var(--border-glow); }
+.chart-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.chart-title {
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  display: flex; align-items: center; gap: 8px;
+}
+.chart-badge {
+  font-size: 0.6rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  border: 1px solid;
+}
+.chart-badge.bull { color: var(--bull); border-color: var(--bull-dim); background: rgba(74,222,128,.08); }
+.chart-badge.bear { color: var(--bear); border-color: var(--bear-dim); background: rgba(248,113,113,.08); }
+.chart-badge.neutral { color: var(--warn); border-color: #78350f; background: rgba(251,191,36,.08); }
+.chart-badge.info { color: var(--primary); border-color: var(--primary-dim); background: rgba(56,189,248,.08); }
+.lw-chart { width: 100%; border-radius: 4px; overflow: hidden; }
+
+/* ===== INDICATORS TAB ===== */
+.full-chart-card { margin-bottom: 14px; }
+.indicator-section { margin-bottom: 8px; }
+
+/* ===== ENTRY PLANNING PANEL ===== */
+.entry-panel { display: flex; flex-direction: column; gap: 12px; }
+.level-table { width: 100%; border-collapse: collapse; }
+.level-table tr { border-bottom: 1px solid var(--bg-panel); }
+.level-table tr:last-child { border-bottom: none; }
+.level-table td { padding: 8px 6px; font-size: 0.82rem; }
+.level-table td:first-child { color: var(--text-dim); font-size: 0.72rem; letter-spacing: .5px; }
+.level-table td:last-child { font-family: var(--font-mono); font-weight: 600; text-align: right; }
+.level-table .price-entry { color: var(--primary); }
+.level-table .price-stop { color: var(--bear); }
+.level-table .price-target { color: var(--bull); }
+.triple-hint {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+.triple-hint strong { color: var(--primary); font-weight: 600; }
+.triple-hint .hint-icon { font-size: 1rem; margin-right: 4px; }
+
+/* ===== CAPITAL MANAGEMENT ===== */
+.cap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.cap-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.cap-title {
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.cap-title span { font-size: 1rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-label { font-size: 0.7rem; color: var(--text-dim); letter-spacing: .5px; }
+.form-input {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  padding: 8px 10px;
+  outline: none;
+  transition: border-color .2s;
+  width: 100%;
+}
+.form-input:focus { border-color: var(--primary); }
+.form-select {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  padding: 8px 10px;
+  outline: none;
+  width: 100%;
+  cursor: pointer;
+}
+.result-box {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-glow);
+  border-radius: 6px;
+  padding: 14px;
+  margin-top: 14px;
+}
+.result-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); }
+.result-row:last-child { border-bottom: none; }
+.result-label { font-size: 0.75rem; color: var(--text-dim); }
+.result-value { font-family: var(--font-mono); font-weight: 600; font-size: 0.9rem; color: var(--primary); }
+.result-value.danger { color: var(--bear); }
+.result-value.success { color: var(--bull); }
+.result-value.warn { color: var(--warn); }
+.rule-meter { margin-top: 14px; }
+.rule-label { display: flex; justify-content: space-between; font-size: 0.72rem; margin-bottom: 6px; }
+.rule-bar { height: 8px; background: var(--bg-panel); border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
+.rule-bar-fill { height: 100%; border-radius: 4px; transition: width .5s ease; }
+.rule-bar-fill.safe { background: linear-gradient(90deg, var(--bull), #86efac); }
+.rule-bar-fill.warn { background: linear-gradient(90deg, var(--warn), #fde68a); }
+.rule-bar-fill.danger { background: linear-gradient(90deg, var(--bear), #fca5a5); }
+
+/* ===== TRADE JOURNAL ===== */
+.journal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.journal-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 20px; }
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  text-align: center;
+}
+.stat-num { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: var(--primary); }
+.stat-num.green { color: var(--bull); }
+.stat-num.red { color: var(--bear); }
+.stat-label { font-size: 0.7rem; color: var(--text-dim); margin-top: 4px; letter-spacing: .5px; }
+.add-trade-form {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.form-grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+.form-grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.emotion-picker { display: flex; gap: 8px; }
+.emotion-btn {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all .2s;
+}
+.emotion-btn:hover, .emotion-btn.selected { border-color: var(--primary); background: rgba(56,189,248,.1); transform: scale(1.1); }
+.trade-table-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.trade-table { width: 100%; border-collapse: collapse; }
+.trade-table thead { background: var(--bg-panel); }
+.trade-table th {
+  padding: 12px 10px;
+  text-align: left;
+  font-family: var(--font-display);
+  font-size: 0.58rem;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.trade-table td { padding: 10px 10px; font-size: 0.8rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.trade-table tr:last-child td { border-bottom: none; }
+.trade-table tr:hover td { background: rgba(56,189,248,.03); }
+.trade-table td.mono { font-family: var(--font-mono); }
+.badge-long { color: var(--bull); background: rgba(74,222,128,.1); border: 1px solid var(--bull-dim); padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-family: var(--font-display); letter-spacing: .5px; }
+.badge-short { color: var(--bear); background: rgba(248,113,113,.1); border: 1px solid var(--bear-dim); padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-family: var(--font-display); letter-spacing: .5px; }
+.pnl-pos { color: var(--bull); font-family: var(--font-mono); font-weight: 600; }
+.pnl-neg { color: var(--bear); font-family: var(--font-mono); font-weight: 600; }
+.delete-btn { background: none; border: none; color: var(--text-faint); cursor: pointer; font-size: 1rem; transition: color .2s; }
+.delete-btn:hover { color: var(--bear); }
+.empty-state { text-align: center; padding: 48px 20px; color: var(--text-dim); }
+.empty-state .icon { font-size: 3rem; margin-bottom: 10px; opacity: .4; }
+.empty-state p { font-size: 0.85rem; }
+
+/* ===== LEGEND ===== */
+.legend { display: flex; gap: 14px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.72rem; color: var(--text-dim); }
+.legend-dot { width: 10px; height: 3px; border-radius: 2px; }
+
+/* ===== SECTION TITLE ===== */
+.section-title {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  padding: 14px 0 10px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-title::before { content: ''; display: block; width: 3px; height: 14px; background: var(--primary); border-radius: 2px; }
+
+/* ===== ALERTS ===== */
+.alert {
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.alert-info { background: rgba(56,189,248,.08); border: 1px solid rgba(56,189,248,.2); color: var(--primary); }
+.alert-warn { background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.2); color: var(--warn); }
+.alert-danger { background: rgba(248,113,113,.08); border: 1px solid rgba(248,113,113,.2); color: var(--bear); }
+
+/* ===== SPACER ===== */
+.mt-14 { margin-top: 14px; }
+.mb-14 { margin-bottom: 14px; }
+.gap-14 { gap: 14px; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .chart-grid-3, .signal-row { grid-template-columns: 1fr; }
+  .chart-grid-2, .cap-grid, .journal-stats { grid-template-columns: 1fr 1fr; }
+  .form-grid-4 { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .chart-grid-2, .cap-grid, .journal-stats, .form-grid-4 { grid-template-columns: 1fr; }
+  .main-content { padding: 14px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="header">
+  <div class="logo-block">
+    <div class="logo-icon">📊</div>
+    <div>
+      <div class="logo-text">ELDER SYSTEM</div>
+      <div class="logo-sub">ALEXANDER ELDER — THE NEW TRADING FOR A LIVING</div>
+    </div>
+  </div>
+  <div class="header-controls">
+    <div class="ticker-group">
+      <span class="ticker-label">TICKER</span>
+      <input type="text" class="ticker-input" id="tickerInput" value="FPT" maxlength="10">
+      <button class="btn btn-primary" onclick="loadTicker()">LOAD</button>
+      <label class="btn btn-ghost" style="cursor:pointer">
+        UPLOAD
+        <input type="file" id="fileInput" accept=".json" style="display:none" onchange="loadFile(event)">
+      </label>
+    </div>
+    <div class="data-info" id="dataInfo"></div>
+  </div>
+  <div class="status-badge">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">CHƯA TẢI DỮ LIỆU</span>
+  </div>
+</header>
+
+<!-- ===== TAB NAV ===== -->
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('triple')">⬜ TRIPLE SCREEN</button>
+  <button class="tab-btn" onclick="switchTab('indicators')">📈 CHỈ BÁO ELDER</button>
+  <button class="tab-btn" onclick="switchTab('capital')">💰 QUẢN LÝ VỐN</button>
+  <button class="tab-btn" onclick="switchTab('journal')">📓 NHẬT KÝ</button>
+</nav>
+
+<!-- ===== TAB 1: TRIPLE SCREEN ===== -->
+<div id="tab-triple" class="tab-content active">
+  <div class="main-content">
+    <!-- Signal Cards -->
+    <div class="signal-row">
+      <div class="signal-card neutral" id="card-screen1">
+        <div class="signal-label"><span class="screen-num">1</span> MÀNG HÌNH 1 — WEEKLY TREND</div>
+        <div class="signal-value neutral" id="sig1-val">NEUTRAL</div>
+        <div class="signal-desc" id="sig1-desc">Chờ dữ liệu — MACD Histogram Weekly</div>
+      </div>
+      <div class="signal-card neutral" id="card-screen2">
+        <div class="signal-label"><span class="screen-num">2</span> MÀNG HÌNH 2 — DAILY SIGNAL</div>
+        <div class="signal-value neutral" id="sig2-val">NEUTRAL</div>
+        <div class="signal-desc" id="sig2-desc">Chờ dữ liệu — Force Index / Stochastic</div>
+      </div>
+      <div class="signal-card neutral" id="card-screen3">
+        <div class="signal-label"><span class="screen-num">3</span> HÀNH ĐỘNG — TRADE ACTION</div>
+        <div class="signal-value neutral" id="sig3-val">CHỜ</div>
+        <div class="signal-desc" id="sig3-desc">Cần xác nhận cả 2 màn hình</div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="chart-grid-3">
+      <!-- Screen 1 -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">📅 SCREEN 1 — WEEKLY <span class="chart-badge info" id="badge-w">MACD</span></div>
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#fbbf24"></div>MACD Hist</div>
+          </div>
+        </div>
+        <div class="lw-chart" id="chart-weekly" style="height:240px"></div>
+        <div style="margin-top:8px">
+          <div class="lw-chart" id="chart-weekly-macd" style="height:90px"></div>
+        </div>
+      </div>
+
+      <!-- Screen 2 -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">📆 SCREEN 2 — DAILY <span class="chart-badge info" id="badge-d">FORCE IDX</span></div>
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#38bdf8"></div>EMA13</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>EMA26</div>
+          </div>
+        </div>
+        <div class="lw-chart" id="chart-daily" style="height:240px"></div>
+        <div style="margin-top:8px">
+          <div class="lw-chart" id="chart-daily-fi" style="height:90px"></div>
+        </div>
+      </div>
+
+      <!-- Screen 3 -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">🎯 SCREEN 3 — ENTRY PLANNING</div>
+        </div>
+        <div class="entry-panel">
+          <table class="level-table" id="entry-table">
+            <tr><td>Ticker</td><td class="price-entry" id="entry-ticker">—</td></tr>
+            <tr><td>Giá đóng cửa gần nhất</td><td class="price-entry" id="entry-close">—</td></tr>
+            <tr><td>Điểm vào — Buy Stop</td><td class="price-entry" id="entry-buy">—</td></tr>
+            <tr><td>Cắt lỗ gợi ý</td><td class="price-stop" id="entry-stop">—</td></tr>
+            <tr><td>Mục tiêu (R×2)</td><td class="price-target" id="entry-target">—</td></tr>
+            <tr><td>ATR (14 ngày)</td><td class="mono" id="entry-atr">—</td></tr>
+            <tr><td>Rủi ro / cổ phiếu</td><td class="price-stop" id="entry-risk">—</td></tr>
+          </table>
+
+          <div class="triple-hint" id="triple-hint">
+            <div><span class="hint-icon">💡</span><strong>Quy tắc Triple Screen:</strong></div>
+            <div style="margin-top:6px">Màn hình 1 xác định <strong>xu hướng lớn</strong> (Weekly MACD). Màn hình 2 tìm <strong>điểm vào ngược chiều nhỏ</strong> (Force Index âm trong uptrend). Màn hình 3 <strong>thực thi lệnh</strong> tại buy stop trên đỉnh hôm qua.</div>
+          </div>
+
+          <div id="action-alert"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB 2: INDICATORS ===== -->
+<div id="tab-indicators" class="tab-content">
+  <div class="main-content">
+    <!-- Price + EMA -->
+    <div class="chart-card full-chart-card">
+      <div class="chart-header">
+        <div class="chart-title">📉 GIÁ + EMA <span class="chart-badge info">DAILY</span></div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#38bdf8"></div>EMA 13</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>EMA 26</div>
+        </div>
+      </div>
+      <div class="lw-chart" id="chart-price-full" style="height:280px"></div>
+    </div>
+
+    <!-- MACD -->
+    <div class="chart-card full-chart-card">
+      <div class="chart-header">
+        <div class="chart-title">📊 MACD HISTOGRAM <span class="chart-badge info">12-26-9</span></div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#38bdf8"></div>MACD Line</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>Signal</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#4ade80"></div>Histogram</div>
+        </div>
+      </div>
+      <div class="lw-chart" id="chart-macd-full" style="height:160px"></div>
+    </div>
+
+    <div class="chart-grid-2">
+      <!-- Force Index -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">⚡ FORCE INDEX <span class="chart-badge info">EMA-13</span></div>
+        </div>
+        <div class="lw-chart" id="chart-fi-full" style="height:160px"></div>
+        <div class="triple-hint" style="margin-top:10px; font-size:0.72rem">
+          <strong>Đọc tín hiệu:</strong> FI âm trong uptrend = cơ hội MUA. FI dương trong downtrend = cơ hội BÁN.
+        </div>
+      </div>
+
+      <!-- Elder Ray -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">🌊 ELDER-RAY <span class="chart-badge info">BULL/BEAR POWER</span></div>
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#4ade80"></div>Bull Power</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#f87171"></div>Bear Power</div>
+          </div>
+        </div>
+        <div class="lw-chart" id="chart-ray-full" style="height:160px"></div>
+        <div class="triple-hint" style="margin-top:10px; font-size:0.72rem">
+          <strong>Bull Power</strong> = High − EMA13. <strong>Bear Power</strong> = Low − EMA13. Phân kỳ = tín hiệu đảo chiều mạnh.
+        </div>
+      </div>
+    </div>
+
+    <!-- Stochastic -->
+    <div class="chart-card full-chart-card mt-14">
+      <div class="chart-header">
+        <div class="chart-title">🔄 STOCHASTIC <span class="chart-badge info">14-3-3</span></div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#38bdf8"></div>%K</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>%D</div>
+        </div>
+      </div>
+      <canvas id="chart-stoch-full" style="height:140px; max-height:140px"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB 3: CAPITAL MANAGEMENT ===== -->
+<div id="tab-capital" class="tab-content">
+  <div class="main-content">
+    <div class="cap-grid">
+      <!-- 2% Rule Calculator -->
+      <div class="cap-card">
+        <div class="cap-title"><span>🎯</span> QUY TẮC 2% — POSITION SIZE CALCULATOR</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">VỐN TÀI KHOẢN (VNĐ)</label>
+            <input type="number" class="form-input" id="cap-account" value="100000000" oninput="calcPosition()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">% RỦI RO / LỆNH</label>
+            <input type="number" class="form-input" id="cap-risk" value="2" min="0.5" max="5" step="0.5" oninput="calcPosition()">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">GIÁ VÀO LỆNH</label>
+            <input type="number" class="form-input" id="cap-entry" value="100000" oninput="calcPosition()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">GIÁ CẮT LỖ</label>
+            <input type="number" class="form-input" id="cap-stop" value="95000" oninput="calcPosition()">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">MỤC TIÊU (R×)</label>
+            <input type="number" class="form-input" id="cap-rr" value="2" min="1" max="10" step="0.5" oninput="calcPosition()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">PHÍ GIAO DỊCH (%)</label>
+            <input type="number" class="form-input" id="cap-fee" value="0.15" step="0.05" oninput="calcPosition()">
+          </div>
+        </div>
+        <div class="result-box" id="pos-result">
+          <div class="result-row"><span class="result-label">Số cổ phiếu</span><span class="result-value" id="res-shares">—</span></div>
+          <div class="result-row"><span class="result-label">Giá trị lệnh</span><span class="result-value" id="res-value">—</span></div>
+          <div class="result-row"><span class="result-label">Rủi ro tối đa</span><span class="result-value danger" id="res-maxloss">—</span></div>
+          <div class="result-row"><span class="result-label">Lợi nhuận mục tiêu</span><span class="result-value success" id="res-profit">—</span></div>
+          <div class="result-row"><span class="result-label">R/R Ratio</span><span class="result-value warn" id="res-rr">—</span></div>
+          <div class="result-row"><span class="result-label">% Vốn sử dụng</span><span class="result-value" id="res-pct">—</span></div>
+        </div>
+      </div>
+
+      <!-- 6% Rule Tracker -->
+      <div class="cap-card">
+        <div class="cap-title"><span>🛡️</span> QUY TẮC 6% — MONTHLY LOSS TRACKER</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">VỐN ĐẦU THÁNG</label>
+            <input type="number" class="form-input" id="month-capital" value="100000000" oninput="calc6PctRule()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">GIỚI HẠN RỦI RO (%)</label>
+            <input type="number" class="form-input" id="month-limit" value="6" min="1" max="20" oninput="calc6PctRule()">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">THÊM LỆNH THUA THÁNG NÀY (VNĐ)</label>
+          <div style="display:flex; gap:8px">
+            <input type="number" class="form-input" id="loss-input" placeholder="Nhập số âm, ví dụ: -500000">
+            <button class="btn btn-ghost" onclick="addLoss()">THÊM</button>
+          </div>
+        </div>
+
+        <div id="loss-list" style="min-height:60px; margin-bottom:12px; max-height:120px; overflow-y:auto"></div>
+
+        <div class="result-box">
+          <div class="result-row"><span class="result-label">Giới hạn lỗ / tháng</span><span class="result-value danger" id="limit-max">—</span></div>
+          <div class="result-row"><span class="result-label">Đã lỗ tháng này</span><span class="result-value danger" id="limit-current">0</span></div>
+          <div class="result-row"><span class="result-label">Còn được lỗ</span><span class="result-value warn" id="limit-remain">—</span></div>
+          <div class="result-row"><span class="result-label">Trạng thái</span><span class="result-value" id="limit-status">—</span></div>
+        </div>
+
+        <div class="rule-meter">
+          <div class="rule-label">
+            <span style="color:var(--text-dim); font-size:.72rem">Mức sử dụng rủi ro</span>
+            <span style="font-family:var(--font-mono); font-size:.72rem" id="loss-pct-label">0%</span>
+          </div>
+          <div class="rule-bar">
+            <div class="rule-bar-fill safe" id="loss-bar" style="width:0%"></div>
+          </div>
+        </div>
+
+        <div class="triple-hint" style="margin-top:14px">
+          <strong>⚠️ Quy tắc 6%:</strong> Nếu tài khoản đã lỗ ≥6% trong tháng → <strong>DỪNG GIAO DỊCH toàn bộ tháng còn lại.</strong> Không có ngoại lệ. Đây là điều giữ cho bạn tồn tại.
+        </div>
+
+        <div style="margin-top:10px; text-align:right">
+          <button class="btn btn-danger" onclick="resetLosses()">RESET THÁNG MỚI</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Elder's Risk Tips -->
+    <div class="chart-card mt-14">
+      <div class="section-title">NGUYÊN TẮC QUẢN LÝ VỐN — ALEXANDER ELDER</div>
+      <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:12px">
+        <div class="triple-hint">
+          <strong>💎 Quy tắc 2%</strong><br>
+          Không bao giờ rủi ro quá 2% vốn cho một lệnh. Nếu thua 10 lệnh liên tiếp, bạn vẫn còn 82% vốn.
+        </div>
+        <div class="triple-hint">
+          <strong>🛑 Quy tắc 6%</strong><br>
+          Stop trading nếu mất 6%/tháng. Thị trường không phù hợp với bạn tháng này — nghỉ ngơi và review.
+        </div>
+        <div class="triple-hint">
+          <strong>📐 Iron Triangle</strong><br>
+          Stop loss phải được đặt <em>trước</em> khi vào lệnh. Không bao giờ di chuyển stop xa hơn điểm ban đầu.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB 4: TRADE JOURNAL ===== -->
+<div id="tab-journal" class="tab-content">
+  <div class="main-content">
+    <!-- Stats -->
+    <div class="journal-stats" id="journal-stats">
+      <div class="stat-card"><div class="stat-num" id="j-total">0</div><div class="stat-label">TỔNG LỆNH</div></div>
+      <div class="stat-card"><div class="stat-num green" id="j-winrate">—</div><div class="stat-label">WIN RATE</div></div>
+      <div class="stat-card"><div class="stat-num" id="j-avgr">—</div><div class="stat-label">AVG R-MULTIPLE</div></div>
+      <div class="stat-card"><div class="stat-num" id="j-pnl">0</div><div class="stat-label">TỔNG P&L (VNĐ)</div></div>
+    </div>
+
+    <!-- Add Trade Form -->
+    <div class="add-trade-form">
+      <div class="section-title">➕ THÊM LỆNH MỚI</div>
+      <div class="form-grid-4" style="margin-bottom:10px">
+        <div class="form-group">
+          <label class="form-label">NGÀY</label>
+          <input type="date" class="form-input" id="j-date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">TICKER</label>
+          <input type="text" class="form-input" id="j-ticker" placeholder="VD: FPT">
+        </div>
+        <div class="form-group">
+          <label class="form-label">LOẠI LỆNH</label>
+          <select class="form-select" id="j-dir">
+            <option value="LONG">📈 LONG</option>
+            <option value="SHORT">📉 SHORT</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">SỐ LƯỢNG (CP)</label>
+          <input type="number" class="form-input" id="j-qty" placeholder="100">
+        </div>
+      </div>
+      <div class="form-grid-4" style="margin-bottom:10px">
+        <div class="form-group">
+          <label class="form-label">GIÁ VÀO</label>
+          <input type="number" class="form-input" id="j-entry" placeholder="100000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">GIÁ CẮT LỖ</label>
+          <input type="number" class="form-input" id="j-sl" placeholder="95000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">GIÁ MỤC TIÊU</label>
+          <input type="number" class="form-input" id="j-tp" placeholder="110000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">GIÁ THOÁT (nếu đã thoát)</label>
+          <input type="number" class="form-input" id="j-exit" placeholder="(để trống nếu đang mở)">
+        </div>
+      </div>
+      <div class="form-grid-3" style="margin-bottom:10px">
+        <div class="form-group">
+          <label class="form-label">TRẠNG THÁI TÂM LÝ</label>
+          <div class="emotion-picker">
+            <button class="emotion-btn" data-v="😰" onclick="selectEmotion(this)">😰</button>
+            <button class="emotion-btn" data-v="😟" onclick="selectEmotion(this)">😟</button>
+            <button class="emotion-btn selected" data-v="😐" onclick="selectEmotion(this)">😐</button>
+            <button class="emotion-btn" data-v="🙂" onclick="selectEmotion(this)">🙂</button>
+            <button class="emotion-btn" data-v="😤" onclick="selectEmotion(this)">😤</button>
+          </div>
+        </div>
+        <div class="form-group" style="grid-column: span 2">
+          <label class="form-label">GHI CHÚ / LÝ DO VÀO LỆNH</label>
+          <input type="text" class="form-input" id="j-notes" placeholder="VD: Weekly MACD tăng, Daily FI âm, Buy stop trên đỉnh hôm qua">
+        </div>
+      </div>
+      <div style="display:flex; justify-content:flex-end">
+        <button class="btn btn-success" onclick="addTrade()">💾 LƯU LỆNH</button>
+      </div>
+    </div>
+
+    <!-- Trade Table -->
+    <div id="trade-table-section">
+      <div class="journal-header">
+        <div class="section-title" style="margin:0">📋 LỊCH SỬ GIAO DỊCH</div>
+        <button class="btn btn-ghost" onclick="exportJournal()">⬇ XUẤT CSV</button>
+      </div>
+      <div class="trade-table-wrap">
+        <table class="trade-table">
+          <thead>
+            <tr>
+              <th>NGÀY</th><th>TICKER</th><th>LỆNH</th>
+              <th>GIÁ VÀO</th><th>CẮT LỖ</th><th>MỤC TIÊU</th>
+              <th>GIÁ THOÁT</th><th>SL (CP)</th><th>P&L (VNĐ)</th>
+              <th>R-MULT</th><th>TÂM LÝ</th><th>GHI CHÚ</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="trade-tbody"></tbody>
+        </table>
+        <div class="empty-state" id="empty-state">
+          <div class="icon">📓</div>
+          <p>Chưa có lệnh nào. Thêm lệnh đầu tiên của bạn!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let dailyBars  = [];
+let weeklyBars = [];
+let currentTicker = 'FPT';
+let monthlyLosses = JSON.parse(localStorage.getItem('elder_losses') || '[]');
+let trades = JSON.parse(localStorage.getItem('elder_trades') || '[]');
+let selectedEmotion = '😐';
+let lwCharts = {};
+
+// ============================================================
+// DATA LOADING
+// ============================================================
+async function loadTicker() {
+  const t = document.getElementById('tickerInput').value.trim().toUpperCase();
+  if (!t) return;
+  currentTicker = t;
+  setStatus('loading', 'ĐANG TẢI ' + t + '...');
+  try {
+    const res = await fetch(`data/${t}.json`);
+    if (!res.ok) throw new Error('Không tìm thấy file');
+    const json = await res.json();
+    processData(json, t);
+  } catch(e) {
+    setStatus('error', 'LỖI: ' + e.message);
+  }
+}
+
+function loadFile(evt) {
+  const file = evt.target.files[0];
+  if (!file) return;
+  const name = file.name.replace('.json','').toUpperCase();
+  currentTicker = name;
+  document.getElementById('tickerInput').value = name;
+  setStatus('loading', 'ĐANG ĐỌC FILE...');
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const json = JSON.parse(e.target.result);
+      processData(json, name);
+    } catch(err) {
+      setStatus('error', 'JSON LỖI: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function processData(raw, ticker) {
+  // Support TCBS format: [{t, o, h, l, c, v}] or array of arrays
+  let bars;
+  if (Array.isArray(raw) && raw[0] && typeof raw[0] === 'object') {
+    bars = raw.map(b => ({
+      time:   b.t || b.time || b.timestamp,
+      open:   +(b.o || b.open),
+      high:   +(b.h || b.high),
+      low:    +(b.l || b.low),
+      close:  +(b.c || b.close),
+      volume: +(b.v || b.volume || 0)
+    })).filter(b => b.time && b.close > 0);
+  } else {
+    setStatus('error', 'Định dạng JSON không hỗ trợ');
+    return;
+  }
+
+  bars.sort((a,b) => a.time - b.time);
+  dailyBars  = bars;
+  weeklyBars = aggregateWeekly(bars);
+
+  const first = new Date(bars[0].time * 1000).toLocaleDateString('vi-VN');
+  const last  = new Date(bars[bars.length-1].time * 1000).toLocaleDateString('vi-VN');
+  document.getElementById('dataInfo').textContent = `${ticker} • ${bars.length} bars • ${first} → ${last}`;
+  setStatus('ready', ticker + ' SẴN SÀNG');
+
+  // Render everything
+  destroyAllCharts();
+  renderTripleScreen();
+  renderIndicators();
+  updateEntryPlanning();
+}
+
+// ============================================================
+// WEEKLY AGGREGATION
+// ============================================================
+function aggregateWeekly(bars) {
+  const map = {};
+  bars.forEach(bar => {
+    const d = new Date(bar.time * 1000);
+    const day = d.getDay(); // 0=Sun
+    const monday = new Date(d);
+    monday.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
+    const key = monday.toISOString().slice(0,10);
+    if (!map[key]) {
+      map[key] = { time: Math.floor(monday.getTime()/1000), open: bar.open, high: bar.high, low: bar.low, close: bar.close, volume: bar.volume };
+    } else {
+      map[key].high   = Math.max(map[key].high, bar.high);
+      map[key].low    = Math.min(map[key].low,  bar.low);
+      map[key].close  = bar.close;
+      map[key].volume += bar.volume;
+    }
+  });
+  return Object.values(map).sort((a,b) => a.time - b.time);
+}
+
+// ============================================================
+// INDICATOR CALCULATIONS
+// ============================================================
+function calcEMA(values, period) {
+  const k = 2 / (period + 1);
+  const result = new Array(values.length).fill(null);
+  if (values.length < period) return result;
+  let sum = 0;
+  for (let i = 0; i < period; i++) sum += values[i];
+  result[period-1] = sum / period;
+  for (let i = period; i < values.length; i++) {
+    result[i] = values[i] * k + result[i-1] * (1-k);
+  }
+  return result;
+}
+
+function calcSMA(values, period) {
+  return values.map((_, i) => {
+    if (i < period-1) return null;
+    return values.slice(i-period+1, i+1).reduce((a,b) => a+(b??0),0) / period;
+  });
+}
+
+function calcMACD(closes, fast=12, slow=26, sig=9) {
+  const emaF = calcEMA(closes, fast);
+  const emaS = calcEMA(closes, slow);
+  const macd = closes.map((_,i) => emaF[i]!==null && emaS[i]!==null ? emaF[i]-emaS[i] : null);
+  const nn = macd.filter(v=>v!==null);
+  const sigE = calcEMA(nn, sig);
+  const sigLine = new Array(closes.length).fill(null);
+  const hist    = new Array(closes.length).fill(null);
+  let idx=0;
+  macd.forEach((v,i) => {
+    if (v!==null) {
+      sigLine[i] = sigE[idx]??null;
+      if (sigLine[i]!==null) hist[i] = v - sigLine[i];
+      idx++;
+    }
+  });
+  return { macd, sigLine, hist };
+}
+
+function calcForceIndex(bars, emaPeriod=13) {
+  const fi = bars.map((b,i) => i===0 ? 0 : (b.close - bars[i-1].close) * b.volume);
+  const ema = calcEMA(fi, emaPeriod);
+  return { raw: fi, ema };
+}
+
+function calcElderRay(bars, emaPeriod=13) {
+  const closes = bars.map(b=>b.close);
+  const ema = calcEMA(closes, emaPeriod);
+  const bull = bars.map((b,i) => ema[i]!==null ? b.high - ema[i] : null);
+  const bear = bars.map((b,i) => ema[i]!==null ? b.low  - ema[i] : null);
+  return { bull, bear, ema };
+}
+
+function calcStochastic(bars, kPer=14, dPer=3) {
+  const k = bars.map((b,i) => {
+    if (i < kPer-1) return null;
+    const sl = bars.slice(i-kPer+1, i+1);
+    const lo = Math.min(...sl.map(x=>x.low));
+    const hi = Math.max(...sl.map(x=>x.high));
+    return hi===lo ? 50 : (b.close-lo)/(hi-lo)*100;
+  });
+  const nn = k.filter(v=>v!==null);
+  const ds = calcSMA(nn, dPer);
+  const d  = new Array(bars.length).fill(null);
+  let idx=0;
+  k.forEach((v,i) => { if(v!==null) { d[i]=ds[idx]??null; idx++; } });
+  return { k, d };
+}
+
+function calcATR(bars, period=14) {
+  const tr = bars.map((b,i) => {
+    if (i===0) return b.high - b.low;
+    return Math.max(b.high-b.low, Math.abs(b.high-bars[i-1].close), Math.abs(b.low-bars[i-1].close));
+  });
+  return calcEMA(tr, period);
+}
+
+// ============================================================
+// LW CHART HELPERS
+// ============================================================
+function destroyAllCharts() {
+  Object.values(lwCharts).forEach(c => { try { c.remove(); } catch(e){} });
+  lwCharts = {};
+}
+
+function makeLWChart(id, opts={}) {
+  const el = document.getElementById(id);
+  if (!el) return null;
+  el.innerHTML = '';
+  const c = LightweightCharts.createChart(el, {
+    width: el.clientWidth || 400,
+    height: el.clientHeight || 240,
+    layout:      { background: { color: 'transparent' }, textColor: '#64748b' },
+    grid:        { vertLines: { color: '#1a2040' }, horzLines: { color: '#1a2040' } },
+    crosshair:   { mode: LightweightCharts.CrosshairMode.Normal },
+    rightPriceScale: { borderColor: '#1a2040' },
+    timeScale:   { borderColor: '#1a2040', timeVisible: true },
+    ...opts
+  });
+  lwCharts[id] = c;
+  window.addEventListener('resize', () => {
+    c.applyOptions({ width: el.clientWidth });
+  });
+  return c;
+}
+
+function toTime(bar) { return bar.time; }
+
+// ============================================================
+// TRIPLE SCREEN RENDERER
+// ============================================================
+function renderTripleScreen() {
+  if (!dailyBars.length) return;
+  const closes  = dailyBars.map(b=>b.close);
+  const wCloses = weeklyBars.map(b=>b.close);
+
+  // Weekly MACD
+  const wMACD = calcMACD(wCloses);
+  const wHist = wMACD.hist;
+
+  // Daily indicators
+  const dMACD  = calcMACD(closes);
+  const dFI    = calcForceIndex(dailyBars, 2); // 2-period EMA for Screen 2
+  const dStoch = calcStochastic(dailyBars);
+  const dEMA13 = calcEMA(closes, 13);
+  const dEMA26 = calcEMA(closes, 26);
+
+  // ---- Screen 1: weekly chart + MACD hist ----
+  const cW = makeLWChart('chart-weekly');
+  if (cW) {
+    const cs = cW.addCandlestickSeries({ upColor:'#4ade80', downColor:'#f87171', borderVisible:false, wickUpColor:'#4ade80', wickDownColor:'#f87171' });
+    cs.setData(weeklyBars.map(b=>({time:b.time, open:b.open, high:b.high, low:b.low, close:b.close})));
+    const e13 = cW.addLineSeries({ color:'#38bdf8', lineWidth:1, priceLineVisible:false });
+    e13.setData(weeklyBars.map((b,i)=>({ time:b.time, value:calcEMA(wCloses,13)[i] })).filter(d=>d.value!==null));
+  }
+  const cWM = makeLWChart('chart-weekly-macd');
+  if (cWM) {
+    const hs = cWM.addHistogramSeries({ priceLineVisible:false });
+    hs.setData(weeklyBars.map((b,i)=>({
+      time: b.time,
+      value: wHist[i] ?? 0,
+      color: wHist[i] > 0 ? (wHist[i] > (wHist[i-1]??0) ? '#4ade80' : '#86efac')
+                           : (wHist[i] < (wHist[i-1]??0) ? '#f87171' : '#fca5a5')
+    })).filter(d => weeklyBars[weeklyBars.findIndex(x=>x.time===d.time)] !== undefined));
+  }
+
+  // ---- Screen 2: daily chart + Force Index ----
+  const cD = makeLWChart('chart-daily');
+  if (cD) {
+    const cs = cD.addCandlestickSeries({ upColor:'#4ade80', downColor:'#f87171', borderVisible:false, wickUpColor:'#4ade80', wickDownColor:'#f87171' });
+    const last200 = dailyBars.slice(-200);
+    cs.setData(last200.map(b=>({time:b.time, open:b.open, high:b.high, low:b.low, close:b.close})));
+    const offset = dailyBars.length - 200;
+    const e13s = cD.addLineSeries({ color:'#38bdf8', lineWidth:1, priceLineVisible:false });
+    e13s.setData(last200.map((b,i)=>({ time:b.time, value:dEMA13[offset+i] })).filter(d=>d.value!==null));
+    const e26s = cD.addLineSeries({ color:'#f59e0b', lineWidth:1, priceLineVisible:false });
+    e26s.setData(last200.map((b,i)=>({ time:b.time, value:dEMA26[offset+i] })).filter(d=>d.value!==null));
+  }
+  const cDF = makeLWChart('chart-daily-fi');
+  if (cDF) {
+    const hs = cDF.addHistogramSeries({ priceLineVisible:false });
+    const last200fi = dFI.ema.slice(-200);
+    hs.setData(dailyBars.slice(-200).map((b,i)=>({
+      time: b.time,
+      value: last200fi[i] ?? 0,
+      color: (last200fi[i]??0) >= 0 ? '#4ade80' : '#f87171'
+    })));
+  }
+
+  // ---- Update Signal Cards ----
+  updateSignalCards(wHist, dFI.ema, dStoch.k, dStoch.d);
+}
+
+function updateSignalCards(wHist, dFIema, dK, dD) {
+  const n = wHist.length;
+  const lastHist  = wHist[n-1] ?? 0;
+  const prevHist  = wHist[n-2] ?? 0;
+  const histRising = lastHist > prevHist;
+
+  let screen1 = 'NEUTRAL', s1cls = 'neutral';
+  if (lastHist > 0 && histRising)       { screen1 = 'BULLISH';  s1cls = 'bull'; }
+  else if (lastHist > 0 && !histRising) { screen1 = 'YẾU DẦN'; s1cls = 'warn'; }
+  else if (lastHist < 0 && !histRising) { screen1 = 'BEARISH';  s1cls = 'bear'; }
+  else if (lastHist < 0 && histRising)  { screen1 = 'HỒI PHỤC';s1cls = 'warn'; }
+
+  const m  = dFIema.length;
+  const fi = dFIema[m-1] ?? 0;
+  const kv = dK[dK.length-1] ?? 50;
+
+  let screen2 = 'NEUTRAL', s2cls = 'neutral', s2desc = '';
+  if (screen1 === 'BULLISH') {
+    if (fi < 0)  { screen2 = 'TÍN HIỆU MUA'; s2cls = 'bull'; s2desc = 'Force Index âm trong uptrend → vào lệnh LONG'; }
+    else if (kv < 30) { screen2 = 'QUÁ BÁN'; s2cls = 'bull'; s2desc = 'Stochastic < 30 trong uptrend → BUY'; }
+    else { screen2 = 'CHỜ PULLBACK'; s2cls = 'warn'; s2desc = 'Uptrend nhưng chưa có tín hiệu vào'; }
+  } else if (screen1 === 'BEARISH') {
+    if (fi > 0)  { screen2 = 'TÍN HIỆU BÁN'; s2cls = 'bear'; s2desc = 'Force Index dương trong downtrend → vào lệnh SHORT'; }
+    else if (kv > 70) { screen2 = 'QUÁ MUA';  s2cls = 'bear'; s2desc = 'Stochastic > 70 trong downtrend → SELL'; }
+    else { screen2 = 'CHỜ BOUNCE';  s2cls = 'warn'; s2desc = 'Downtrend nhưng chưa có tín hiệu vào'; }
+  }
+
+  const aligned = (s1cls === 'bull' && s2cls === 'bull') || (s1cls === 'bear' && s2cls === 'bear');
+  let screen3 = 'CHỜ', s3cls = 'neutral', s3desc = 'Chưa có tín hiệu rõ';
+  if (s1cls==='bull' && s2cls==='bull') { screen3='🟢 VÀO LONG'; s3cls='bull'; s3desc='Đặt buy stop trên đỉnh hôm qua'; }
+  else if (s1cls==='bear' && s2cls==='bear') { screen3='🔴 VÀO SHORT'; s3cls='bear'; s3desc='Đặt sell stop dưới đáy hôm qua'; }
+  else if (s1cls==='warn'||s2cls==='warn') { screen3='⚠️ CẨN THẬN'; s3cls='warn'; s3desc='Tín hiệu mâu thuẫn, giảm size hoặc chờ'; }
+
+  setCard('card-screen1','sig1-val','sig1-desc', s1cls, screen1, `Weekly MACD Hist: ${lastHist.toFixed?lastHist.toFixed(2):'?'} (${histRising?'↑ tăng':'↓ giảm'})`);
+  setCard('card-screen2','sig2-val','sig2-desc', s2cls, screen2, s2desc || `FI: ${fi.toFixed?fi.toFixed(0):fi} | Stoch %K: ${kv.toFixed?kv.toFixed(1):kv}`);
+  setCard('card-screen3','sig3-val','sig3-desc', s3cls, screen3, s3desc);
+}
+
+function setCard(cardId, valId, descId, cls, val, desc) {
+  const card = document.getElementById(cardId);
+  const valEl = document.getElementById(valId);
+  card.className = `signal-card ${cls}`;
+  valEl.className = `signal-value ${cls}`;
+  valEl.textContent = val;
+  document.getElementById(descId).textContent = desc;
+}
+
+// ============================================================
+// FULL INDICATORS TAB
+// ============================================================
+function renderIndicators() {
+  if (!dailyBars.length) return;
+  const closes = dailyBars.map(b=>b.close);
+  const ema13  = calcEMA(closes, 13);
+  const ema26  = calcEMA(closes, 26);
+  const macd   = calcMACD(closes);
+  const fi     = calcForceIndex(dailyBars, 13);
+  const ray    = calcElderRay(dailyBars, 13);
+  const stoch  = calcStochastic(dailyBars);
+  const N      = Math.min(dailyBars.length, 500);
+  const bars   = dailyBars.slice(-N);
+
+  // Price + EMA
+  const cP = makeLWChart('chart-price-full');
+  if (cP) {
+    const cs = cP.addCandlestickSeries({ upColor:'#4ade80', downColor:'#f87171', borderVisible:false, wickUpColor:'#4ade80', wickDownColor:'#f87171' });
+    cs.setData(bars.map(b=>({time:b.time,open:b.open,high:b.high,low:b.low,close:b.close})));
+    const off = dailyBars.length-N;
+    const ls1 = cP.addLineSeries({ color:'#38bdf8', lineWidth:1, priceLineVisible:false });
+    ls1.setData(bars.map((b,i)=>({time:b.time,value:ema13[off+i]})).filter(d=>d.value!==null));
+    const ls2 = cP.addLineSeries({ color:'#f59e0b', lineWidth:1, priceLineVisible:false });
+    ls2.setData(bars.map((b,i)=>({time:b.time,value:ema26[off+i]})).filter(d=>d.value!==null));
+  }
+
+  // MACD
+  const cM = makeLWChart('chart-macd-full');
+  if (cM) {
+    const off = dailyBars.length-N;
+    const hs = cM.addHistogramSeries({ priceLineVisible:false });
+    hs.setData(bars.map((b,i)=>({
+      time: b.time, value: macd.hist[off+i]??0,
+      color: (macd.hist[off+i]??0)>=0?'#4ade80':'#f87171'
+    })));
+    const ml = cM.addLineSeries({ color:'#38bdf8', lineWidth:1, priceLineVisible:false });
+    ml.setData(bars.map((b,i)=>({time:b.time,value:macd.macd[off+i]})).filter(d=>d.value!==null));
+    const sl = cM.addLineSeries({ color:'#f59e0b', lineWidth:1, priceLineVisible:false });
+    sl.setData(bars.map((b,i)=>({time:b.time,value:macd.sigLine[off+i]})).filter(d=>d.value!==null));
+  }
+
+  // Force Index
+  const cFI = makeLWChart('chart-fi-full');
+  if (cFI) {
+    const off = dailyBars.length-N;
+    const hs = cFI.addHistogramSeries({ priceLineVisible:false });
+    hs.setData(bars.map((b,i)=>({
+      time:b.time, value: fi.ema[off+i]??0,
+      color:(fi.ema[off+i]??0)>=0?'rgba(74,222,128,.7)':'rgba(248,113,113,.7)'
+    })));
+  }
+
+  // Elder Ray
+  const cR = makeLWChart('chart-ray-full');
+  if (cR) {
+    const off = dailyBars.length-N;
+    const bp = cR.addHistogramSeries({ color:'rgba(74,222,128,.6)', base:0, priceLineVisible:false });
+    bp.setData(bars.map((b,i)=>({time:b.time,value:Math.max(0, ray.bull[off+i]??0)})));
+    const brp = cR.addHistogramSeries({ color:'rgba(248,113,113,.6)', base:0, priceLineVisible:false });
+    brp.setData(bars.map((b,i)=>({time:b.time,value:Math.min(0, ray.bear[off+i]??0)})));
+  }
+
+  // Stochastic (Chart.js)
+  const off = dailyBars.length-N;
+  const ctx = document.getElementById('chart-stoch-full');
+  if (ctx) {
+    if (ctx._chartInst) ctx._chartInst.destroy();
+    const labels = bars.map(b => new Date(b.time*1000).toLocaleDateString('vi-VN',{month:'numeric',day:'numeric'}));
+    ctx._chartInst = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          { label:'%K', data: bars.map((_,i)=>stoch.k[off+i]), borderColor:'#38bdf8', borderWidth:1.5, pointRadius:0, tension:.3, fill:false },
+          { label:'%D', data: bars.map((_,i)=>stoch.d[off+i]), borderColor:'#f59e0b', borderWidth:1.5, pointRadius:0, tension:.3, fill:false }
+        ]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        animation:false,
+        plugins:{legend:{display:false}, tooltip:{mode:'index',intersect:false}},
+        scales:{
+          x:{ ticks:{color:'#64748b',maxTicksLimit:10,maxRotation:0,font:{size:10}}, grid:{color:'#1a2040'} },
+          y:{ min:0, max:100, ticks:{color:'#64748b',stepSize:25,font:{size:10}}, grid:{color:'#1a2040'} }
+        }
+      }
+    });
+  }
+}
+
+// ============================================================
+// ENTRY PLANNING
+// ============================================================
+function updateEntryPlanning() {
+  if (!dailyBars.length) return;
+  const last  = dailyBars[dailyBars.length-1];
+  const prev  = dailyBars[dailyBars.length-2];
+  const atr   = calcATR(dailyBars, 14);
+  const atrVal = atr[atr.length-1] || (last.high - last.low);
+
+  const buyStop  = prev.high * 1.001;
+  const sellStop = prev.low  * 0.999;
+  const stopLoss = last.close - atrVal * 2;
+  const target   = last.close + (last.close - stopLoss) * 2;
+  const risk     = last.close - stopLoss;
+
+  const fmt = v => v.toLocaleString('vi-VN',{minimumFractionDigits:0,maximumFractionDigits:0});
+
+  document.getElementById('entry-ticker').textContent = currentTicker;
+  document.getElementById('entry-close').textContent  = fmt(last.close);
+  document.getElementById('entry-buy').textContent    = fmt(buyStop);
+  document.getElementById('entry-stop').textContent   = fmt(stopLoss);
+  document.getElementById('entry-target').textContent = fmt(target);
+  document.getElementById('entry-atr').textContent    = fmt(atrVal);
+  document.getElementById('entry-risk').textContent   = fmt(risk) + ' / CP';
+
+  // Auto-fill capital management
+  document.getElementById('cap-entry').value = Math.round(buyStop);
+  document.getElementById('cap-stop').value  = Math.round(stopLoss);
+  calcPosition();
+}
+
+// ============================================================
+// CAPITAL MANAGEMENT
+// ============================================================
+function calcPosition() {
+  const account = +document.getElementById('cap-account').value || 0;
+  const riskPct = +document.getElementById('cap-risk').value / 100;
+  const entry   = +document.getElementById('cap-entry').value || 0;
+  const stop    = +document.getElementById('cap-stop').value  || 0;
+  const rr      = +document.getElementById('cap-rr').value    || 2;
+  const fee     = +document.getElementById('cap-fee').value/100 || 0;
+
+  if (!account || !entry || !stop || stop >= entry) {
+    ['res-shares','res-value','res-maxloss','res-profit','res-rr','res-pct'].forEach(id =>
+      document.getElementById(id).textContent = '—'
+    );
+    return;
+  }
+
+  const riskAmt   = account * riskPct;
+  const riskPerSh = entry - stop;
+  const shares    = Math.floor(riskAmt / riskPerSh / 100) * 100; // round to lot 100
+  const value     = shares * entry;
+  const maxLoss   = shares * riskPerSh;
+  const profit    = shares * riskPerSh * rr;
+  const pct       = (value / account * 100).toFixed(1);
+  const fmtVND    = v => v.toLocaleString('vi-VN');
+
+  document.getElementById('res-shares').textContent  = shares.toLocaleString('vi-VN') + ' CP';
+  document.getElementById('res-value').textContent   = fmtVND(value) + ' ₫';
+  document.getElementById('res-maxloss').textContent = '-' + fmtVND(maxLoss) + ' ₫';
+  document.getElementById('res-profit').textContent  = '+' + fmtVND(profit) + ' ₫';
+  document.getElementById('res-rr').textContent      = '1 : ' + rr;
+  document.getElementById('res-pct').textContent     = pct + '%';
+}
+
+function calc6PctRule() {
+  const capital = +document.getElementById('month-capital').value || 0;
+  const pct     = +document.getElementById('month-limit').value   / 100;
+  const maxLoss = capital * pct;
+  const currentLoss = monthlyLosses.reduce((a,b) => a+b, 0);
+  const remain  = maxLoss + currentLoss;
+  const lossPct = Math.min(100, Math.abs(currentLoss) / maxLoss * 100);
+
+  const fmtVND = v => v.toLocaleString('vi-VN');
+  document.getElementById('limit-max').textContent     = '-' + fmtVND(maxLoss) + ' ₫';
+  document.getElementById('limit-current').textContent = fmtVND(currentLoss) + ' ₫';
+  document.getElementById('limit-remain').textContent  = fmtVND(remain) + ' ₫';
+  document.getElementById('loss-pct-label').textContent= lossPct.toFixed(1) + '%';
+
+  const bar = document.getElementById('loss-bar');
+  bar.style.width = lossPct + '%';
+  bar.className = 'rule-bar-fill ' + (lossPct < 50 ? 'safe' : lossPct < 80 ? 'warn' : 'danger');
+
+  const status = document.getElementById('limit-status');
+  if (lossPct >= 100) {
+    status.textContent = '🛑 DỪNG GIAO DỊCH';
+    status.className   = 'result-value danger';
+    showAlert('action-alert','alert-danger','🛑 Đã vượt giới hạn 6% — DỪNG GIAO DỊCH tháng này ngay lập tức!');
+  } else if (lossPct >= 75) {
+    status.textContent = '⚠️ NGUY HIỂM';
+    status.className   = 'result-value warn';
+  } else {
+    status.textContent = '✅ AN TOÀN';
+    status.className   = 'result-value success';
+  }
+}
+
+function addLoss() {
+  const val = +document.getElementById('loss-input').value;
+  if (!val || val > 0) { alert('Vui lòng nhập số âm (lỗ)'); return; }
+  monthlyLosses.push(val);
+  localStorage.setItem('elder_losses', JSON.stringify(monthlyLosses));
+  document.getElementById('loss-input').value = '';
+  renderLossList();
+  calc6PctRule();
+}
+
+function renderLossList() {
+  const el = document.getElementById('loss-list');
+  if (!monthlyLosses.length) { el.innerHTML = '<div style="color:var(--text-faint);font-size:.75rem;text-align:center;padding:8px">Chưa có lệnh thua</div>'; return; }
+  el.innerHTML = monthlyLosses.map((v,i) => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px;border-bottom:1px solid var(--border);font-size:.78rem">
+      <span style="font-family:var(--font-mono);color:var(--bear)">Lỗ #${i+1}: ${v.toLocaleString('vi-VN')} ₫</span>
+      <button onclick="removeLoss(${i})" class="delete-btn">✕</button>
+    </div>`).join('');
+}
+
+function removeLoss(i) {
+  monthlyLosses.splice(i,1);
+  localStorage.setItem('elder_losses', JSON.stringify(monthlyLosses));
+  renderLossList(); calc6PctRule();
+}
+
+function resetLosses() {
+  if (!confirm('Xóa toàn bộ lỗ tháng này và bắt đầu tháng mới?')) return;
+  monthlyLosses = [];
+  localStorage.setItem('elder_losses', JSON.stringify(monthlyLosses));
+  renderLossList(); calc6PctRule();
+}
+
+// ============================================================
+// TRADE JOURNAL
+// ============================================================
+function selectEmotion(btn) {
+  document.querySelectorAll('.emotion-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedEmotion = btn.dataset.v;
+}
+
+function addTrade() {
+  const date   = document.getElementById('j-date').value;
+  const ticker = document.getElementById('j-ticker').value.trim().toUpperCase();
+  const dir    = document.getElementById('j-dir').value;
+  const qty    = +document.getElementById('j-qty').value;
+  const entry  = +document.getElementById('j-entry').value;
+  const sl     = +document.getElementById('j-sl').value;
+  const tp     = +document.getElementById('j-tp').value;
+  const exit   = +document.getElementById('j-exit').value || null;
+  const notes  = document.getElementById('j-notes').value;
+
+  if (!date || !ticker || !qty || !entry || !sl) {
+    alert('Vui lòng điền đầy đủ: Ngày, Ticker, Số lượng, Giá vào, Cắt lỗ');
+    return;
+  }
+
+  const risk = Math.abs(entry - sl);
+  let pnl = null, rMult = null;
+  if (exit) {
+    pnl   = dir==='LONG' ? (exit-entry)*qty : (entry-exit)*qty;
+    rMult = risk > 0 ? (pnl / (risk*qty)).toFixed(2) : null;
+  }
+
+  trades.unshift({ id: Date.now(), date, ticker, dir, qty, entry, sl, tp, exit, pnl, rMult, emotion: selectedEmotion, notes });
+  localStorage.setItem('elder_trades', JSON.stringify(trades));
+
+  // Clear form
+  ['j-ticker','j-qty','j-entry','j-sl','j-tp','j-exit','j-notes'].forEach(id => document.getElementById(id).value = '');
+
+  renderJournal();
+}
+
+function deleteTrade(id) {
+  if (!confirm('Xóa lệnh này?')) return;
+  trades = trades.filter(t => t.id !== id);
+  localStorage.setItem('elder_trades', JSON.stringify(trades));
+  renderJournal();
+}
+
+function renderJournal() {
+  const tbody = document.getElementById('trade-tbody');
+  const empty = document.getElementById('empty-state');
+
+  if (!trades.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    updateJournalStats([]);
+    return;
+  }
+  empty.style.display = 'none';
+
+  const fmt = v => v ? v.toLocaleString('vi-VN') : '—';
+  tbody.innerHTML = trades.map(t => {
+    const pnlCls = t.pnl > 0 ? 'pnl-pos' : t.pnl < 0 ? 'pnl-neg' : '';
+    const pnlStr = t.pnl !== null ? (t.pnl > 0 ? '+' : '') + fmt(Math.round(t.pnl)) + ' ₫' : '(đang mở)';
+    return `<tr>
+      <td class="mono">${t.date}</td>
+      <td style="font-weight:600">${t.ticker}</td>
+      <td><span class="${t.dir==='LONG'?'badge-long':'badge-short'}">${t.dir}</span></td>
+      <td class="mono">${fmt(t.entry)}</td>
+      <td class="mono" style="color:var(--bear)">${fmt(t.sl)}</td>
+      <td class="mono" style="color:var(--bull)">${fmt(t.tp)}</td>
+      <td class="mono">${t.exit ? fmt(t.exit) : '—'}</td>
+      <td class="mono">${fmt(t.qty)}</td>
+      <td class="${pnlCls}">${pnlStr}</td>
+      <td class="mono" style="color:${+t.rMult>0?'var(--bull)':'var(--bear)'}">${t.rMult ? t.rMult+'R' : '—'}</td>
+      <td style="font-size:1.2rem">${t.emotion}</td>
+      <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-dim);font-size:.75rem">${t.notes}</td>
+      <td><button class="delete-btn" onclick="deleteTrade(${t.id})">🗑</button></td>
+    </tr>`;
+  }).join('');
+
+  updateJournalStats(trades);
+}
+
+function updateJournalStats(ts) {
+  const closed = ts.filter(t => t.pnl !== null);
+  const wins   = closed.filter(t => t.pnl > 0);
+  const totalPnl = closed.reduce((a,t) => a + (t.pnl||0), 0);
+  const rMults = closed.filter(t=>t.rMult).map(t=>+t.rMult);
+  const avgR   = rMults.length ? (rMults.reduce((a,b)=>a+b,0)/rMults.length).toFixed(2) : '—';
+  const wr     = closed.length ? Math.round(wins.length/closed.length*100) + '%' : '—';
+
+  document.getElementById('j-total').textContent   = ts.length;
+  document.getElementById('j-winrate').textContent  = wr;
+  document.getElementById('j-winrate').className    = 'stat-num ' + (wins.length/closed.length > .5 ? 'green' : 'red');
+  document.getElementById('j-avgr').textContent     = avgR !== '—' ? avgR + 'R' : '—';
+  document.getElementById('j-avgr').className       = 'stat-num ' + (+avgR > 0 ? 'green' : 'red');
+  document.getElementById('j-pnl').textContent      = (totalPnl>=0?'+':'') + totalPnl.toLocaleString('vi-VN') + ' ₫';
+  document.getElementById('j-pnl').className        = 'stat-num ' + (totalPnl>=0?'green':'red');
+}
+
+function exportJournal() {
+  if (!trades.length) { alert('Không có dữ liệu'); return; }
+  const cols = ['date','ticker','dir','entry','sl','tp','exit','qty','pnl','rMult','emotion','notes'];
+  const rows = [cols.join(','), ...trades.map(t => cols.map(c => `"${t[c]??''}"`).join(','))];
+  const blob = new Blob([rows.join('\n')], { type:'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `elder-journal-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function showAlert(id, cls, msg) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = `<div class="alert ${cls}">${msg}</div>`;
+}
+
+function setStatus(state, text) {
+  const dot  = document.getElementById('statusDot');
+  const span = document.getElementById('statusText');
+  span.textContent = text;
+  dot.className = 'status-dot ' + (state==='ready'?'ready':'');
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event.currentTarget.classList.add('active');
+
+  // Re-render charts on tab switch (they may not have dimensions yet)
+  if (name === 'indicators' && dailyBars.length) {
+    setTimeout(renderIndicators, 50);
+  }
+  if (name === 'triple' && dailyBars.length) {
+    setTimeout(renderTripleScreen, 50);
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  // Set today's date in journal form
+  document.getElementById('j-date').value = new Date().toISOString().slice(0,10);
+
+  // Init capital management
+  calcPosition();
+  renderLossList();
+  calc6PctRule();
+  renderJournal();
+});
+</script>
+</body>
+</html>
