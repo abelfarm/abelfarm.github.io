@@ -871,7 +871,7 @@ async function loadTicker() {
   currentTicker = t;
   setStatus('loading', 'ĐANG TẢI ' + t + '...');
   try {
-    const res = await fetch(`data/${t}.json`);
+    const res = await fetch(`../data/${t}.json`);
     if (!res.ok) throw new Error('Không tìm thấy file');
     const json = await res.json();
     processData(json, t);
